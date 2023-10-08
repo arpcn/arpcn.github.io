@@ -13,6 +13,8 @@
 
 　　md格式如下：
 
+　 　　[網盤分享](https://github.com/arpcn/abhidharma/blob/main/md/share.md)
+
 　 　　[略析有部極微理論的基礎](https://github.com/arpcn/abhidharma/blob/main/md/略析有部極微理論的基礎.md)
 
 　 　　[與「三世有」相關的論義](https://github.com/arpcn/abhidharma/blob/main/md/與「三世有」相關的論義.md)
