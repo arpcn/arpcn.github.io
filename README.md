@@ -17,6 +17,8 @@
 
 　 　　[略析有部極微理論的基礎](https://github.com/arpcn/abhidharma/blob/main/md/略析有部極微理論的基礎.md)
 
+　 　　[俱舍論梵藏漢對照](https://github.com/arpcn/abhidharma/blob/main/md/俱舍論梵藏漢%20%20.txt)
+
 　 　　[與「三世有」相關的論義](https://github.com/arpcn/abhidharma/blob/main/md/與「三世有」相關的論義.md)
 
 　 　　[有部之業感果不依無表色或得相續](https://github.com/arpcn/abhidharma/blob/main/md/有部之業感果不依無表色或得相續.md)
