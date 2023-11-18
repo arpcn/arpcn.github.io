@@ -16,8 +16,22 @@
 </url>
 
 <url>
+  <loc>https://arpcn.github.io/abhidharma/html/</loc>
+  <lastmod>2023-09-13</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>1.0</priority>
+</url>
+
+<url>
   <loc>https://arpcn.github.io/abhidharma/html/略析有部極微理論的基礎.html</loc>
   <lastmod>2023-09-13</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>1.0</priority>
+</url>
+
+<url>
+  <loc>https://arpcn.github.io/abhidharma/html/俱舍論梵藏漢.html</loc>
+  <lastmod>2023-11-13</lastmod>
   <changefreq>weekly</changefreq>
   <priority>1.0</priority>
 </url>
