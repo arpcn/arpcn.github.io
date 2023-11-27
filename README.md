@@ -1,5 +1,4 @@
-﻿<a href="https://info.flagcounter.com/Mt7v"><img src="https://s11.flagcounter.com/count2/Mt7v/bg_FFFFFF/txt_000000/border_CCCCCC/columns_2/maxflags_10/viewers_0/labels_0/pageviews_0/flags_0/percent_0/" alt="Flag Counter" border="0"></a>
-# [歷史鏈接][1]
+﻿# [歷史鏈接][1]
 
 标签： 俱舍論
 　　　　　　宗杰　2023年8月8日　[俱舍論](https://mp.weixin.qq.com/s/HNNfqC3dI2HMy4MXRWK-pw)
