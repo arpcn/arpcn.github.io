@@ -19,7 +19,7 @@
 
 　 　　[俱舍論梵藏漢對照](https://github.com/arpcn/abhidharma/blob/main/md/俱舍論梵藏漢%20%20.txt)
 
-　 　　[婆沙三譯對照](https://github.com/arpcn/abhidharma/tree/main/md/vibhasa)
+　 　　[婆沙三譯對讀](https://github.com/arpcn/abhidharma/tree/main/md/vibhasa)
 
 　 　　[與「三世有」相關的論義](https://github.com/arpcn/abhidharma/blob/main/md/與「三世有」相關的論義.md)
 
