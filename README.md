@@ -1,7 +1,7 @@
 ﻿# [歷史鏈接][1]
 
 标签： 俱舍論
-　　　　　　宗杰　2023年8月8日　[俱舍論](https://mp.weixin.qq.com/s/HNNfqC3dI2HMy4MXRWK-pw)
+　　　　　　　2023年8月8日　[俱舍論](https://mp.weixin.qq.com/s/HNNfqC3dI2HMy4MXRWK-pw)
 
 ---
 
@@ -9,7 +9,7 @@
 
 　　文件以md及html兩種格式展示。
 
-　　html格式在此處：https://arpcn.github.io 
+　　目錄在此處：https://arpcn.github.io 
 
 
   [1]: https://github.com/arpcn/abhidharma
