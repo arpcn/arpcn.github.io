@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>梵文配对游戏</title>
+    <title>天城體字母配對</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
  <style>
 
@@ -203,7 +203,7 @@ button:disabled {
     }
 }
 
-/* 通关提示样式 */
+/* 通關提示樣式 */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -273,11 +273,11 @@ button:disabled {
 </head>
 <body>
     <div class="game-container">
-        <h1>梵文配对游戏</h1>
+        <h1>天城體字母配對</h1>
         <div class="game-modes">
-            <button id="vowels-btn">元音配对</button>
-            <button id="consonants-btn">辅音配对</button>
-            <button id="mixed-btn">混合配对</button>
+            <button id="vowels-btn">元音</button>
+            <button id="consonants-btn">輔音</button>
+            <button id="mixed-btn">混合</button>
         </div>
         <div class="game-info">
             <div id="timer">⏱️ 0秒</div>
@@ -285,20 +285,20 @@ button:disabled {
         </div>
         <div id="game-board" class="game-board"></div>
         <div class="game-controls">
-            <button id="start-btn">🎮 开始游戏</button>
-            <button id="reset-btn">🔄 重置游戏</button>
+            <button id="start-btn">🎮 開始游戲</button>
+            <button id="reset-btn">🔄 重置游戲</button>
         </div>
     </div>
     <div class="modal-overlay" id="completion-modal">
         <div class="modal-content">
             <h2 class="modal-title">恭喜完成！</h2>
-            <p class="modal-message" id="completion-time">用时: 0秒</p>
-            <button class="modal-close" id="modal-close-btn">关闭</button>
+            <p class="modal-message" id="completion-time">用時: 0秒</p>
+            <button class="modal-close" id="modal-close-btn">關閉</button>
         </div>
     </div>
 <script>
 
-// 游戏数据
+// 游戲數據
 const devanagariData = {
     vowels: [
         { iast: "a", devanagari: ["अ"] },
@@ -370,7 +370,7 @@ const devanagariData = {
 };
 
 
-// 游戏变量
+// 游戲變量
 let currentPairs = [];
 let cards = [];
 let flippedCards = [];
@@ -384,13 +384,13 @@ const gameBoard = document.getElementById("game-board");
 const timerDisplay = document.getElementById("timer");
 const pairsDisplay = document.getElementById("pairs-matched");
 
-// 获取随机子集（6对）
+// 獲取隨機子集（6對）
 function getRandomSubset(array, count = 6) {
     const shuffled = [...array].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, Math.min(count, array.length));
 }
 
-// 准备游戏数据
+// 准備游戲數據
 function prepareGameData(dataType) {
     let data = [];
     if (dataType === 'vowels') {
@@ -414,7 +414,7 @@ function prepareGameData(dataType) {
     return expandedData;
 }
 
-// 初始化游戏
+// 初始化游戲
 function initGame(dataType) {
     gameBoard.innerHTML = "";
     const allPairs = prepareGameData(dataType);
@@ -443,7 +443,7 @@ function initGame(dataType) {
 
     cards = shuffleArray(cards);
 
-    // 创建卡片元素
+    // 創建卡片元素
     cards.forEach((card, index) => {
         const cardElement = document.createElement("div");
         cardElement.className = "card";
@@ -459,7 +459,7 @@ function initGame(dataType) {
         card.element = cardElement;
     });
 
-    // 重置游戏状态
+    // 重置游戲狀態
     flippedCards = [];
     matchedPairs = 0;
     isGameStarted = false;
@@ -470,7 +470,7 @@ function initGame(dataType) {
     document.getElementById("start-btn").disabled = false;
 }
 
-// 洗牌函数
+// 洗牌函數
 function shuffleArray(array) {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -480,7 +480,7 @@ function shuffleArray(array) {
     return newArray;
 }
 
-// 开始游戏
+// 開始游戲
 function startGame() {
     if (isGameStarted) return;
     
@@ -493,7 +493,7 @@ function startGame() {
     }, 1000);
 }
 
-// 处理卡片点击
+// 處理卡片點擊
 function handleCardClick(index) {
     if (!isGameStarted || cards[index].matched || flippedCards.includes(index)) return;
 
@@ -525,7 +525,7 @@ function handleCardClick(index) {
             if (matchedPairs === 6) {
                 clearInterval(timer);
                 setTimeout(() => {
-                    document.getElementById('completion-time').textContent = `用时: ${seconds}秒`;
+                    document.getElementById('completion-time').textContent = `用時: ${seconds}秒`;
                     document.getElementById('completion-modal').classList.add('active');
                 }, 500);
             }
@@ -539,7 +539,7 @@ function handleCardClick(index) {
     }
 }
 
-// 事件监听
+// 事件監聽
 document.getElementById("start-btn").addEventListener("click", startGame);
 document.getElementById("reset-btn").addEventListener("click", () => {
     const currentMode = document.querySelector(".game-modes button.active")?.id;
@@ -548,7 +548,7 @@ document.getElementById("reset-btn").addEventListener("click", () => {
     }
 });
 
-// 游戏模式选择
+// 游戲模式選擇
 function setupModeButton(buttonId, mode) {
     const button = document.getElementById(buttonId);
     button.addEventListener("click", function() {
@@ -568,12 +568,12 @@ setupModeButton("vowels-btn", "vowels");
 setupModeButton("consonants-btn", "consonants");
 setupModeButton("mixed-btn", "mixed");
 
-// 关闭模态框
+// 關閉模態框
 document.getElementById('modal-close-btn').addEventListener('click', function() {
     document.getElementById('completion-modal').classList.remove('active');
 });
 
-// 默认加载元音模式
+// 默認加載元音模式
 setActiveMode(document.getElementById("vowels-btn"));
 initGame("vowels");
 
