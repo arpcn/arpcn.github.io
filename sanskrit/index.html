@@ -75,7 +75,7 @@ h1::after {
     border-radius: 20px;
     cursor: pointer;
     font-size: 14px;
-    transition: all 0.3s;
+    transition: all 0.1s;
     box-shadow: var(--shadow-sm);
 }
 
@@ -114,7 +114,7 @@ button {
     border-radius: 20px;
     cursor: pointer;
     font-size: 16px;
-    transition: all 0.3s;
+    transition: all 0.1s;
     box-shadow: var(--shadow-sm);
     display: flex;
     align-items: center;
@@ -147,7 +147,7 @@ button:disabled {
     position: relative;
     border-radius: 12px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.1s;
     background: var(--card-bg);
     box-shadow: var(--shadow-sm);
     perspective: 1000px;
@@ -164,7 +164,15 @@ button:disabled {
     backface-visibility: hidden;
     border-radius: 10px;
     background: white;
-    transition: all 0.3s;
+    transition: all 0.1s;
+    font-family: inherit;
+}
+
+/* IAST卡片专用样式 */
+.card[data-type="iast"] .card-content {
+    font-family: "Times New Roman", Times, serif;
+   /*  font-style: italic; 学术风格斜体 */
+   /*  font-weight: bold; 可选：加粗显示 */
 }
 
 .card.selected .card-content {
@@ -217,7 +225,7 @@ button:disabled {
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s;
+    transition: all 0.1s;
 }
 
 .modal-overlay.active {
@@ -232,7 +240,7 @@ button:disabled {
     text-align: center;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     transform: translateY(-20px);
-    transition: all 0.3s;
+    transition: all 0.1s;
     max-width: 80%;
 }
 
@@ -261,7 +269,7 @@ button:disabled {
     border-radius: 20px;
     cursor: pointer;
     font-size: 1rem;
-    transition: all 0.3s;
+    transition: all 0.1s;
 }
 
 .modal-close:hover {
