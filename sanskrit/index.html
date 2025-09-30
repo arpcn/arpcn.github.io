@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>天城體字母配對</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari&display=swap" rel="stylesheet">
  <style>
 
 :root {
@@ -151,6 +152,7 @@ button:disabled {
     background: var(--card-bg);
     box-shadow: var(--shadow-sm);
     perspective: 1000px;
+    position: relative;/* 字 */
 }
 
 .card-content {
@@ -160,7 +162,7 @@ button:disabled {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: calc(min(10vw, 10vh, 40px)); /* 響應式基礎值 */
     backface-visibility: hidden;
     border-radius: 10px;
     background: white;
@@ -168,11 +170,15 @@ button:disabled {
     font-family: inherit;
 }
 
-/* IAST卡片专用样式 */
+
+/* 卡片专用样式 */
 .card[data-type="iast"] .card-content {
     font-family: "Times New Roman", Times, serif;
    /*  font-style: italic; 学术风格斜体 */
    /*  font-weight: bold; 可选：加粗显示 */
+}
+.card[data-type="devanagari"] .card-content {
+    font-family: "Noto Sans Devanagari", sans-serif;
 }
 
 .card.selected .card-content {
@@ -192,6 +198,12 @@ button:disabled {
     100% { transform: scale(1); }
 }
 
+@media (max-width: 768px) {
+    .card {
+        width: 80px;
+        height: 112px;
+    }
+}
 @media (max-width: 480px) {
     .game-container {
         padding: 20px;
@@ -201,6 +213,10 @@ button:disabled {
         gap: 8px;
     }
     
+    .card {
+        width: 60px;
+        height: 84px;
+    }
     .card-content {
         font-size: 22px;
     }
@@ -208,6 +224,12 @@ button:disabled {
     button {
         padding: 10px 15px;
         font-size: 14px;
+    }
+}
+@media (max-width: 320px) {
+    .card {
+        width: 50px;
+        height: 70px;
     }
 }
 
@@ -306,7 +328,7 @@ button:disabled {
     </div>
 
 <script>
-// 游戲數據
+// 游戏数据
 const devanagariData = {
     vowels: [
         { iast: "a", devanagari: ["अ"] },
@@ -377,27 +399,27 @@ const devanagariData = {
     ]
 };
 
-// 游戲變量
+// 游戏变量
 let currentPairs = [];
 let cards = [];
 let flippedCards = [];
 let matchedPairs = 0;
 let isGameStarted = false;
 let timer;
-let timeElapsed = 0; // 單位：0.1秒
+let timeElapsed = 0; // 单位：0.1秒
 
 // DOM元素
 const gameBoard = document.getElementById("game-board");
 const timerDisplay = document.getElementById("timer");
 const pairsDisplay = document.getElementById("pairs-matched");
 
-// 獲取隨機子集（6對）
+// 获取随机子集（6对）
 function getRandomSubset(array, count = 6) {
     const shuffled = [...array].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, Math.min(count, array.length));
 }
 
-// 准備游戲數據
+// 准备游戏数据
 function prepareGameData(dataType) {
     let data = [];
     if (dataType === 'vowels') {
@@ -421,7 +443,7 @@ function prepareGameData(dataType) {
     return expandedData;
 }
 
-// 洗牌函數
+// 洗牌函数
 function shuffleArray(array) {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -431,7 +453,7 @@ function shuffleArray(array) {
     return newArray;
 }
 
-// 初始化游戲
+// 初始化游戏
 function initGame(dataType) {
     gameBoard.innerHTML = "";
     const allPairs = prepareGameData(dataType);
@@ -460,16 +482,24 @@ function initGame(dataType) {
 
     cards = shuffleArray(cards);
 
-    // 創建卡片元素
+    // 创建卡片元素
     cards.forEach((card, index) => {
         const cardElement = document.createElement("div");
         cardElement.className = "card";
         cardElement.dataset.index = index;
-        cardElement.dataset.type = card.type; // 添加字體類型標識
+        cardElement.dataset.type = card.type;
         
         const cardContent = document.createElement("div");
         cardContent.className = "card-content";
         cardContent.textContent = card.content;
+        
+        // 使用ResizeObserver監聽尺寸變化（現代瀏覽器支持）
+        const resizeObserver = new ResizeObserver(entries => {
+            const card = entries[0].target;
+            const fontSize = Math.min(card.offsetWidth, card.offsetHeight) * 0.4;
+            card.querySelector('.card-content').style.fontSize = `${fontSize}px`;
+        });
+        resizeObserver.observe(cardElement);
         
         cardElement.appendChild(cardContent);
         cardElement.addEventListener("click", () => handleCardClick(index));
@@ -477,7 +507,7 @@ function initGame(dataType) {
         card.element = cardElement;
     });
 
-    // 重置游戲狀態
+    // 重置游戏状态
     flippedCards = [];
     matchedPairs = 0;
     isGameStarted = false;
@@ -488,7 +518,7 @@ function initGame(dataType) {
     document.getElementById("start-btn").disabled = false;
 }
 
-// 開始游戲
+// 开始游戏
 function startGame() {
     if (isGameStarted) return;
     
@@ -502,7 +532,7 @@ function startGame() {
     }, 100); // 每0.1秒更新一次
 }
 
-// 處理卡片點擊
+// 处理卡片点击
 function handleCardClick(index) {
     if (!isGameStarted || cards[index].matched || flippedCards.includes(index)) return;
 
@@ -549,7 +579,7 @@ function handleCardClick(index) {
     }
 }
 
-// 事件監聽
+// 事件监听
 document.getElementById("start-btn").addEventListener("click", startGame);
 document.getElementById("reset-btn").addEventListener("click", () => {
     const currentMode = document.querySelector(".game-modes button.active")?.id;
@@ -558,7 +588,7 @@ document.getElementById("reset-btn").addEventListener("click", () => {
     }
 });
 
-// 游戲模式選擇
+// 游戏模式选择
 function setupModeButton(buttonId, mode) {
     const button = document.getElementById(buttonId);
     button.addEventListener("click", function() {
@@ -578,12 +608,12 @@ setupModeButton("vowels-btn", "vowels");
 setupModeButton("consonants-btn", "consonants");
 setupModeButton("mixed-btn", "mixed");
 
-// 關閉模態框
+// 关闭模态框
 document.getElementById('modal-close-btn').addEventListener('click', function() {
     document.getElementById('completion-modal').classList.remove('active');
 });
 
-// 默認加載元音模式
+// 默认加载元音模式
 setActiveMode(document.getElementById("vowels-btn"));
 initGame("vowels");
 </script>
