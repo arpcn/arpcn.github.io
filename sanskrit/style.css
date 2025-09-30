@@ -19,6 +19,38 @@ h1 {
     color: #333;
 }
 
+.controls {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    align-items: center;
+}
+
+.btn {
+    background: #6a5acd;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn:hover {
+    background: #5a4aac;
+}
+
+.btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+#timer {
+    font-size: 18px;
+    font-weight: bold;
+}
+
 .game-board {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -36,34 +68,16 @@ h1 {
     font-size: 24px;
     border-radius: 5px;
     cursor: pointer;
-    transition: transform 0.3s;
+    transition: all 0.3s;
 }
 
-.card:hover {
-    transform: scale(1.05);
+.card.hidden {
+    background: #ddd;
+    color: transparent;
 }
 
-.card.flipped {
-    background: #fff;
-    color: #333;
-    border: 2px solid #6a5acd;
-}
-
-.btn {
-    background: #6a5acd;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.btn:hover {
-    background: #5a4aac;
-}
-
-#score {
-    font-size: 18px;
-    margin-top: 10px;
+.card.matched {
+    visibility: hidden;
+    opacity: 0;
+    transform: scale(0);
 }

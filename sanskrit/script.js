@@ -1,4 +1,4 @@
-// 梵语天城体-拉丁转写配对数据
+// 梵语数据
 const pairs = [
     { devanagari: "अ", iast: "a" },
     { devanagari: "आ", iast: "ā" },
@@ -8,47 +8,125 @@ const pairs = [
     { devanagari: "ऊ", iast: "ū" },
     { devanagari: "ऋ", iast: "ṛ" },
     { devanagari: "ए", iast: "e" },
-    { devanagari: "ओ", iast: "o" },
-    { devanagari: "क", iast: "ka" },
-    { devanagari: "ख", iast: "kha" },
-    { devanagari: "ग", iast: "ga" },
+    { devanagari: "ओ", iast: "o" }
 ];
 
 let cards = [];
 let flippedCards = [];
 let matchedPairs = 0;
-let score = 0;
+let timer = null;
+let seconds = 0;
+let isGameStarted = false;
 
 // 初始化游戏
 function initGame() {
     const gameBoard = document.getElementById("game-board");
     gameBoard.innerHTML = "";
-    flippedCards = [];
-    matchedPairs = 0;
-    score = 0;
-    updateScore();
 
-    // 创建卡片数组（每对两张）
+    // 创建卡片数组
     cards = [];
     pairs.forEach(pair => {
-        cards.push({ content: pair.devanagari, type: "devanagari", matched: false });
-        cards.push({ content: pair.iast, type: "iast", matched: false });
+        cards.push({
+            content: pair.devanagari,
+            pairId: pair.iast,
+            type: "devanagari",
+            matched: false,
+            element: null
+        });
+        cards.push({
+            content: pair.iast,
+            pairId: pair.devanagari,
+            type: "iast",
+            matched: false,
+            element: null
+        });
     });
 
     // 洗牌
     cards = shuffleArray(cards);
 
-    // 渲染卡片
+    // 渲染卡片（初始显示内容）
     cards.forEach((card, index) => {
         const cardElement = document.createElement("div");
         cardElement.classList.add("card");
+        cardElement.textContent = card.content;
         cardElement.dataset.index = index;
-        cardElement.addEventListener("click", flipCard);
+        cardElement.addEventListener("click", () => handleCardClick(index));
         gameBoard.appendChild(cardElement);
+        card.element = cardElement;
     });
+
+    // 重置状态
+    flippedCards = [];
+    matchedPairs = 0;
+    isGameStarted = false;
+    clearInterval(timer);
+    seconds = 0;
+    document.getElementById("timer").textContent = "用时: 0秒";
+    document.getElementById("start-btn").disabled = false;
 }
 
-// 洗牌算法（Fisher-Yates）
+// 开始游戏
+function startGame() {
+    isGameStarted = true;
+    document.getElementById("start-btn").disabled = true;
+    
+    // 隐藏所有卡片
+    cards.forEach(card => {
+        card.element.classList.add("hidden");
+    });
+
+    // 启动计时器
+    timer = setInterval(() => {
+        seconds++;
+        document.getElementById("timer").textContent = `用时: ${seconds}秒`;
+    }, 1000);
+}
+
+// 处理卡片点击
+function handleCardClick(index) {
+    if (!isGameStarted || cards[index].matched || flippedCards.includes(index)) return;
+
+    // 翻开卡片
+    cards[index].element.classList.remove("hidden");
+    flippedCards.push(index);
+
+    // 检查是否匹配
+    if (flippedCards.length === 2) {
+        const [firstIdx, secondIdx] = flippedCards;
+        const firstCard = cards[firstIdx];
+        const secondCard = cards[secondIdx];
+
+        if (firstCard.pairId === secondCard.content) {
+            // 匹配成功
+            firstCard.matched = true;
+            secondCard.matched = true;
+            matchedPairs++;
+            
+            firstCard.element.classList.add("matched");
+            secondCard.element.classList.add("matched");
+            
+            flippedCards = [];
+
+            // 检查游戏是否结束
+            if (matchedPairs === pairs.length) {
+                clearInterval(timer);
+                setTimeout(() => {
+                    alert(`游戏完成！用时: ${seconds}秒`);
+                }, 500);
+            }
+        } else {
+            // 不匹配，延迟后重新隐藏
+            setTimeout(() => {
+                cards[firstIdx].element.classList.add("hidden");
+                cards[secondIdx].element.classList.add("hidden");
+                flippedCards = [];
+            }, 1000);
+        }
+    }
+}
+
+// 洗牌算法
 function shuffleArray(array) {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -58,65 +136,9 @@ function shuffleArray(array) {
     return newArray;
 }
 
-// 翻牌逻辑
-function flipCard() {
-    const cardIndex = parseInt(this.dataset.index);
-    const card = cards[cardIndex];
-
-    // 如果牌已匹配或已翻开，则忽略
-    if (card.matched || flippedCards.includes(cardIndex)) return;
-
-    // 翻开牌
-    this.textContent = card.content;
-    this.classList.add("flipped");
-    flippedCards.push(cardIndex);
-
-    // 如果翻开了两张牌，检查是否匹配
-    if (flippedCards.length === 2) {
-        const [firstIndex, secondIndex] = flippedCards;
-        const firstCard = cards[firstIndex];
-        const secondCard = cards[secondIndex];
-
-        // 检查是否匹配（天城体对应转写）
-        const isMatch = 
-            (firstCard.type === "devanagari" && secondCard.type === "iast" && 
-             pairs.some(p => p.devanagari === firstCard.content && p.iast === secondCard.content)) ||
-            (firstCard.type === "iast" && secondCard.type === "devanagari" && 
-             pairs.some(p => p.iast === firstCard.content && p.devanagari === secondCard.content));
-
-        if (isMatch) {
-            // 匹配成功
-            cards[firstIndex].matched = true;
-            cards[secondIndex].matched = true;
-            matchedPairs++;
-            score += 10;
-            updateScore();
-            flippedCards = [];
-
-            // 检查游戏是否结束
-            if (matchedPairs === pairs.length) {
-                setTimeout(() => alert(`恭喜！你的得分是 ${score}！`), 500);
-            }
-        } else {
-            // 不匹配，翻回去
-            setTimeout(() => {
-                document.querySelector(`.card[data-index="${firstIndex}"]`).textContent = "";
-                document.querySelector(`.card[data-index="${secondIndex}"]`).textContent = "";
-                document.querySelector(`.card[data-index="${firstIndex}"]`).classList.remove("flipped");
-                document.querySelector(`.card[data-index="${secondIndex}"]`).classList.remove("flipped");
-                flippedCards = [];
-            }, 1000);
-        }
-    }
-}
-
-// 更新分数显示
-function updateScore() {
-    document.getElementById("score").textContent = `得分: ${score}`;
-}
-
-// 重置游戏
+// 事件监听
+document.getElementById("start-btn").addEventListener("click", startGame);
 document.getElementById("reset-btn").addEventListener("click", initGame);
 
-// 初始化游戏
+// 初始化
 initGame();

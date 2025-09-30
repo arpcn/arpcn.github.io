@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>梵语天城体-拉丁转写配对游戏</title>
+    <title>梵语配对游戏</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <h1>संस्कृत-IAST 配对游戏</h1>
+        <div class="controls">
+            <button id="start-btn" class="btn">开始游戏</button>
+            <button id="reset-btn" class="btn">重置</button>
+            <div id="timer">用时: 0秒</div>
+        </div>
         <div id="game-board" class="game-board"></div>
-        <button id="reset-btn" class="btn">重新开始</button>
-        <p id="score">得分: 0</p>
     </div>
     <script src="script.js"></script>
 </body>
