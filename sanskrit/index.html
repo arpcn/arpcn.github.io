@@ -17,6 +17,14 @@
     --card-bg: #ffffff;
     --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
     --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+    
+    /* 六種匹配顏色 */
+    --match-color-1: #D7E8D5; /* 淡薄荷綠 */
+    --match-color-2: #E8F5E9; /* 極淡綠 */
+    --match-color-3: #DCEDC8; /* 淺蘋果綠 */
+    --match-color-4: #F0F4C3; /* 淡黃綠 */
+    --match-color-5: #C8E6C9; /* 淺草綠 */
+    --match-color-6: #B2DFDB; /* 淺水綠 */
 }
 
 body {
@@ -187,15 +195,39 @@ button:disabled {
     box-shadow: 0 0 0 2px var(--secondary);
 }
 
+/* 匹配成功后的颜色样式 */
+.card.matched[data-pair="0"] .card-content {
+    background: var(--match-color-1);
+}
+.card.matched[data-pair="1"] .card-content {
+    background: var(--match-color-2);
+}
+.card.matched[data-pair="2"] .card-content {
+    background: var(--match-color-3);
+}
+.card.matched[data-pair="3"] .card-content {
+    background: var(--match-color-4);
+}
+.card.matched[data-pair="4"] .card-content {
+    background: var(--match-color-5);
+}
+.card.matched[data-pair="5"] .card-content {
+    background: var(--match-color-6);
+}
+/* 匹配成功的动画时间 */
 .card.matched .card-content {
-    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-    animation: matchAnimation 0.6s;
+    animation: matchAnimation 0.5s;
 }
 
 @keyframes matchAnimation {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
+    0%, 100% { 
+        transform: scale(1); 
+        opacity: 1;
+    }
+    50% { 
+        transform: scale(1.1);
+        opacity: 0.9; 
+    }
 }
 
 @media (max-width: 768px) {
@@ -409,6 +441,7 @@ let matchedPairs = 0;
 let isGameStarted = false;
 let timer;
 let timeElapsed = 0; // 单位：0.1秒
+let pairColors = []; // 存储每对卡片的颜色索引
 
 // DOM元素
 const gameBoard = document.getElementById("game-board");
@@ -461,15 +494,19 @@ function initGame(dataType) {
     const allPairs = prepareGameData(dataType);
     currentPairs = getRandomSubset(allPairs);
 
+    // 为每对卡片分配颜色索引 (0-5)
+    pairColors = currentPairs.map((_, index) => index % 6);
+
     cards = [];
-    currentPairs.forEach(pair => {
+    currentPairs.forEach((pair, pairIndex) => {
         // Devanagari卡片
         cards.push({
             content: pair.devanagari,
             pairId: pair.iast,
             type: "devanagari",
             matched: false,
-            element: null
+            element: null,
+            pairIndex: pairIndex // 用于匹配颜色
         });
         
         // IAST卡片
@@ -478,7 +515,8 @@ function initGame(dataType) {
             pairId: pair.devanagari,
             type: "iast",
             matched: false,
-            element: null
+            element: null,
+            pairIndex: pairIndex // 用于匹配颜色
         });
     });
 
@@ -490,6 +528,7 @@ function initGame(dataType) {
         cardElement.className = "card";
         cardElement.dataset.index = index;
         cardElement.dataset.type = card.type;
+        cardElement.dataset.pair = card.pairIndex; // 添加颜色索引
         
         const cardContent = document.createElement("div");
         cardContent.className = "card-content";
@@ -571,12 +610,12 @@ function handleCardClick(index) {
                     document.getElementById('completion-modal').classList.add('active');
                 }, 500);
             }
-        } else {
+        } else { // 配对失败时，延迟250ms后取消选中状态 
             setTimeout(() => {
                 firstCard.element.classList.remove("selected");
                 secondCard.element.classList.remove("selected");
                 flippedCards = [];
-            }, 800);
+            }, 250); // 延迟时间（单位：毫秒）
         }
     }
 }
