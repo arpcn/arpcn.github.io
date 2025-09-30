@@ -1,20 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>梵语配对游戏</title>
+    <title>梵文配对游戏</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>संस्कृत-IAST 配对游戏</h1>
-        <div class="controls">
-            <button id="start-btn" class="btn">开始游戏</button>
-            <button id="reset-btn" class="btn">重置</button>
-            <div id="timer">用时: 0秒</div>
+    <div class="game-container">
+        <h1>梵文配对游戏</h1>
+        <div class="game-modes">
+            <button id="vowels-btn">元音配对</button>
+            <button id="consonants-btn">辅音配对</button>
+            <button id="mixed-btn">混合配对</button>
+        </div>
+        <div class="game-info">
+            <div id="timer">⏱️ 0秒</div>
+            <div id="pairs-matched">✅ 0/6</div>
         </div>
         <div id="game-board" class="game-board"></div>
+        <div class="game-controls">
+            <button id="start-btn">🎮 开始游戏</button>
+            <button id="reset-btn">🔄 重置游戏</button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="completion-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">恭喜完成！</h2>
+            <p class="modal-message" id="completion-time">用时: 0秒</p>
+            <button class="modal-close" id="modal-close-btn">关闭</button>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
