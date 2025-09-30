@@ -184,9 +184,13 @@ button:disabled {
     font-family: "Times New Roman", Times, serif;
    /*  font-style: italic; 学术风格斜体 */
    /*  font-weight: bold; 可选：加粗显示 */
+    font-size: 0.85em; /* 比天城體小15% */
+    color: Silver; /* 銀灰色 */
 }
 .card[data-type="devanagari"] .card-content {
     font-family: "Noto Sans Devanagari", sans-serif; /* 或 Mangal， Tiro Devanagari */
+    color: #5D4037; /* 深棕色，與綠色背景協調 */
+    font-weight: 500; /* 中等粗細 */
 }
 
 .card.selected .card-content {
@@ -244,7 +248,9 @@ button:disabled {
     .game-board {
         gap: 8px;
     }
-    
+    .card[data-type="iast"] .card-content {
+        font-size: 0.8em; /* 手機上更小些 */
+    }
  /*    .card {
         width: 60px;
         height: 84px;
