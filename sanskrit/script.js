@@ -69,7 +69,6 @@ const devanagariData = {
     ]
 };
 
-
 // 游戏变量
 let currentPairs = [];
 let cards = [];
@@ -78,11 +77,6 @@ let matchedPairs = 0;
 let isGameStarted = false;
 let timer;
 let seconds = 0;
-
-// DOM元素
-const gameBoard = document.getElementById("game-board");
-const timerDisplay = document.getElementById("timer");
-const pairsDisplay = document.getElementById("pairs-matched");
 
 // 获取随机子集（6对）
 function getRandomSubset(array, count = 6) {
@@ -101,6 +95,7 @@ function prepareGameData(dataType) {
         data = [...devanagariData.vowels, ...devanagariData.consonants];
     }
     
+    // 展开数据，为每个devanagari字符创建一个配对项
     const expandedData = [];
     data.forEach(item => {
         item.devanagari.forEach(char => {
@@ -116,44 +111,44 @@ function prepareGameData(dataType) {
 
 // 初始化游戏
 function initGame(dataType) {
+    const gameBoard = document.getElementById("game-board");
     gameBoard.innerHTML = "";
+
+    // 准备游戏数据
     const allPairs = prepareGameData(dataType);
     currentPairs = getRandomSubset(allPairs);
 
+    // 创建卡片数组
     cards = [];
     currentPairs.forEach(pair => {
-        // Devanagari卡片
+        // 添加Devanagari卡片
         cards.push({
             content: pair.devanagari,
-            pairId: pair.iast,
+            pairId: pair.iast,  // 使用IAST作为配对ID
             type: "devanagari",
             matched: false,
             element: null
         });
         
-        // IAST卡片
+        // 添加IAST卡片
         cards.push({
             content: pair.iast,
-            pairId: pair.devanagari,
+            pairId: pair.devanagari,  // 使用Devanagari作为配对ID
             type: "iast",
             matched: false,
             element: null
         });
     });
 
+    // 洗牌
     cards = shuffleArray(cards);
 
-    // 创建卡片元素
+    // 渲染卡片（3×4网格）
     cards.forEach((card, index) => {
         const cardElement = document.createElement("div");
-        cardElement.className = "card";
+        cardElement.classList.add("card");
+        cardElement.textContent = card.content;
         cardElement.dataset.index = index;
-        
-        const cardContent = document.createElement("div");
-        cardContent.className = "card-content";
-        cardContent.textContent = card.content;
-        
-        cardElement.appendChild(cardContent);
         cardElement.addEventListener("click", () => handleCardClick(index));
         gameBoard.appendChild(cardElement);
         card.element = cardElement;
@@ -165,8 +160,8 @@ function initGame(dataType) {
     isGameStarted = false;
     clearInterval(timer);
     seconds = 0;
-    timerDisplay.textContent = "⏱️ 0秒";
-    pairsDisplay.textContent = "✅ 0/6";
+    document.getElementById("timer").textContent = "用时: 0秒";
+    document.getElementById("pairs-matched").textContent = "已匹配: 0/6";
     document.getElementById("start-btn").disabled = false;
 }
 
@@ -187,9 +182,10 @@ function startGame() {
     isGameStarted = true;
     document.getElementById("start-btn").disabled = true;
     
+    // 启动计时器
     timer = setInterval(() => {
         seconds++;
-        timerDisplay.textContent = `⏱️ ${seconds}秒`;
+        document.getElementById("timer").textContent = `用时: ${seconds}秒`;
     }, 1000);
 }
 
@@ -197,44 +193,50 @@ function startGame() {
 function handleCardClick(index) {
     if (!isGameStarted || cards[index].matched || flippedCards.includes(index)) return;
 
+    // 选中卡片
     cards[index].element.classList.add("selected");
     flippedCards.push(index);
 
+    // 如果已经翻开了两张卡片
     if (flippedCards.length === 2) {
         const [firstIdx, secondIdx] = flippedCards;
         const firstCard = cards[firstIdx];
         const secondCard = cards[secondIdx];
 
+        // 检查是否匹配（双向检查）
         const isMatched = 
             (firstCard.type === "devanagari" && firstCard.pairId === secondCard.content) ||
             (secondCard.type === "devanagari" && secondCard.pairId === firstCard.content);
         
         if (isMatched) {
+            // 匹配成功
             firstCard.matched = true;
             secondCard.matched = true;
             matchedPairs++;
             
-            pairsDisplay.textContent = `✅ ${matchedPairs}/6`;
+            // 更新已匹配对计数
+            document.getElementById("pairs-matched").textContent = `已匹配: ${matchedPairs}/6`;
             
+            // 移除选中状态并添加匹配状态
             firstCard.element.classList.remove("selected");
             secondCard.element.classList.remove("selected");
             firstCard.element.classList.add("matched");
             secondCard.element.classList.add("matched");
             
             flippedCards = [];
+
+            // 检查游戏是否结束
             if (matchedPairs === 6) {
                 clearInterval(timer);
-                setTimeout(() => {
-                    document.getElementById('completion-time').textContent = `用时: ${seconds}秒`;
-                    document.getElementById('completion-modal').classList.add('active');
-                }, 500);
+                setTimeout(() => alert(`恭喜完成！用时: ${seconds}秒`), 300);
             }
         } else {
+            // 不匹配，延迟后恢复
             setTimeout(() => {
                 firstCard.element.classList.remove("selected");
                 secondCard.element.classList.remove("selected");
                 flippedCards = [];
-            }, 800);
+            }, 1000);
         }
     }
 }
@@ -249,29 +251,28 @@ document.getElementById("reset-btn").addEventListener("click", () => {
 });
 
 // 游戏模式选择
-function setupModeButton(buttonId, mode) {
-    const button = document.getElementById(buttonId);
-    button.addEventListener("click", function() {
-        setActiveMode(this);
-        initGame(mode);
-    });
-}
+document.getElementById("vowels-btn").addEventListener("click", function() {
+    setActiveMode(this);
+    initGame("vowels");
+});
 
+document.getElementById("consonants-btn").addEventListener("click", function() {
+    setActiveMode(this);
+    initGame("consonants");
+});
+
+document.getElementById("mixed-btn").addEventListener("click", function() {
+    setActiveMode(this);
+    initGame("mixed");
+});
+
+// 设置活动模式按钮样式
 function setActiveMode(button) {
     document.querySelectorAll(".game-modes button").forEach(btn => {
         btn.classList.remove("active");
     });
     button.classList.add("active");
 }
-
-setupModeButton("vowels-btn", "vowels");
-setupModeButton("consonants-btn", "consonants");
-setupModeButton("mixed-btn", "mixed");
-
-// 关闭模态框
-document.getElementById('modal-close-btn').addEventListener('click', function() {
-    document.getElementById('completion-modal').classList.remove('active');
-});
 
 // 默认加载元音模式
 setActiveMode(document.getElementById("vowels-btn"));
