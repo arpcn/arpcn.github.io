@@ -304,8 +304,8 @@ button:disabled {
             <button class="modal-close" id="modal-close-btn">關閉</button>
         </div>
     </div>
-<script>
 
+<script>
 // 游戲數據
 const devanagariData = {
     vowels: [
@@ -377,7 +377,6 @@ const devanagariData = {
     ]
 };
 
-
 // 游戲變量
 let currentPairs = [];
 let cards = [];
@@ -385,7 +384,7 @@ let flippedCards = [];
 let matchedPairs = 0;
 let isGameStarted = false;
 let timer;
-let seconds = 0;
+let timeElapsed = 0; // 單位：0.1秒
 
 // DOM元素
 const gameBoard = document.getElementById("game-board");
@@ -422,6 +421,16 @@ function prepareGameData(dataType) {
     return expandedData;
 }
 
+// 洗牌函數
+function shuffleArray(array) {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+}
+
 // 初始化游戲
 function initGame(dataType) {
     gameBoard.innerHTML = "";
@@ -456,6 +465,7 @@ function initGame(dataType) {
         const cardElement = document.createElement("div");
         cardElement.className = "card";
         cardElement.dataset.index = index;
+        cardElement.dataset.type = card.type; // 添加字體類型標識
         
         const cardContent = document.createElement("div");
         cardContent.className = "card-content";
@@ -472,20 +482,10 @@ function initGame(dataType) {
     matchedPairs = 0;
     isGameStarted = false;
     clearInterval(timer);
-    seconds = 0;
-    timerDisplay.textContent = "⏱️ 0秒";
+    timeElapsed = 0;
+    timerDisplay.textContent = "⏱️ 0.0秒";
     pairsDisplay.textContent = "✅ 0/6";
     document.getElementById("start-btn").disabled = false;
-}
-
-// 洗牌函數
-function shuffleArray(array) {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
 }
 
 // 開始游戲
@@ -496,9 +496,10 @@ function startGame() {
     document.getElementById("start-btn").disabled = true;
     
     timer = setInterval(() => {
-        seconds++;
-        timerDisplay.textContent = `⏱️ ${seconds}秒`;
-    }, 1000);
+        timeElapsed++;
+        const displaySeconds = (timeElapsed / 10).toFixed(1);
+        timerDisplay.textContent = `⏱️ ${displaySeconds}秒`;
+    }, 100); // 每0.1秒更新一次
 }
 
 // 處理卡片點擊
@@ -533,7 +534,8 @@ function handleCardClick(index) {
             if (matchedPairs === 6) {
                 clearInterval(timer);
                 setTimeout(() => {
-                    document.getElementById('completion-time').textContent = `用時: ${seconds}秒`;
+                    document.getElementById('completion-time').textContent = 
+                        `用時: ${(timeElapsed / 10).toFixed(1)}秒`;
                     document.getElementById('completion-modal').classList.add('active');
                 }, 500);
             }
@@ -584,7 +586,7 @@ document.getElementById('modal-close-btn').addEventListener('click', function() 
 // 默認加載元音模式
 setActiveMode(document.getElementById("vowels-btn"));
 initGame("vowels");
-
 </script>
+
 </body>
 </html>
