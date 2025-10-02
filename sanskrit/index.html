@@ -19,12 +19,23 @@
     --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
     
     /* 六種匹配顏色 */
-    --match-color-1: #D7E8D5; /* 淡薄荷綠 */
-    --match-color-2: #E8F5E9; /* 極淡綠 */
-    --match-color-3: #DCEDC8; /* 淺蘋果綠 */
-    --match-color-4: #F0F4C3; /* 淡黃綠 */
-    --match-color-5: #C8E6C9; /* 淺草綠 */
-    --match-color-6: #B2DFDB; /* 淺水綠 */
+  /* 高区分度浅色方案 - 基于色相/饱和度调整 */
+  --match-color-1: #D4EDDA; /* 薄荷绿（增加蓝调） */
+  --match-color-2: #fff0bb; /* 淡鹅黄（原黄绿改为纯黄） */
+  --match-color-3: #E1F5FE; /* 淡天蓝（新增冷色调） */
+  --match-color-4: #FCE4EC; /* 淡粉红（新增暖色调） */
+  --match-color-5: #B8D8BA; /* 保留浅草绿 */
+  --match-color-6: #D1C4E9; /* 淡紫（新增互补色） */
+
+  /* 可选更高饱和度版本 */
+  /*
+  --match-color-1: #A5D6A7;
+  --match-color-2: #FFF59D;
+  --match-color-3: #81D4FA;
+  --match-color-4: #F8BBD0;
+  --match-color-5: #C8E6C9;
+  --match-color-6: #B39DDB;
+  */
 
   transition: background 0.3s ease, color 0.2s ease;
 }
