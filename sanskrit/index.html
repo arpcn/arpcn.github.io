@@ -231,9 +231,10 @@ button:disabled {
 .card.matched[data-pair="5"] .card-content {
     background: var(--match-color-6);
 }
-/* 匹配成功的动画时间 */
+
 .card.matched .card-content {
-    animation: matchAnimation 0.5s;
+    animation: matchAnimation 0.5s;  /* 匹配成功的动画时间 */ 
+    color: #858585 !important; /*  #777 使用灰色 #999 更淺的灰色  #555 更深的灰色  #808080 中等灰色 #DCDCDC #D3D3D3 #C0C0C0 #A9A9A9 #808080 #696969 #778899 #708090 #2F4F4F #000000  */
 }
 
 @keyframes matchAnimation {
