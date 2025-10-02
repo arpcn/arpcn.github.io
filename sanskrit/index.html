@@ -436,6 +436,7 @@ button:disabled {
         <div class="game-modes">
             <button id="vowels-btn">元音</button>
             <button id="consonants-btn">輔音</button>
+            <button id="numbers-btn">數字</button>
             <button id="mixed-btn">混合</button>
         </div>
         <div class="game-info">
@@ -478,8 +479,8 @@ const devanagariData = {
         { iast: "ḥ", devanagari: ["ः"] },
         { iast: "ṃ", devanagari: ["ं"] },
         { iast: "'", devanagari: ["ऽ"] },
-        { iast: "/", devanagari: ["।"] },
-        { iast: "//", devanagari: ["॥"] }
+ //        { iast: "/", devanagari: ["।"] },
+ //        { iast: "//", devanagari: ["॥"] }
     ],
     consonants: [
         { iast: "ka", devanagari: ["क"] },
@@ -517,7 +518,9 @@ const devanagariData = {
         { iast: "ha", devanagari: ["ह"] },
         { iast: "kṣa", devanagari: ["क्ष"] },
         { iast: "jña", devanagari: ["ज्ञ"] },
-        { iast: "0", devanagari: ["०"] },
+    ],
+    numbers: [
+  //       { iast: "0", devanagari: ["०"] },
         { iast: "1", devanagari: ["१"] },
         { iast: "2", devanagari: ["२"] },
         { iast: "3", devanagari: ["३"] },
@@ -558,8 +561,10 @@ function prepareGameData(dataType) {
         data = [...devanagariData.vowels];
     } else if (dataType === 'consonants') {
         data = [...devanagariData.consonants];
+    } else if (dataType === 'numbers') {
+        data = [...devanagariData.numbers];
     } else {
-        data = [...devanagariData.vowels, ...devanagariData.consonants];
+        data = [...devanagariData.vowels, ...devanagariData.consonants, ...devanagariData.numbers];
     }
     
     const expandedData = [];
@@ -631,7 +636,7 @@ function initGame(dataType) {
         cardContent.className = "card-content";
         cardContent.textContent = card.content;
         
-        // 使用ResizeObserver監聽尺寸變化（現代瀏覽器支持）
+        // 使用ResizeObserver監聽尺寸變化
         const resizeObserver = new ResizeObserver(entries => {
             const card = entries[0].target;
             const fontSize = Math.min(card.offsetWidth, card.offsetHeight) * 0.4;
@@ -753,6 +758,7 @@ function setActiveMode(button) {
 
 setupModeButton("vowels-btn", "vowels");
 setupModeButton("consonants-btn", "consonants");
+setupModeButton("numbers-btn", "numbers");
 setupModeButton("mixed-btn", "mixed");
 
 // 关闭模态框
@@ -767,3 +773,4 @@ initGame("vowels");
 
 </body>
 </html>
+
