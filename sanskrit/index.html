@@ -346,6 +346,8 @@ button:disabled {
     --card-bg: #2d3436; /* 深灰卡片 */
     --dark: #f5f6fa; /* 淺色文字 */
     --light: #353b48; /* 深色背景 */
+    --shadow-sm: 0 0 0 1px rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.3);
+    --shadow-md: 0 0 0 1px rgba(255,255,255,0.15), 0 4px 12px rgba(0,0,0,0.4);
   }
 
   body {
@@ -369,6 +371,29 @@ button:disabled {
   --match-color-4: #4a6b3d;
   --match-color-5: #3d5a48;
   --match-color-6: #386641;
+
+
+  .card {
+    /* 方案1：發光邊框（現代風格） 
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 2px 12px rgba(0,0,0,0.3); */
+    
+    /* 方案2：高對比實線邊框（保守方案） */
+    /* border: 1px solid rgba(255,255,255,0.15); */
+    /* box-shadow: 0 2px 12px rgba(0,0,0,0.3); */
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease; /* 平滑過渡 */
+  }
+
+  /* 選中狀態強化 */
+  .card.selected {
+    box-shadow: 0 0 0 2px var(--secondary);
+  }
+  /* 強化懸停狀態 */
+  .card:hover {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.2), 
+                0 3px 10px rgba(0,0,0,0.4);
+  }
+
 }
 
 
@@ -672,10 +697,13 @@ document.getElementById("reset-btn").addEventListener("click", () => {
 });
 
 // 監聽主題變化
-window.matchMedia('(prefers-color-scheme: dark)')
-  .addEventListener('change', e => {
-    e.matches ? enableDarkMode() : enableLightMode();
-  });
+function updateTheme() {
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.body.classList.toggle('dark-mode', isDark);
+}
+window.matchMedia('(prefers-color-scheme: dark)').addListener(updateTheme);
+updateTheme(); // 初始化
+
 
 // 游戏模式选择
 function setupModeButton(buttonId, mode) {
