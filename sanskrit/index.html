@@ -25,6 +25,8 @@
     --match-color-4: #F0F4C3; /* 淡黃綠 */
     --match-color-5: #C8E6C9; /* 淺草綠 */
     --match-color-6: #B2DFDB; /* 淺水綠 */
+
+  transition: background 0.3s ease, color 0.2s ease;
 }
 
 body {
@@ -336,6 +338,40 @@ button:disabled {
     background-color: var(--secondary);
 }
 
+/* 系統級夜間模式適配 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #9c88ff; /* 更柔和的紫色 */
+    --secondary: #ffbe76; /* 暖橙色 */
+    --card-bg: #2d3436; /* 深灰卡片 */
+    --dark: #f5f6fa; /* 淺色文字 */
+    --light: #353b48; /* 深色背景 */
+  }
+
+  body {
+    background: linear-gradient(135deg, #2d3436 0%, #1e272e 100%);
+  }
+
+  .game-container {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  /* 調整天城體文字顏色 */
+  .card[data-type="devanagari"] .card-content {
+    color: #fd79a8; /* 降低飽和度的粉紅 */
+    text-shadow: 0 0 2px rgba(0,0,0,0.5);
+  }
+
+  /* 匹配卡片顏色深色化 */
+  --match-color-1: #2e4a3b;
+  --match-color-2: #3a5a40;
+  --match-color-3: #344e41;
+  --match-color-4: #4a6b3d;
+  --match-color-5: #3d5a48;
+  --match-color-6: #386641;
+}
+
+
  </style>
 
 </head>
@@ -634,6 +670,12 @@ document.getElementById("reset-btn").addEventListener("click", () => {
         initGame(currentMode.replace("-btn", ""));
     }
 });
+
+// 監聽主題變化
+window.matchMedia('(prefers-color-scheme: dark)')
+  .addEventListener('change', e => {
+    e.matches ? enableDarkMode() : enableLightMode();
+  });
 
 // 游戏模式选择
 function setupModeButton(buttonId, mode) {
