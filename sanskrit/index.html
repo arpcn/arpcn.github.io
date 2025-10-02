@@ -175,11 +175,11 @@ button:disabled {
     font-size: calc(min(10vw, 10vh, 40px)); /* 響應式基礎值 */
     backface-visibility: hidden;
     border-radius: 10px;
-    background: white;
     transition: all 0.1s;
     font-family: inherit;
+  background: var(--card-content-bg);
+  color: var(--text-primary);
 }
-
 
 /* 卡片专用样式 */
 .card[data-type="iast"] .card-content {
@@ -187,7 +187,7 @@ button:disabled {
    /*  font-style: italic; 学术风格斜体 */
    /*  font-weight: bold; 可选：加粗显示 */
     font-size: 0.85em; /* 比天城體小15% */
-    color: #000; /* 黑色 */
+    color: var(--text-primary); /* 替换原#000 */
 }
 .card[data-type="devanagari"] .card-content {
     font-family: "Noto Sans Devanagari", sans-serif; /* 或 Mangal， Tiro Devanagari */
@@ -341,13 +341,26 @@ button:disabled {
 /* 系統級夜間模式適配 */
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary: #9c88ff; /* 更柔和的紫色 */
-    --secondary: #ffbe76; /* 暖橙色 */
-    --card-bg: #929fa3; /* 深灰卡片 */
+    --primary: #9c88ff;
+    --secondary: #ffbe76;
+    --card-bg: #2d3436;      /* 更深的卡片背景 */
+    --card-content-bg: #353b48; /* 卡片内容区背景 */
+    --text-primary: #f8f9fa;  /* 主文字颜色 */
+    --text-secondary: #adb5bd; /* 次要文字 */
     --dark: #f5f6fa; /* 淺色文字 */
     --light: #353b48; /* 深色背景 */
+
+    /* 更新阴影变量 */
     --shadow-sm: 0 0 0 1px rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.3);
     --shadow-md: 0 0 0 1px rgba(255,255,255,0.15), 0 4px 12px rgba(0,0,0,0.4);
+    
+    /* 匹配颜色深色化 */
+    --match-color-1: #2e4a3b;
+    --match-color-2: #3a5a40;
+    --match-color-3: #344e41;
+    --match-color-4: #4a6b3d;
+    --match-color-5: #3d5a48;
+    --match-color-6: #386641;
   }
 
   body {
@@ -364,15 +377,6 @@ button:disabled {
     text-shadow: 0 0 2px rgba(0,0,0,0.5);
   }
 
-  /* 匹配卡片顏色深色化 */
-  --match-color-1: #2e4a3b;
-  --match-color-2: #3a5a40;
-  --match-color-3: #344e41;
-  --match-color-4: #4a6b3d;
-  --match-color-5: #3d5a48;
-  --match-color-6: #386641;
-
-
   .card {
     /* 方案1：發光邊框（現代風格） 
     box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 2px 12px rgba(0,0,0,0.3); */
@@ -388,12 +392,16 @@ button:disabled {
   .card.selected {
     box-shadow: 0 0 0 2px var(--secondary);
   }
+  .card.selected .card-content {
+    background: #3e4a56;
+    box-shadow: 0 0 0 2px var(--secondary);
+  }
   /* 強化懸停狀態 */
   .card:hover {
-    box-shadow: 0 0 0 2px rgba(255,255,255,0.2), 
-                0 3px 10px rgba(0,0,0,0.4);
+    box-shadow: 
+      0 0 0 2px rgba(255,255,255,0.2),
+      0 3px 12px rgba(0,0,0,0.5);
   }
-
 }
 
 
