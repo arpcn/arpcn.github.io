@@ -429,6 +429,44 @@ button:disabled {
   }
 }
 
+        /* 新增的样式 */
+        .username-modal {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .username-input {
+            padding: 12px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+        }
+        .leaderboard {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .leaderboard th, .leaderboard td {
+            padding: 8px 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        .leaderboard th {
+            background-color: var(--primary);
+            color: white;
+        }
+        .leaderboard tr:nth-child(even) {
+            background-color: #f5f5f5;
+        }
+        @media (prefers-color-scheme: dark) {
+            .leaderboard tr:nth-child(even) {
+                background-color: #3d3d3d;
+            }
+            .leaderboard th, .leaderboard td {
+                border-bottom: 1px solid #555;
+            }
+        }
 
  </style>
 
@@ -468,11 +506,36 @@ button:disabled {
             <button id="reset-btn">🔄 重置游戲</button>
         </div>
     </div>
+
     <div class="modal-overlay" id="completion-modal">
         <div class="modal-content">
             <h2 class="modal-title">恭喜完成！</h2>
-            <p class="modal-message" id="completion-time">用時: 0秒</p>
-            <button class="modal-close" id="modal-close-btn">關閉</button>
+            <p class="modal-message" id="completion-time">用时: 0秒</p>
+            <h3>排行榜</h3>
+            <table class="leaderboard">
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>用户名</th>
+                        <th>用时(秒)</th>
+                        <th>模式</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <!-- 排行榜数据将通过JavaScript动态填充 -->
+                </tbody>
+            </table>
+            <button class="modal-close" id="modal-close-btn">关闭</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="username-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">请输入用户名</h2>
+            <div class="username-modal">
+                <input type="text" class="username-input" id="username-input" placeholder="您的昵称" maxlength="20">
+                <button class="modal-close" id="username-submit-btn">开始游戏</button>
+            </div>
         </div>
     </div>
 
@@ -561,6 +624,32 @@ let isGameStarted = false;
 let timer;
 let timeElapsed = 0; // 单位：0.1秒
 let pairColors = []; // 存储每对卡片的颜色索引
+let currentUsername = localStorage.getItem('devanagariGameUsername') || '';
+
+
+        // 初始化时检查用户名
+        function checkUsername() {
+            if (!currentUsername) {
+                document.getElementById('username-modal').classList.add('active');
+                document.getElementById('username-input').focus();
+            } else {
+                startGame();
+            }
+        }
+        
+        // 用户名提交处理
+        document.getElementById('username-submit-btn').addEventListener('click', function() {
+            const username = document.getElementById('username-input').value.trim();
+            if (username) {
+                currentUsername = username;
+                localStorage.setItem('devanagariGameUsername', username);
+                document.getElementById('username-modal').classList.remove('active');
+                startGame();
+            } else {
+                alert('请输入有效的用户名');
+            }
+        });
+
 
 // DOM元素
 const gameBoard = document.getElementById("game-board");
@@ -572,6 +661,7 @@ function getRandomSubset(array, count = 6) {
     const shuffled = [...array].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, Math.min(count, array.length));
 }
+
 
 // 准备游戏数据
 function prepareGameData(dataType) {
@@ -721,27 +811,28 @@ function handleCardClick(index) {
             secondCard.element.classList.remove("selected");
             firstCard.element.classList.add("matched");
             secondCard.element.classList.add("matched");
-            
+
             flippedCards = [];
-                
+
+            // 游戏完成时的处理
             if (matchedPairs === 6) {
-              clearInterval(timer);
-              const finishTime = (timeElapsed / 10).toFixed(1);
-              
-              // 保存到 Firebase
-              firebase.database().ref('gameRecords').push({
-                mode: document.querySelector(".game-modes button.active").textContent,
-                time: finishTime,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-              });
-            
-              // 顯示結果
-              setTimeout(() => {
-                document.getElementById('completion-time').textContent = `用時: ${finishTime}秒`;
-                document.getElementById('completion-modal').classList.add('active');
-              }, 500);
-            }
+                clearInterval(timer);
+                const finishTime = (timeElapsed / 10).toFixed(1);
+                const gameMode = document.querySelector(".game-modes button.active").textContent;
                 
+                // 保存到Firebase
+                const recordRef = firebase.database().ref('gameRecords').push();
+                recordRef.set({
+                    username: currentUsername,
+                    mode: gameMode,
+                    time: parseFloat(finishTime),
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    // 获取排行榜并显示
+                    getLeaderboard(gameMode, finishTime, recordRef.key);
+                });
+            }
+
         } else { // 配对失败时，延迟250ms后取消选中状态 
             setTimeout(() => {
                 firstCard.element.classList.remove("selected");
@@ -752,8 +843,67 @@ function handleCardClick(index) {
     }
 }
 
+
+// 获取排行榜数据
+function getLeaderboard(mode, currentTime, currentRecordKey) {
+    firebase.database().ref('gameRecords')
+        .orderByChild('mode')
+        .equalTo(mode)
+        .once('value')
+        .then(snapshot => {
+            const records = [];
+            const userBestTimes = {}; // 用于记录每个用户的最佳成绩
+            
+            snapshot.forEach(childSnapshot => {
+                const record = childSnapshot.val();
+                record.key = childSnapshot.key;
+                
+                // 只保留每个用户的最佳成绩(最短时间)
+                if (!userBestTimes[record.username] || record.time < userBestTimes[record.username].time) {
+                    userBestTimes[record.username] = record;
+                }
+            });
+            
+            // 将所有用户的最佳成绩转换为数组
+            const uniqueRecords = Object.values(userBestTimes);
+            
+            // 按用时排序
+            uniqueRecords.sort((a, b) => a.time - b.time);
+            
+            // 只取前10名
+            const top10 = uniqueRecords.slice(0, 10);
+            
+            // 填充排行榜表格
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            leaderboardBody.innerHTML = '';
+            
+            top10.forEach((record, index) => {
+                const row = document.createElement('tr');
+                
+                // 如果是当前用户的记录，添加特殊样式
+                if (record.key === currentRecordKey) {
+                    row.style.fontWeight = 'bold';
+                    row.style.backgroundColor = 'var(--secondary)';
+                }
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${record.username}</td>
+                    <td>${record.time.toFixed(1)}</td>
+                    <td>${record.mode}</td>
+                `;
+                leaderboardBody.appendChild(row);
+            });
+            
+            // 显示完成模态框
+            document.getElementById('completion-time').textContent = `用时: ${currentTime}秒`;
+            document.getElementById('completion-modal').classList.add('active');
+        });
+}
+
+
 // 事件监听
-document.getElementById("start-btn").addEventListener("click", startGame);
+document.getElementById("start-btn").addEventListener("click", checkUsername);
 document.getElementById("reset-btn").addEventListener("click", () => {
     const currentMode = document.querySelector(".game-modes button.active")?.id;
     if (currentMode) {
