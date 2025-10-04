@@ -6,6 +6,8 @@
     <title>天城體字母配對</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari&display=swap" rel="stylesheet">
+
+
  <style>
 
 :root {
@@ -195,7 +197,7 @@ button:disabled {
 /* 卡片专用样式 */
 .card[data-type="iast"] .card-content {
     font-family: "Times New Roman", Times, serif;
-   /*  font-style: italic; 学术风格斜体 */
+   /*  font-style: italic;  斜体 */
    /*  font-weight: bold; 可选：加粗显示 */
     font-size: 0.85em; /* 比天城體小15% */
     color: var(--text-primary); /* 替换原#000 */
@@ -234,7 +236,7 @@ button:disabled {
 
 .card.matched .card-content {
     animation: matchAnimation 0.5s;  /* 匹配成功的动画时间 */ 
-    color: #858585 !important; /*  #777 使用灰色 #999 更淺的灰色  #555 更深的灰色  #808080 中等灰色 #DCDCDC #D3D3D3 #C0C0C0 #A9A9A9 #808080 #696969 #778899 #708090 #2F4F4F #000000  */
+    color: #858585 !important; /*  #777 使用灰色 #999 更淺的灰色  #555 更深的灰色  #808080 中等灰色 #DCDCDC #D3D3D3 #C0C0C0 #A9A9A9 #858585 #808080 #696969 #778899 #708090 #2F4F4F #000000  */
 }
 
 @keyframes matchAnimation {
@@ -429,6 +431,22 @@ button:disabled {
 
 
  </style>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAvxH-5gah6gVufzNFrne-c7VfU6VSpcyQ",
+    authDomain: "arbzn09.firebaseapp.com",
+    databaseURL: "https://arbzn09-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "arbzn09",
+    storageBucket: "arbzn09.firebasestorage.app",
+    messagingSenderId: "172952488674",
+    appId: "1:172952488674:web:1369dc83ac8df8c6ca6cbb",
+    measurementId: "G-WNKZZ26059"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
 
 </head>
 <body>
@@ -705,14 +723,25 @@ function handleCardClick(index) {
             secondCard.element.classList.add("matched");
             
             flippedCards = [];
+                
             if (matchedPairs === 6) {
-                clearInterval(timer);
-                setTimeout(() => {
-                    document.getElementById('completion-time').textContent = 
-                        `用時: ${(timeElapsed / 10).toFixed(1)}秒`;
-                    document.getElementById('completion-modal').classList.add('active');
-                }, 500);
+              clearInterval(timer);
+              const finishTime = (timeElapsed / 10).toFixed(1);
+              
+              // 保存到 Firebase
+              firebase.database().ref('gameRecords').push({
+                mode: document.querySelector(".game-modes button.active").textContent,
+                time: finishTime,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+              });
+            
+              // 顯示結果
+              setTimeout(() => {
+                document.getElementById('completion-time').textContent = `用時: ${finishTime}秒`;
+                document.getElementById('completion-modal').classList.add('active');
+              }, 500);
             }
+                
         } else { // 配对失败时，延迟250ms后取消选中状态 
             setTimeout(() => {
                 firstCard.element.classList.remove("selected");
