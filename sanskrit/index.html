@@ -831,14 +831,16 @@ function handleCardClick(index) {
                 const finishTime = (timeElapsed / 10).toFixed(1);
                 const gameMode = document.querySelector(".game-modes button.active").textContent;
                 
-                // 直接更新用户统计并获取排行榜
+                // 更新用户统计并保存游戏记录
                 updateUserStats(currentUsername, gameMode, parseFloat(finishTime))
                     .then(() => {
-                        getLeaderboard(gameMode, parseFloat(finishTime));
+                        return saveGameRecord(currentUsername, gameMode, parseFloat(finishTime));
+                    })
+                    .then(() => {
+                        return getLeaderboardAndHistory(gameMode, parseFloat(finishTime));
                     })
                     .catch(error => {
                         console.error("游戏完成处理失败:", error);
-                        // 降级处理
                         document.getElementById('completion-time').textContent = `用时: ${finishTime}秒`;
                         document.getElementById('completion-modal').classList.add('active');
                     });
@@ -853,6 +855,120 @@ function handleCardClick(index) {
         }
     }
 }
+
+
+// 新增保存游戏记录的函数
+function saveGameRecord(username, mode, time) {
+    return new Promise((resolve, reject) => {
+        const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
+        const userRecordsRef = firebase.database().ref(`gameRecords/${sanitizedUsername}`);
+        
+        // 获取当前记录数量
+        userRecordsRef.once('value')
+            .then(snapshot => {
+                const records = snapshot.val() || {};
+                const recordIds = Object.keys(records);
+                
+                // 如果已有10条记录，删除最旧的一条
+                if (recordIds.length >= 10) {
+                    const oldestRecordId = recordIds.reduce((oldest, current) => {
+                        return records[current].timestamp < records[oldest].timestamp ? current : oldest;
+                    });
+                    userRecordsRef.child(oldestRecordId).remove();
+                }
+                
+                // 添加新记录
+                const newRecordRef = userRecordsRef.push();
+                return newRecordRef.set({
+                    username: username,
+                    mode: mode,
+                    time: time,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            })
+            .then(() => resolve())
+            .catch(error => reject(error));
+    });
+}
+
+
+// 修改获取排行榜的函数，添加个人历史记录显示
+function getLeaderboardAndHistory(mode, currentTime) {
+    const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
+    
+    // 查询全局排行榜（前10名）
+    const globalQuery = firebase.database().ref('userStats')
+        .orderByChild(`modes/${mode}/bestTime`)
+        .limitToFirst(10);
+    
+    // 查询当前用户数据
+    const userQuery = firebase.database().ref(`userStats/${sanitizedUsername}`);
+    
+    // 查询当前用户的历史记录
+    const historyQuery = firebase.database().ref(`gameRecords/${sanitizedUsername}`)
+        .orderByChild('timestamp')
+        .limitToLast(5); // 显示最近的5条记录
+    
+    // 并行查询
+    Promise.all([
+        globalQuery.once('value'),
+        userQuery.once('value'),
+        historyQuery.once('value')
+    ])
+    .then(([globalSnapshot, userSnapshot, historySnapshot]) => {
+        // 处理排行榜数据
+        const records = [];
+        globalSnapshot.forEach(userSnapshot => {
+            const userData = userSnapshot.val();
+            if (userData.modes && userData.modes[mode]) {
+                records.push({
+                    username: userData.username,
+                    time: userData.modes[mode].bestTime,
+                    gamesPlayed: userData.modes[mode].count || 0,
+                    isCurrentUser: userData.username === currentUsername
+                });
+            }
+        });
+        
+        // 添加当前用户数据（如果不在前10名中）
+        const userData = userSnapshot.val();
+        if (userData && userData.modes?.[mode]) {
+            const alreadyInList = records.some(r => r.username === currentUsername);
+            if (!alreadyInList) {
+                records.push({
+                    username: currentUsername,
+                    time: userData.modes[mode].bestTime,
+                    gamesPlayed: userData.modes[mode].count || 0,
+                    isCurrentUser: true
+                });
+            }
+        }
+        
+        // 按时间排序
+        records.sort((a, b) => a.time - b.time);
+        
+        // 处理历史记录数据
+        const historyRecords = [];
+        historySnapshot.forEach(recordSnapshot => {
+            const record = recordSnapshot.val();
+            historyRecords.push({
+                mode: record.mode,
+                time: record.time,
+                date: new Date(record.timestamp).toLocaleDateString()
+            });
+        });
+        historyRecords.reverse(); // 最新的在前面
+        
+        // 渲染排行榜和历史记录
+        renderLeaderboardAndHistory(records, historyRecords, mode, currentTime);
+    })
+    .catch(error => {
+        console.error("获取数据失败:", error);
+        document.getElementById('completion-time').textContent = `用时: ${currentTime}秒`;
+        document.getElementById('completion-modal').classList.add('active');
+    });
+}
+
 
 // 更新用戶統計數據
 function updateUserStats(username, mode, currentTime) {
@@ -965,22 +1081,17 @@ function getLeaderboard(mode, currentTime) {
         });
 }
 
-// 渲染排行榜
-function renderLeaderboard(records, mode, currentTime) {
+// 修改渲染函数，添加历史记录显示
+function renderLeaderboardAndHistory(records, historyRecords, mode, currentTime) {
     const leaderboardBody = document.getElementById('leaderboard-body');
     leaderboardBody.innerHTML = '';
     
-    // 最多显示11条记录（10名+当前用户）
-    const displayRecords = records.slice(0, 11);
-    
-    displayRecords.forEach((record, index) => {
+    // 渲染排行榜
+    records.slice(0, 11).forEach((record, index) => {
         const row = document.createElement('tr');
-        
-        // 高亮显示当前用户
         if (record.isCurrentUser) {
             row.classList.add('current-user');
         }
-        
         row.innerHTML = `
             <td>${index + 1}</td>
             <td>${record.username} ${record.isCurrentUser ? '(您)' : ''}</td>
@@ -991,10 +1102,50 @@ function renderLeaderboard(records, mode, currentTime) {
         leaderboardBody.appendChild(row);
     });
     
-    // 显示完成时间和模式
+    // 添加历史记录部分
+    const historySection = document.createElement('div');
+    historySection.innerHTML = `
+        <h3 style="margin-top: 30px;">您的最近记录</h3>
+        <table class="leaderboard">
+            <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>模式</th>
+                    <th>成绩(秒)</th>
+                </tr>
+            </thead>
+            <tbody id="history-body">
+                ${historyRecords.map(record => `
+                    <tr ${record.mode === mode && record.time === currentTime ? 'class="current-record"' : ''}>
+                        <td>${record.date}</td>
+                        <td>${record.mode}</td>
+                        <td>${record.time.toFixed(1)}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    document.querySelector('.modal-content').appendChild(historySection);
+    
+    // 显示完成时间
     document.getElementById('completion-time').textContent = `用时: ${currentTime}秒 (模式: ${mode})`;
     document.getElementById('completion-modal').classList.add('active');
 }
+
+// 添加CSS样式
+const style = document.createElement('style');
+style.textContent = `
+    .current-record {
+        background-color: rgba(255, 215, 0, 0.3) !important;
+        font-weight: bold;
+    }
+    @media (prefers-color-scheme: dark) {
+        .current-record {
+            background-color: rgba(255, 215, 0, 0.1) !important;
+        }
+    }
+`;
+document.head.appendChild(style);
 
 // 事件监听
 document.getElementById("start-btn").addEventListener("click", checkUsername);
