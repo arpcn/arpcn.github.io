@@ -468,6 +468,16 @@ button:disabled {
             }
         }
 
+.current-user {
+    font-weight: bold;
+    background-color: rgba(255, 215, 0, 0.2) !important;
+}
+
+.current-user td {
+    border-left: 3px solid gold;
+}
+
+
  </style>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -517,7 +527,8 @@ button:disabled {
                     <tr>
                         <th>排名</th>
                         <th>用户名</th>
-                        <th>用时(秒)</th>
+                        <th>最佳成绩(秒)</th>
+                        <th>游戏次数</th>
                         <th>模式</th>
                     </tr>
                 </thead>
@@ -820,17 +831,17 @@ function handleCardClick(index) {
                 const finishTime = (timeElapsed / 10).toFixed(1);
                 const gameMode = document.querySelector(".game-modes button.active").textContent;
                 
-                // 保存到Firebase
-                const recordRef = firebase.database().ref('gameRecords').push();
-                recordRef.set({
-                    username: currentUsername,
-                    mode: gameMode,
-                    time: parseFloat(finishTime),
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                }).then(() => {
-                    // 获取排行榜并显示
-                    getLeaderboard(gameMode, finishTime, recordRef.key);
-                });
+                // 直接更新用户统计并获取排行榜
+                updateUserStats(currentUsername, gameMode, parseFloat(finishTime))
+                    .then(() => {
+                        getLeaderboard(gameMode, parseFloat(finishTime));
+                    })
+                    .catch(error => {
+                        console.error("游戏完成处理失败:", error);
+                        // 降级处理
+                        document.getElementById('completion-time').textContent = `用时: ${finishTime}秒`;
+                        document.getElementById('completion-modal').classList.add('active');
+                    });
             }
 
         } else { // 配对失败时，延迟250ms后取消选中状态 
@@ -843,64 +854,147 @@ function handleCardClick(index) {
     }
 }
 
+// 更新用戶統計數據
+function updateUserStats(username, mode, currentTime) {
+    return new Promise((resolve, reject) => {
+        const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
+        const userRef = firebase.database().ref(`userStats/${sanitizedUsername}`);
+        
+        userRef.transaction(currentData => {
+            if (!currentData) {
+                currentData = {
+                    username: username,
+                    gameCount: 1,
+                    modes: {
+                        [mode]: {
+                            count: 1,
+                            bestTime: currentTime,
+                            lastPlayed: firebase.database.ServerValue.TIMESTAMP
+                        }
+                    }
+                };
+            } else {
+                currentData.gameCount = (currentData.gameCount || 0) + 1;
+                
+                // 初始化 modes 對象如果不存在
+                if (!currentData.modes) {
+                    currentData.modes = {};
+                }
+                
+                // 初始化當前模式數據如果不存在
+                if (!currentData.modes[mode]) {
+                    currentData.modes[mode] = {
+                        count: 0,
+                        bestTime: currentTime,
+                        lastPlayed: firebase.database.ServerValue.TIMESTAMP
+                    };
+                }
+                
+                // 更新模式統計
+                currentData.modes[mode].count += 1;
+                if (currentTime < currentData.modes[mode].bestTime) {
+                    currentData.modes[mode].bestTime = currentTime;
+                }
+                currentData.modes[mode].lastPlayed = firebase.database.ServerValue.TIMESTAMP;
+            }
+        return currentData;
+        }, (error, committed) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve();
+            }
+        });
+    });
+}
 
-// 获取排行榜数据
-function getLeaderboard(mode, currentTime, currentRecordKey) {
-    firebase.database().ref('gameRecords')
-        .orderByChild('mode')
-        .equalTo(mode)
-        .once('value')
-        .then(snapshot => {
+// 獲取排行榜數據
+function getLeaderboard(mode, currentTime) {
+    // 查詢全局排行榜（前10名）
+    const globalQuery = firebase.database().ref('userStats')
+        .orderByChild(`modes/${mode}/bestTime`)
+        .limitToFirst(10);
+    
+    // 查詢當前用戶數據（用於高亮顯示）
+    const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
+    const userQuery = firebase.database().ref(`userStats/${sanitizedUsername}`);
+    
+    // 並行查詢
+    Promise.all([globalQuery.once('value'), userQuery.once('value')])
+        .then(([globalSnapshot, userSnapshot]) => {
             const records = [];
-            const userBestTimes = {}; // 用于记录每个用户的最佳成绩
             
-            snapshot.forEach(childSnapshot => {
-                const record = childSnapshot.val();
-                record.key = childSnapshot.key;
-                
-                // 只保留每个用户的最佳成绩(最短时间)
-                if (!userBestTimes[record.username] || record.time < userBestTimes[record.username].time) {
-                    userBestTimes[record.username] = record;
+            // 處理全局排行榜數據
+            globalSnapshot.forEach(userSnapshot => {
+                const userData = userSnapshot.val();
+                if (userData.modes && userData.modes[mode]) {
+                    records.push({
+                        username: userData.username,
+                        time: userData.modes[mode].bestTime,
+                        gamesPlayed: userData.modes[mode].count || 0,
+                        isCurrentUser: userData.username === currentUsername
+                    });
                 }
             });
             
-            // 将所有用户的最佳成绩转换为数组
-            const uniqueRecords = Object.values(userBestTimes);
-            
-            // 按用时排序
-            uniqueRecords.sort((a, b) => a.time - b.time);
-            
-            // 只取前10名
-            const top10 = uniqueRecords.slice(0, 10);
-            
-            // 填充排行榜表格
-            const leaderboardBody = document.getElementById('leaderboard-body');
-            leaderboardBody.innerHTML = '';
-            
-            top10.forEach((record, index) => {
-                const row = document.createElement('tr');
-                
-                // 如果是当前用户的记录，添加特殊样式
-                if (record.key === currentRecordKey) {
-                    row.style.fontWeight = 'bold';
-                    row.style.backgroundColor = 'var(--secondary)';
+            // 添加當前用戶數據（如果不在前10名中）
+            const userData = userSnapshot.val();
+            if (userData && userData.modes?.[mode]) {
+                const alreadyInList = records.some(r => r.username === currentUsername);
+                if (!alreadyInList) {
+                    records.push({
+                        username: currentUsername,
+                        time: userData.modes[mode].bestTime,
+                        gamesPlayed: userData.modes[mode].count || 0,
+                        isCurrentUser: true
+                    });
                 }
-                
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${record.username}</td>
-                    <td>${record.time.toFixed(1)}</td>
-                    <td>${record.mode}</td>
-                `;
-                leaderboardBody.appendChild(row);
-            });
+            }
             
-            // 显示完成模态框
-            document.getElementById('completion-time').textContent = `用时: ${currentTime}秒`;
+            // 按時間排序（確保順序正確）
+            records.sort((a, b) => a.time - b.time);
+            
+            // 渲染排行榜
+            renderLeaderboard(records, mode, currentTime);
+        })
+        .catch(error => {
+            console.error("獲取排行榜失敗:", error);
+            // 降級處理：至少顯示完成時間和基本信息
+            document.getElementById('completion-time').textContent = `用時: ${currentTime}秒`;
             document.getElementById('completion-modal').classList.add('active');
         });
 }
 
+// 渲染排行榜
+function renderLeaderboard(records, mode, currentTime) {
+    const leaderboardBody = document.getElementById('leaderboard-body');
+    leaderboardBody.innerHTML = '';
+    
+    // 最多显示11条记录（10名+当前用户）
+    const displayRecords = records.slice(0, 11);
+    
+    displayRecords.forEach((record, index) => {
+        const row = document.createElement('tr');
+        
+        // 高亮显示当前用户
+        if (record.isCurrentUser) {
+            row.classList.add('current-user');
+        }
+        
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${record.username} ${record.isCurrentUser ? '(您)' : ''}</td>
+            <td>${record.time.toFixed(1)}</td>
+            <td>${record.gamesPlayed}</td>
+            <td>${mode}</td>
+        `;
+        leaderboardBody.appendChild(row);
+    });
+    
+    // 显示完成时间和模式
+    document.getElementById('completion-time').textContent = `用时: ${currentTime}秒 (模式: ${mode})`;
+    document.getElementById('completion-modal').classList.add('active');
+}
 
 // 事件监听
 document.getElementById("start-btn").addEventListener("click", checkUsername);
@@ -953,4 +1047,3 @@ initGame("vowels");
 
 </body>
 </html>
-
