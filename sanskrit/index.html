@@ -1102,8 +1102,15 @@ function renderLeaderboardAndHistory(records, historyRecords, mode, currentTime)
         leaderboardBody.appendChild(row);
     });
     
+    // 移除可能存在的旧历史记录部分
+    const oldHistory = document.querySelector('.modal-content .history-section');
+    if (oldHistory) {
+        oldHistory.remove();
+    }
+    
     // 添加历史记录部分
     const historySection = document.createElement('div');
+    historySection.className = 'history-section'; // 添加类名以便后续查找
     historySection.innerHTML = `
         <h3 style="margin-top: 30px;">您的最近记录</h3>
         <table class="leaderboard">
