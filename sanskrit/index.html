@@ -524,6 +524,144 @@ button:disabled {
     }
 }
 
+.user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 8px 12px;
+    background-color: rgba(106, 90, 205, 0.1);
+    border-radius: 20px;
+}
+
+#current-username {
+    font-weight: bold;
+    color: var(--primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 180px;
+}
+
+#change-user-btn {
+    padding: 5px 12px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+#change-user-btn:hover {
+    background-color: var(--secondary);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 480px) {
+    .user-info {
+        margin-bottom: 10px;
+    }
+    
+    #current-username {
+        max-width: 120px;
+    }
+    
+    #change-user-btn {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .user-info {
+        background-color: rgba(156, 136, 255, 0.1);
+    }
+    
+    #current-username {
+        color: #9c88ff;
+    }
+    
+    #change-user-btn {
+        background-color: #9c88ff;
+    }
+    
+    #change-user-btn:hover {
+        background-color: #ffbe76;
+    }
+}
+
+
+.username-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    width: 100%;
+}
+
+.username-input {
+    padding: 12px;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    font-size: 16px;
+    text-align: center;
+    width: 80%;
+    max-width: 300px;
+    transition: all 0.2s;
+}
+
+.username-input:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.3);
+}
+
+#username-submit-btn {
+    padding: 12px 24px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+    width: auto;
+    min-width: 150px;
+    display: flex;          /* 新增 */
+    justify-content: center; /* 新增 */
+    align-items: center;    /* 新增 */
+    margin: 0 auto;         /* 新增 - 水平居中 */
+}
+
+#username-submit-btn:hover {
+    background-color: var(--secondary);
+    transform: translateY(-2px);
+}
+
+/* 暗黑模式适配 */
+@media (prefers-color-scheme: dark) {
+    .username-input {
+        background-color: #3d3d3d;
+        color: white;
+        border-color: var(--primary);
+    }
+    
+    .username-input:focus {
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 3px rgba(156, 136, 255, 0.3);
+    }
+    
+    #username-submit-btn {
+        background-color: var(--primary);
+    }
+    
+    #username-submit-btn:hover {
+        background-color: var(--secondary);
+    }
+}
+
 
 </style>
 
@@ -547,6 +685,10 @@ firebase.initializeApp(firebaseConfig);
 <body>
     <div class="game-container">
         <h1>天城體字母配對</h1>
+<div class="user-info">
+    <span id="current-username">未登录</span>
+    <button id="change-user-btn">切换用户</button>
+</div>
         <div class="game-modes">
             <button id="vowels-btn">元音</button>
             <button id="consonants-btn">輔音</button>
@@ -608,7 +750,7 @@ firebase.initializeApp(firebaseConfig);
             <h2 class="modal-title">請輸入用戶名</h2>
             <div class="username-modal">
                 <input type="text" class="username-input" id="username-input" placeholder="您的暱稱" maxlength="20">
-                <button class="modal-close" id="username-submit-btn">開始游戲</button>
+                <button id="username-submit-btn">開始游戲</button>
             </div>
         </div>
     </div>
@@ -719,22 +861,75 @@ function checkUsername() {
         document.getElementById('username-modal').classList.add('active');
         document.getElementById('username-input').focus();
     } else {
-        startGame();
+        // 检查用户是否在黑名单中
+        firebase.database().ref('blacklistedUsers/' + currentUsername.replace(/[.$#[\]/]/g, '_'))
+            .once('value')
+            .then(snapshot => {
+                if (snapshot.exists()) {
+                    alert("抱歉，此账户已被限制使用");
+                    document.getElementById('username-input').value = "";
+                    document.getElementById('username-modal').classList.add('active');
+                    currentUsername = "";
+                    localStorage.removeItem('devanagariGameUsername');
+                    updateUsernameDisplay(); // 更新显示
+                } else {
+                    startGame();
+                }
+            })
+            .catch(error => {
+                console.error("检查黑名单失败:", error);
+                startGame(); // 出错时默认允许
+            });
     }
+}
+
+function clearUserData() {
+    currentUsername = "";
+    localStorage.removeItem('devanagariGameUsername');
+    cachedUserHistory = [];
+    sessionStorage.removeItem('cachedHistory');
+    updateUsernameDisplay();
 }
 
 // 用戶名提交處理
 document.getElementById('username-submit-btn').addEventListener('click', function() {
     const username = document.getElementById('username-input').value.trim();
     if (username) {
-        currentUsername = username;
-        localStorage.setItem('devanagariGameUsername', username);
-        document.getElementById('username-modal').classList.remove('active');
-        startGame();
+        const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
+        firebase.database().ref('blacklistedUsers/' + sanitizedUsername)
+            .once('value')
+            .then(snapshot => {
+                if (snapshot.exists()) {
+                    alert("抱歉，此用户名已被限制使用");
+                    document.getElementById('username-input').value = "";
+                } else {
+                    currentUsername = username;
+                    localStorage.setItem('devanagariGameUsername', username);
+                    document.getElementById('username-modal').classList.remove('active');
+                    startGame();
+                }
+            })
+            .catch(error => {
+                console.error("检查黑名单失败:", error);
+                // 出错时默认允许
+                currentUsername = username;
+                localStorage.setItem('devanagariGameUsername', username);
+                document.getElementById('username-modal').classList.remove('active');
+                startGame();
+            });
     } else {
-        alert('請輸入有效的用戶名');
+        alert('请输入有效的用户名');
     }
 });
+
+function updateUsernameDisplay() {
+    const usernameDisplay = document.getElementById('current-username');
+    if (currentUsername) {
+        usernameDisplay.textContent = currentUsername;
+    } else {
+        usernameDisplay.textContent = "未登录";
+    }
+}
 
 // 獲取隨機子集（6對）
 function getRandomSubset(array, count = 6) {
@@ -851,6 +1046,9 @@ function initGame(dataType) {
     if (currentUsername) {
         preloadUserHistory();
     }
+
+updateUsernameDisplay();
+
 }
 
 // 預加載當前模式的歷史記錄（靜默執行）
@@ -1215,7 +1413,7 @@ function renderLeaderboard(records, mode, currentTime) {
             }
             row.innerHTML = `
                 <td>${index + 1}</td>
-                <td>${record.username} ${record.isCurrentUser ? '(您)' : ''}</td>
+                <td>${record.username === currentUsername ? '👤 ' + record.username : record.username}</td>
                 <td>${record.time.toFixed(1)}</td>
                 <td>${record.gamesPlayed}</td>
             `;
@@ -1444,6 +1642,59 @@ window.addEventListener('online', () => {
         setTimeout(preloadUserHistory, 3000); // 延遲執行避免阻塞
     }
 });
+
+// 切换用户的事件监听
+document.getElementById('change-user-btn').addEventListener('click', function() {
+    clearUserData();
+    document.getElementById('username-input').value = "";
+    document.getElementById('username-modal').classList.add('active');
+    document.getElementById('username-input').focus();
+    
+    // 重置游戏状态
+    const currentMode = document.querySelector(".game-modes button.active")?.id;
+    if (currentMode) {
+        initGame(currentMode.replace("-btn", ""));
+    }
+});
+
+// 添加回车键提交支持
+document.getElementById('username-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('username-submit-btn').click();
+    }
+});
+
+// 在用户名提交处理函数中添加
+document.getElementById('username-submit-btn').addEventListener('click', function() {
+    const username = document.getElementById('username-input').value.trim();
+    if (username) {
+        const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
+        firebase.database().ref('blacklistedUsers/' + sanitizedUsername)
+            .once('value')
+            .then(snapshot => {
+                if (snapshot.exists()) {
+                    alert("抱歉，此用户名已被限制使用");
+                    document.getElementById('username-input').value = "";
+                    } else {
+                    currentUsername = username;
+                    localStorage.setItem('devanagariGameUsername', username);
+                    document.getElementById('username-modal').classList.remove('active');
+                    updateUsernameDisplay(); // 添加这行
+                    startGame();
+                    }
+              })
+             .catch(error => {
+                    console.error("检查黑名单失败:", error);
+                    currentUsername = username;
+                    localStorage.setItem('devanagariGameUsername', username);
+                    document.getElementById('username-modal').classList.remove('active');
+                    updateUsernameDisplay(); // 添加这行
+                    startGame();
+               });
+            } else {
+         alert('请输入有效的用户名');
+      }
+   });
 
 </script>
 
