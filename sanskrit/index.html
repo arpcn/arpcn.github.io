@@ -1783,7 +1783,6 @@ document.getElementById('username-submit-btn').addEventListener('click', functio
                 localStorage.setItem('devanagariGameUsername', username);
                 document.getElementById('username-modal').classList.remove('active');
                 updateUsernameDisplay();
-                startGame();
             })
             .catch(error => {
                 if (error.message === "NOT_WHITELISTED") {
