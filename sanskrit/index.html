@@ -1577,7 +1577,7 @@ function updateLeaderboard(mode, currentTime) {
                 }
                 row.innerHTML = `
                     <td>${index + 1}</td>
-                    <td>${record.username} ${record.isCurrentUser ? '(您)' : ''}</td>
+                    <td>${record.username} ${record.isCurrentUser ? '👤' : ''}</td>
                     <td>${record.time.toFixed(1)}</td>
                     <td>${record.gamesPlayed}</td>
                 `;
