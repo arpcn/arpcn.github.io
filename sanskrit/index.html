@@ -292,6 +292,7 @@ button:disabled {
 }
 
 .modal-content {
+    position: relative;
     background: white;
     padding: 30px;
     border-radius: 16px;
@@ -318,20 +319,28 @@ button:disabled {
 }
 
 .modal-close {
-    display: block;
-    margin: 20px auto 0; 
-    padding: 10px 20px;
-    background-color: var(--primary);
-    color: white;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 32px;
+    height: 32px;
     border: none;
-    border-radius: 20px;
+    background: #ff4757;
+    color: white;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: bold;
     cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.1s;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
 }
 
 .modal-close:hover {
-    background-color: var(--secondary);
+    background: #ff6b81;
+    transform: scale(1.1);
 }
 
 .username-modal {
@@ -480,11 +489,41 @@ button:disabled {
         background-color: rgba(255, 215, 0, 0.1) !important;
     }
 }
-.scroll-content{
-  height: 65vh; /* 占屏幕一部分 */
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* 優化iOS滾動 */
+
+/* 可滾動內容區域 */
+.scroll-content {
+    max-height: calc(90vh - 70px); /* 減去標題和按鈕空間 */
+    overflow-y: auto;
+    padding-right: 5px; /* 避免滾動條遮擋內容 */
+    height: 65vh; /* 占屏幕一部分 */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* 優化iOS滾動 */
 }
+
+/* 自定義滾動條樣式 (可選) */
+.scroll-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scroll-content::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+        padding-top: 45px;
+    }
+    
+    .modal-close {
+        width: 28px;
+        height: 28px;
+        font-size: 18px;
+    }
+}
+
 
 </style>
 
@@ -527,6 +566,7 @@ firebase.initializeApp(firebaseConfig);
 
     <div class="modal-overlay" id="completion-modal">
         <div class="modal-content">
+        <button class="modal-close" id="modal-close-btn">×</button>
         <div class="scroll-content">
             <h2 class="modal-title">恭喜完成！</h2>
             <p class="modal-message" id="completion-time">用時: 0秒</p>
@@ -544,7 +584,6 @@ firebase.initializeApp(firebaseConfig);
                     <!-- 排行榜數據將通過JavaScript動態填充 -->
                 </tbody>
             </table>
-            <button class="modal-close" id="modal-close-btn">關閉</button>
             <button id="load-history-btn" class="load-history-btn">查看我的最近記錄</button>
             <div id="history-container" class="history-container">
                 <h3>您的最近記錄</h3>
