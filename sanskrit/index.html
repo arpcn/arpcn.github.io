@@ -662,6 +662,82 @@ button:disabled {
     }
 }
 
+.custom-alert-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.custom-alert-box {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 400px;
+  overflow: hidden;
+  animation: alertFadeIn 0.3s ease-out;
+}
+
+.custom-alert-content {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 水平居中 */
+}
+
+#custom-alert-message {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.5;
+  color: #af3805;
+  text-align: center; /* 新增：文本居中 */
+  padding: 10px 0;    /* 调整内边距 */
+}
+
+.custom-alert-buttons {
+  display: flex;
+  justify-content: flex-end; /* 按钮容器右对齐 */
+  width: 100%; /* 确保宽度满幅 */
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0; /* 添加分割线 */
+}
+
+.custom-alert-button {
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+  margin-left: 10px;
+  min-width: 80px; /* 统一按钮宽度 */
+}
+
+.custom-alert-button:hover {
+  background-color: #40a9ff;
+  box-shadow: 0 2px 6px rgba(24, 144, 255, 0.3);
+}
+
+@keyframes alertFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 </style>
 
@@ -754,6 +830,19 @@ firebase.initializeApp(firebaseConfig);
             </div>
         </div>
     </div>
+
+<!-- alert -->
+<div id="custom-alert-overlay" class="custom-alert-overlay">
+  <div class="custom-alert-box">
+    <div class="custom-alert-content">
+      <p id="custom-alert-message"></p>
+      <div class="custom-alert-buttons">
+        <button id="custom-alert-confirm" class="custom-alert-button">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 
 <script>
@@ -861,26 +950,34 @@ function checkUsername() {
         document.getElementById('username-modal').classList.add('active');
         document.getElementById('username-input').focus();
     } else {
-        // 检查用户是否在黑名单中
+        // 檢查用戶是否在黑名單中
         firebase.database().ref('blacklistedUsers/' + currentUsername.replace(/[.$#[\]/]/g, '_'))
             .once('value')
             .then(snapshot => {
                 if (snapshot.exists()) {
-                    alert("抱歉，此账户已被限制使用");
+                    alert("抱歉，此賬戶已被限制使用");
                     document.getElementById('username-input').value = "";
                     document.getElementById('username-modal').classList.add('active');
                     currentUsername = "";
                     localStorage.removeItem('devanagariGameUsername');
-                    updateUsernameDisplay(); // 更新显示
+                    updateUsernameDisplay(); // 更新顯示
                 } else {
                     startGame();
                 }
             })
             .catch(error => {
-                console.error("检查黑名单失败:", error);
-                startGame(); // 出错时默认允许
+                console.error("檢查黑名單失敗:", error);
+                startGame(); // 出錯時默認允許
             });
     }
+}
+
+// 檢查用戶是否在白名單中
+function checkUserWhitelist(username) {
+    const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
+    return firebase.database().ref('whitelistedUsers/' + sanitizedUsername)
+        .once('value')
+        .then(snapshot => snapshot.exists());
 }
 
 function clearUserData() {
@@ -891,44 +988,32 @@ function clearUserData() {
     updateUsernameDisplay();
 }
 
-// 用戶名提交處理
-document.getElementById('username-submit-btn').addEventListener('click', function() {
-    const username = document.getElementById('username-input').value.trim();
-    if (username) {
-        const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
-        firebase.database().ref('blacklistedUsers/' + sanitizedUsername)
-            .once('value')
-            .then(snapshot => {
-                if (snapshot.exists()) {
-                    alert("抱歉，此用户名已被限制使用");
-                    document.getElementById('username-input').value = "";
-                } else {
-                    currentUsername = username;
-                    localStorage.setItem('devanagariGameUsername', username);
-                    document.getElementById('username-modal').classList.remove('active');
-                    startGame();
-                }
-            })
-            .catch(error => {
-                console.error("检查黑名单失败:", error);
-                // 出错时默认允许
-                currentUsername = username;
-                localStorage.setItem('devanagariGameUsername', username);
-                document.getElementById('username-modal').classList.remove('active');
-                startGame();
-            });
-    } else {
-        alert('请输入有效的用户名');
-    }
-});
-
 function updateUsernameDisplay() {
     const usernameDisplay = document.getElementById('current-username');
     if (currentUsername) {
         usernameDisplay.textContent = currentUsername;
     } else {
-        usernameDisplay.textContent = "未登录";
+        usernameDisplay.textContent = "未登錄";
     }
+}
+
+
+// 強制轉換函數
+function forceTraditionalUsername(inputUsername) {
+  const forcedConversionMap = {
+  '会': '會',
+  '论': '論',
+  '双': '雙',
+  '愿': '願',
+  '泽': '澤',
+  // 可擴展其他需要強制轉換的字
+};
+  canonicalUsername =  inputUsername.replace(/[会论双愿泽]/g, char => forcedConversionMap[char] || char);
+  
+  return {
+    displayName: canonicalUsername,
+    originalInput: inputUsername // 保留原始輸入用於顯示
+  };
 }
 
 // 獲取隨機子集（6對）
@@ -1643,58 +1728,126 @@ window.addEventListener('online', () => {
     }
 });
 
-// 切换用户的事件监听
+// 切換用戶的事件監聽
 document.getElementById('change-user-btn').addEventListener('click', function() {
     clearUserData();
     document.getElementById('username-input').value = "";
     document.getElementById('username-modal').classList.add('active');
     document.getElementById('username-input').focus();
     
-    // 重置游戏状态
+    // 重置游戲狀態
     const currentMode = document.querySelector(".game-modes button.active")?.id;
     if (currentMode) {
         initGame(currentMode.replace("-btn", ""));
     }
 });
 
-// 添加回车键提交支持
+// 添加回車鍵提交支持
 document.getElementById('username-input').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         document.getElementById('username-submit-btn').click();
     }
 });
 
-// 在用户名提交处理函数中添加
+
+// 用戶名提交處理
 document.getElementById('username-submit-btn').addEventListener('click', function() {
-    const username = document.getElementById('username-input').value.trim();
+    let username = document.getElementById('username-input').value.trim();
+
     if (username) {
-        const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
-        firebase.database().ref('blacklistedUsers/' + sanitizedUsername)
-            .once('value')
-            .then(snapshot => {
-                if (snapshot.exists()) {
-                    alert("抱歉，此用户名已被限制使用");
-                    document.getElementById('username-input').value = "";
-                    } else {
-                    currentUsername = username;
-                    localStorage.setItem('devanagariGameUsername', username);
-                    document.getElementById('username-modal').classList.remove('active');
-                    updateUsernameDisplay(); // 添加这行
-                    startGame();
-                    }
-              })
-             .catch(error => {
-                    console.error("检查黑名单失败:", error);
-                    currentUsername = username;
-                    localStorage.setItem('devanagariGameUsername', username);
-                    document.getElementById('username-modal').classList.remove('active');
-                    updateUsernameDisplay(); // 添加这行
-                    startGame();
-               });
-            } else {
-         alert('请输入有效的用户名');
+          const result = forceTraditionalUsername(username);
+          username = result.displayName;
+        // 先檢查白名單
+        checkUserWhitelist(username)
+            .then(isWhitelisted => {
+                if (isWhitelisted) {
+                    // 再檢查黑名單（原有邏輯）
+                    const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
+                    return firebase.database().ref('blacklistedUsers/' + sanitizedUsername)
+                        .once('value')
+                        .then(snapshot => {
+                            if (snapshot.exists()) {
+                                throw new Error("BLACKLISTED");
+                            }
+                             if (result.originalInput !== result.displayName) {
+                                alert(`繫統已將「${result.originalInput}」轉換為「${result.displayName}」`);
+                             }
+                            return username;
+                        });
+                } else {
+                    throw new Error("NOT_WHITELISTED");
+                }
+            })
+            .then(username => {
+                currentUsername = username;
+                localStorage.setItem('devanagariGameUsername', username);
+                document.getElementById('username-modal').classList.remove('active');
+                updateUsernameDisplay();
+                startGame();
+            })
+            .catch(error => {
+                if (error.message === "NOT_WHITELISTED") {
+                    alert("抱歉，您不在授權用戶名單中");
+                } else if (error.message === "BLACKLISTED") {
+                    alert("抱歉，此賬戶已被限制使用");
+                } else {
+                    console.error("登錄失敗:", error);
+                    alert("登錄時發生錯誤");
+                }
+                document.getElementById('username-input').value = "";
+            });
+    } else {
+        alert('請輸入有效的用戶名');
+    }
+});
+
+
+// 保存原始 alert 函數
+const originalAlert = window.alert;
+
+// 重寫全局 alert 函數
+window.alert = function(message) {
+  const overlay = document.getElementById('custom-alert-overlay');
+  const messageEl = document.getElementById('custom-alert-message');
+  const confirmBtn = document.getElementById('custom-alert-confirm');
+  
+  // 設置消息內容
+  messageEl.textContent = message;
+  
+  // 顯示提示框
+  overlay.style.display = 'flex';
+  
+  // 創建并返回一個 Promise
+  return new Promise((resolve) => {
+    // 確認按鈕點擊處理
+    const handler = () => {
+      overlay.style.display = 'none';
+      confirmBtn.removeEventListener('click', handler);
+      resolve();
+    };
+    
+    confirmBtn.addEventListener('click', handler);
+    
+    // 點擊背景關閉
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        handler();
       }
-   });
+    });
+    
+    // ESC 鍵關閉
+    document.addEventListener('keydown', function escHandler(e) {
+      if (e.key === 'Escape') {
+        handler();
+        document.removeEventListener('keydown', escHandler);
+      }
+    });
+  });
+};
+
+// 如果需要兼容同步代碼，可以保留原始 alert 的同步行為
+window.alert.sync = originalAlert;
+
 
 </script>
 
