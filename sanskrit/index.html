@@ -763,7 +763,7 @@ firebase.initializeApp(firebaseConfig);
         <h1>天城體字母配對</h1>
 <div class="user-info">
     <span id="current-username">未登录</span>
-    <button id="change-user-btn">切换用户</button>
+    <button id="change-user-btn">Sign in</button>
 </div>
         <div class="game-modes">
             <button id="vowels-btn">元音</button>
@@ -990,10 +990,13 @@ function clearUserData() {
 
 function updateUsernameDisplay() {
     const usernameDisplay = document.getElementById('current-username');
+    const changeuserDisplay = document.getElementById('change-user-btn');
     if (currentUsername) {
         usernameDisplay.textContent = currentUsername;
+        changeuserDisplay.textContent = "切换用户";
     } else {
         usernameDisplay.textContent = "未登錄";
+        changeuserDisplay.textContent = "Sign in";
     }
 }
 
