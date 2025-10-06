@@ -19,15 +19,15 @@
     --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
     
     /* 六種匹配顏色 */
-    /* 高区分度浅色方案 - 基于色相/饱和度调整 */
-    --match-color-1: #D4EDDA; /* 薄荷绿（增加蓝调） */
-    --match-color-2: #fff0bb; /* 淡鹅黄（原黄绿改为纯黄） */
-    --match-color-3: #E1F5FE; /* 淡天蓝（新增冷色调） */
-    --match-color-4: #FCE4EC; /* 淡粉红（新增暖色调） */
-    --match-color-5: #B8D8BA; /* 保留浅草绿 */
-    --match-color-6: #D1C4E9; /* 淡紫（新增互补色） */
+    /* 高區分度淺色方案 - 基於色相/飽和度調整 */
+    --match-color-1: #D4EDDA; /* 薄荷綠（增加藍調） */
+    --match-color-2: #fff0bb; /* 淡鵝黃（原黃綠改為純黃） */
+    --match-color-3: #E1F5FE; /* 淡天藍（新增冷色調） */
+    --match-color-4: #FCE4EC; /* 淡粉紅（新增暖色調） */
+    --match-color-5: #B8D8BA; /* 保留淺草綠 */
+    --match-color-6: #D1C4E9; /* 淡紫（新增互補色） */
   
-    /* 可选更高饱和度版本 */
+    /* 可選更高飽和度版本 */
     /*
     --match-color-1: #A5D6A7;
     --match-color-2: #FFF59D;
@@ -192,13 +192,13 @@ button:disabled {
   color: var(--text-primary);
 }
 
-/* 卡片专用样式 */
+/* 卡片專用樣式 */
 .card[data-type="iast"] .card-content {
     font-family: "Times New Roman", Times, serif;
-   /*  font-style: italic;  斜体 */
-   /*  font-weight: bold; 可选：加粗显示 */
+   /*  font-style: italic;  斜體 */
+   /*  font-weight: bold; 可選：加粗顯示 */
     font-size: 0.85em; /* 比天城體小15% */
-    color: var(--text-primary); /* 替换原#000 */
+    color: var(--text-primary); /* 替換原#000 */
 }
 .card[data-type="devanagari"] .card-content {
     font-family: "Noto Sans Devanagari", sans-serif; /* 或 Mangal， Tiro Devanagari */
@@ -212,7 +212,7 @@ button:disabled {
     box-shadow: 0 0 0 2px var(--secondary);
 }
 
-/* 匹配成功后的颜色样式 */
+/* 匹配成功後的顏色樣式 */
 .card.matched[data-pair="0"] .card-content {
     background: var(--match-color-1);
 }
@@ -233,7 +233,7 @@ button:disabled {
 }
 
 .card.matched .card-content {
-    animation: matchAnimation 0.5s;  /* 匹配成功的动画时间 */ 
+    animation: matchAnimation 0.5s;  /* 匹配成功的動畫時間 */ 
     color: #858585 !important; /*  #777 使用灰色 #999 更淺的灰色  #555 更深的灰色  #808080 中等灰色 #DCDCDC #D3D3D3 #C0C0C0 #A9A9A9 #858585 #808080 #696969 #778899 #708090 #2F4F4F #000000  */
 }
 
@@ -398,26 +398,26 @@ button:disabled {
     --primary: #9c88ff;
     --secondary: #ffbe76;
     --card-bg: #2d3436;      /* 更深的卡片背景 */
-    --card-content-bg: #353b48; /* 卡片内容区背景 */
-    --text-primary: #f8f9fa;  /* 主文字颜色 */
+    --card-content-bg: #353b48; /* 卡片內容區背景 */
+    --text-primary: #f8f9fa;  /* 主文字顏色 */
     --text-secondary: #adb5bd; /* 次要文字 */
     --dark: #f5f6fa; /* 淺色文字 */
     --light: #353b48; /* 深色背景 */
 
-    /* 更新阴影变量 */
+    /* 更新陰影變量 */
     --shadow-sm: 0 0 0 1px rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.3);
     --shadow-md: 0 0 0 1px rgba(255,255,255,0.15), 0 4px 12px rgba(0,0,0,0.4);
     
-    /* 匹配颜色深色化 */
-    /* 高区分度配色方案 - 基于色相旋转 */
-    --match-color-1: #3a5f49; /* 青绿色 */
-    --match-color-2: #4a6b3d; /* 黄绿色 */
-    --match-color-3: #5a4e7a; /* 蓝紫色 */ 
-    --match-color-4: #7a4e5a; /* 紫红色 */
+    /* 匹配顏色深色化 */
+    /* 高區分度配色方案 - 基於色相旋轉 */
+    --match-color-1: #3a5f49; /* 青綠色 */
+    --match-color-2: #4a6b3d; /* 黃綠色 */
+    --match-color-3: #5a4e7a; /* 藍紫色 */ 
+    --match-color-4: #7a4e5a; /* 紫紅色 */
     --match-color-5: #8c5d3a; /* 橙棕色 */
-    --match-color-6: #3a7a6b; /* 蓝绿色 */
+    --match-color-6: #3a7a6b; /* 藍綠色 */
 
-    /* 可选高饱和度版本（更鲜艳） */
+    /* 可選高飽和度版本（更鮮艷） */
     /*
     --match-color-1: #2ecc71; 
     --match-color-2: #f1c40f;
@@ -483,7 +483,7 @@ button:disabled {
 .scroll-content{
   height: 65vh; /* 占屏幕一部分 */
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* 优化iOS滚动 */
+  -webkit-overflow-scrolling: touch; /* 優化iOS滾動 */
 }
 
 </style>
@@ -529,36 +529,34 @@ firebase.initializeApp(firebaseConfig);
         <div class="modal-content">
         <div class="scroll-content">
             <h2 class="modal-title">恭喜完成！</h2>
-            <p class="modal-message" id="completion-time">用时: 0秒</p>
+            <p class="modal-message" id="completion-time">用時: 0秒</p>
             <h3>排行榜</h3>
             <table class="leaderboard">
                 <thead>
                     <tr>
                         <th>排名</th>
-                        <th>用户名</th>
-                        <th>最佳成绩(秒)</th>
-                        <th>游戏次数</th>
-                        <th>模式</th>
+                        <th>用戶名</th>
+                        <th>最佳成績(秒)</th>
+                        <th>游戲次數</th>
                     </tr>
                 </thead>
                 <tbody id="leaderboard-body">
-                    <!-- 排行榜数据将通过JavaScript动态填充 -->
+                    <!-- 排行榜數據將通過JavaScript動態填充 -->
                 </tbody>
             </table>
-            <button class="modal-close" id="modal-close-btn">关闭</button>
-            <button id="load-history-btn" class="load-history-btn">查看我的最近记录</button>
+            <button class="modal-close" id="modal-close-btn">關閉</button>
+            <button id="load-history-btn" class="load-history-btn">查看我的最近記錄</button>
             <div id="history-container" class="history-container">
-                <h3>您的最近记录</h3>
+                <h3>您的最近記錄</h3>
                 <table class="leaderboard">
                     <thead>
                         <tr>
-                            <th>日期</th>
-                            <th>模式</th>
-                            <th>成绩(秒)</th>
+                            <th>通關時間</th>
+                            <th>成績(秒)</th>
                         </tr>
                     </thead>
                     <tbody id="history-body">
-                        <!-- 历史记录将通过JavaScript动态填充 -->
+                        <!-- 歷史記錄將通過JavaScript動態填充 -->
                     </tbody>
                 </table>
             </div>
@@ -568,17 +566,17 @@ firebase.initializeApp(firebaseConfig);
 
     <div class="modal-overlay" id="username-modal">
         <div class="modal-content">
-            <h2 class="modal-title">请输入用户名</h2>
+            <h2 class="modal-title">請輸入用戶名</h2>
             <div class="username-modal">
-                <input type="text" class="username-input" id="username-input" placeholder="您的昵称" maxlength="20">
-                <button class="modal-close" id="username-submit-btn">开始游戏</button>
+                <input type="text" class="username-input" id="username-input" placeholder="您的暱稱" maxlength="20">
+                <button class="modal-close" id="username-submit-btn">開始游戲</button>
             </div>
         </div>
     </div>
 </body>
 
 <script>
-// 游戏数据
+// 游戲數據
 const devanagariData = {
     vowels: [
         { iast: "a", devanagari: ["अ"] },
@@ -653,15 +651,15 @@ const devanagariData = {
     ]
 };
 
-// 游戏变量
+// 游戲變量
 let currentPairs = [];
 let cards = [];
 let flippedCards = [];
 let matchedPairs = 0;
 let isGameStarted = false;
 let timer;
-let timeElapsed = 0; // 单位：0.1秒
-let pairColors = []; // 存储每对卡片的颜色索引
+let timeElapsed = 0; // 單位：0.1秒
+let pairColors = []; // 存儲每對卡片的顏色索引
 let currentUsername = localStorage.getItem('devanagariGameUsername') || '';
 let preloadedLeaderboardData = {
     vowels: null,
@@ -669,14 +667,14 @@ let preloadedLeaderboardData = {
     numbers: null,
     mixed: null
 };
-let cachedUserHistory = []; // 内存缓存
+let cachedUserHistory = []; // 內存緩存
 
 // DOM元素
 const gameBoard = document.getElementById("game-board");
 const timerDisplay = document.getElementById("timer");
 const pairsDisplay = document.getElementById("pairs-matched");
 
-// 初始化时检查用户名
+// 初始化時檢查用戶名
 function checkUsername() {
     if (!currentUsername) {
         document.getElementById('username-modal').classList.add('active');
@@ -686,7 +684,7 @@ function checkUsername() {
     }
 }
 
-// 用户名提交处理
+// 用戶名提交處理
 document.getElementById('username-submit-btn').addEventListener('click', function() {
     const username = document.getElementById('username-input').value.trim();
     if (username) {
@@ -695,17 +693,17 @@ document.getElementById('username-submit-btn').addEventListener('click', functio
         document.getElementById('username-modal').classList.remove('active');
         startGame();
     } else {
-        alert('请输入有效的用户名');
+        alert('請輸入有效的用戶名');
     }
 });
 
-// 获取随机子集（6对）
+// 獲取隨機子集（6對）
 function getRandomSubset(array, count = 6) {
     const shuffled = [...array].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, Math.min(count, array.length));
 }
 
-// 准备游戏数据
+// 准備游戲數據
 function prepareGameData(dataType) {
     let data = [];
     if (dataType === 'vowels') {
@@ -731,7 +729,7 @@ function prepareGameData(dataType) {
     return expandedData;
 }
 
-// 洗牌函数
+// 洗牌函數
 function shuffleArray(array) {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -741,13 +739,13 @@ function shuffleArray(array) {
     return newArray;
 }
 
-// 初始化游戏
+// 初始化游戲
 function initGame(dataType) {
     gameBoard.innerHTML = "";
     const allPairs = prepareGameData(dataType);
     currentPairs = getRandomSubset(allPairs);
 
-    // 为每对卡片分配颜色索引 (0-5)
+    // 為每對卡片分配顏色索引 (0-5)
     pairColors = currentPairs.map((_, index) => index % 6);
 
     cards = [];
@@ -759,7 +757,7 @@ function initGame(dataType) {
             type: "devanagari",
             matched: false,
             element: null,
-            pairIndex: pairIndex // 用于匹配颜色
+            pairIndex: pairIndex // 用於匹配顏色
         });
         
         // IAST卡片
@@ -769,19 +767,19 @@ function initGame(dataType) {
             type: "iast",
             matched: false,
             element: null,
-            pairIndex: pairIndex // 用于匹配颜色
+            pairIndex: pairIndex // 用於匹配顏色
         });
     });
 
     cards = shuffleArray(cards);
 
-    // 创建卡片元素
+    // 創建卡片元素
     cards.forEach((card, index) => {
         const cardElement = document.createElement("div");
         cardElement.className = "card";
         cardElement.dataset.index = index;
         cardElement.dataset.type = card.type;
-        cardElement.dataset.pair = card.pairIndex; // 添加颜色索引
+        cardElement.dataset.pair = card.pairIndex; // 添加顏色索引
         
         const cardContent = document.createElement("div");
         cardContent.className = "card-content";
@@ -801,7 +799,7 @@ function initGame(dataType) {
         card.element = cardElement;
     });
 
-    // 重置游戏状态
+    // 重置游戲狀態
     flippedCards = [];
     matchedPairs = 0;
     isGameStarted = false;
@@ -816,18 +814,18 @@ function initGame(dataType) {
     }
 }
 
-// 预加载当前模式的历史记录（静默执行）
+// 預加載當前模式的歷史記錄（靜默執行）
 function preloadUserHistory() {
     const currentMode = document.querySelector(".game-modes button.active")?.textContent;
     if (!currentMode || !currentUsername) return;
     
     const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
     
-    // 1. 优先检查内存缓存
+    // 1. 優先檢查內存緩存
     if (cachedUserHistory.length > 0 && 
         cachedUserHistory[0]?.mode === currentMode) return;
     
-    // 2. 检查sessionStorage缓存
+    // 2. 檢查sessionStorage緩存
     const sessionCache = sessionStorage.getItem('cachedHistory');
     if (sessionCache) {
         const cachedData = JSON.parse(sessionCache);
@@ -837,7 +835,7 @@ function preloadUserHistory() {
         }
     }
     
-    // 3. 从Firebase加载当前模式的数据
+    // 3. 從Firebase加載當前模式的數據
     firebase.database().ref(`gameRecords/${sanitizedUsername}/${currentMode}`)
         .orderByChild('timestamp')
         .limitToLast(10)
@@ -848,18 +846,18 @@ function preloadUserHistory() {
                 records.unshift({
                     mode: currentMode,
                     time: record.val().time,
-                    date: new Date(record.val().timestamp).toLocaleDateString()
+                    timestamp: record.val().timestamp // 存儲完整時間戳
                 });
             });
             
-            // 更新缓存
+            // 更新緩存
             cachedUserHistory = records;
             sessionStorage.setItem('cachedHistory', JSON.stringify(records));
         })
-        .catch(error => console.log("预加载失败（不影响游戏）:", error));
+        .catch(error => console.log("預加載失敗（不影響游戲）:", error));
 }
 
-// 开始游戏
+// 開始游戲
 function startGame() {
     if (isGameStarted) return;
     
@@ -873,7 +871,7 @@ function startGame() {
     }, 100); // 每0.1秒更新一次
 }
 
-// 处理卡片点击
+// 處理卡片點擊
 function handleCardClick(index) {
     if (!isGameStarted || cards[index].matched || flippedCards.includes(index)) return;
 
@@ -903,74 +901,85 @@ function handleCardClick(index) {
 
             flippedCards = [];
 
-            // 游戏完成时的处理
+            // 游戲完成時的處理
             if (matchedPairs === 6) {
                 clearInterval(timer);
                 const finishTime = (timeElapsed / 10).toFixed(1);
                 const gameMode = document.querySelector(".game-modes button.active").textContent;
                 const modeKey = document.querySelector(".game-modes button.active").id.replace("-btn", "");
                 
-                // 如果有预加载数据，直接使用
+                // 如果有預加載數據，直接使用
                 if (preloadedLeaderboardData[modeKey]) {
                     renderLeaderboard(preloadedLeaderboardData[modeKey], gameMode, parseFloat(finishTime));
                 }
                 
-                // 更新用户统计并保存游戏记录
+                // 更新用戶統計并保存游戲記錄
                 updateUserStats(currentUsername, gameMode, parseFloat(finishTime))
                     .then(() => {
                         return saveGameRecord(currentUsername, gameMode, parseFloat(finishTime));
                     })
                     .then(() => {
-                        // 即使有预加载数据，也更新一次确保最新
+                        // 即使有預加載數據，也更新一次確保最新
                         return getLeaderboard(gameMode, parseFloat(finishTime));
                     })
                     .catch(error => {
-                        console.error("游戏完成处理失败:", error);
-                        document.getElementById('completion-time').textContent = `用时: ${finishTime}秒`;
+                        console.error("游戲完成處理失敗:", error);
+                        document.getElementById('completion-time').textContent = `用時: ${finishTime}秒`;
                         document.getElementById('completion-modal').classList.add('active');
                     });
                     
-                // 新增：更新本地缓存
+                // 新增：更新本地緩存
                 const newRecord = {
                     mode: gameMode,
                     time: parseFloat(finishTime),
-                    date: new Date().toLocaleDateString()
+                    timestamp: Date.now() // 使用當前時間戳
                 };
-                // 更新内存缓存
+                // 更新內存緩存
                 cachedUserHistory.unshift(newRecord);
                 if (cachedUserHistory.length > 10) cachedUserHistory.pop();
                 // 更新sessionStorage
                 sessionStorage.setItem('cachedHistory', JSON.stringify(cachedUserHistory));
             }
 
-        } else { // 配对失败时，延迟250ms后取消选中状态 
+        } else { // 配對失敗時，延遲250ms後取消選中狀態 
             setTimeout(() => {
                 firstCard.element.classList.remove("selected");
                 secondCard.element.classList.remove("selected");
                 flippedCards = [];
-            }, 250); // 延迟时间（单位：毫秒）
+            }, 250); // 延遲時間（單位：毫秒）
         }
     }
 }
 
-// 保存游戏记录（按模式分开存储，每种模式最多10条）
+function formatDate(timestamp) {
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+}
+
+// 保存游戲記錄（按模式分開存儲，每種模式最多10條）
 function saveGameRecord(username, mode, time) {
     return new Promise((resolve, reject) => {
         const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
         const modeRecordsRef = firebase.database().ref(`gameRecords/${sanitizedUsername}/${mode}`);
         
-        // 获取当前模式下的所有记录
+        // 獲取當前模式下的所有記錄
         modeRecordsRef.once('value')
             .then(snapshot => {
                 const records = snapshot.val() || {};
                 const recordIds = Object.keys(records);
                 
-                // 如果已有10条记录，删除最旧的一条
+                // 如果已有10條記錄，刪除最舊的一條
                 if (recordIds.length >= 10) {
                     let oldestRecordId = null;
                     let oldestTimestamp = Number.MAX_SAFE_INTEGER;
                     
-                    // 找出时间戳最小的记录
+                    // 找出時間戳最小的記錄
                     for (const id in records) {
                         if (records[id].timestamp < oldestTimestamp) {
                             oldestTimestamp = records[id].timestamp;
@@ -986,7 +995,7 @@ function saveGameRecord(username, mode, time) {
                 return true;
             })
             .then(() => {
-                // 添加新记录到当前模式节点下
+                // 添加新記錄到當前模式節點下
                 return modeRecordsRef.push().set({
                     time: time,
                     timestamp: firebase.database.ServerValue.TIMESTAMP
@@ -1052,7 +1061,7 @@ function updateUserStats(username, mode, currentTime) {
     });
 }
 
-// 预加载排行榜数据
+// 預加載排行榜數據
 function preloadLeaderboardData() {
     const modes = ['vowels', 'consonants', 'numbers', 'mixed'];
     
@@ -1078,10 +1087,10 @@ function preloadLeaderboardData() {
                 
                 records.sort((a, b) => a.time - b.time);
                 preloadedLeaderboardData[mode] = records;
-                // console.log(`预加载 ${mode} 排行榜数据完成`);
+                // console.log(`預加載 ${mode} 排行榜數據完成`);
             })
             .catch(error => {
-                // console.error(`预加载 ${mode} 排行榜数据失败:`, error);
+                // console.error(`預加載 ${mode} 排行榜數據失敗:`, error);
             });
     });
 }
@@ -1143,12 +1152,12 @@ function getLeaderboard(mode, currentTime) {
         });
 }
 
-// 渲染排行榜-支持预加载数据
+// 渲染排行榜-支持預加載數據
 function renderLeaderboard(records, mode, currentTime) {
     const leaderboardBody = document.getElementById('leaderboard-body');
     leaderboardBody.innerHTML = '';
     
-    // 添加当前用户数据（如果不在列表中）
+    // 添加當前用戶數據（如果不在列表中）
     const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
     const userRef = firebase.database().ref(`userStats/${sanitizedUsername}/modes/${mode.toLowerCase()}`);
     
@@ -1179,28 +1188,27 @@ function renderLeaderboard(records, mode, currentTime) {
                 <td>${record.username} ${record.isCurrentUser ? '(您)' : ''}</td>
                 <td>${record.time.toFixed(1)}</td>
                 <td>${record.gamesPlayed}</td>
-                <td>${mode}</td>
             `;
             leaderboardBody.appendChild(row);
         });
         
-        document.getElementById('completion-time').textContent = `用时: ${currentTime}秒 (模式: ${mode})`;
+        document.getElementById('completion-time').textContent = `用時: ${currentTime}秒 (模式: ${mode})`;
         document.getElementById('completion-modal').classList.add('active');
     });
 }
 
-// 加载当前模式的历史记录
+// 加載當前模式的歷史記錄
 function loadHistoryRecords() {
     const historyBody = document.getElementById('history-body');
     
-    // 1. 立即显示缓存内容
+    // 1. 立即顯示緩存內容
     if (cachedUserHistory.length > 0) {
         renderHistoryRecords(cachedUserHistory);
     } else {
-        historyBody.innerHTML = '<tr><td colspan="3">加载中...</td></tr>';
+        historyBody.innerHTML = '<tr><td colspan="3">加載中...</td></tr>';
     }
 
-    // 2. 后台更新最新数据（无论是否有缓存）
+    // 2. 後臺更新最新數據（無論是否有緩存）
     const currentMode = document.querySelector(".game-modes button.active").textContent;
     const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
     const modeRecordsRef = firebase.database().ref(`gameRecords/${sanitizedUsername}/${currentMode}`);
@@ -1209,53 +1217,53 @@ function loadHistoryRecords() {
         .then(snapshot => {
             const records = [];
             snapshot.forEach(record => {
-                records.unshift({ // 使用unshift实现倒序排列
+                records.unshift({ // 使用unshift實現倒序排列
                     mode: currentMode,
                     time: record.val().time,
-                    date: new Date(record.val().timestamp).toLocaleDateString()
+                    timestamp: record.val().timestamp // 確保傳遞完整時間戳
                 });
             });
             
             
-            // 仅当用户仍停留在历史记录面板时更新UI
+            // 僅當用戶仍停留在歷史記錄面板時更新UI
             if (document.getElementById('history-container').style.display === 'block') {
-            // 渲染记录
+            // 渲染記錄
             renderHistoryRecords(records);
             }
             
-            // 更新缓存（仅缓存当前模式）
+            // 更新緩存（僅緩存當前模式）
             cachedUserHistory = records;
-            sessionStorage.setItem('cachedHistory', JSON.stringify(cachedUserHistory));
+            sessionStorage.setItem('cachedHistory', JSON.stringify(records));
         })
         .catch(error => {
-            console.error("加载历史记录失败:", error);
+            console.error("加載歷史記錄失敗:", error);
             if (cachedUserHistory.length === 0) {
-                historyBody.innerHTML = '<tr><td colspan="3">加载失败</td></tr>';
+                historyBody.innerHTML = '<tr><td colspan="3">加載失敗</td></tr>';
             }
         });
     
-    // 显示历史记录面板
+    // 顯示歷史記錄面板
     document.getElementById('history-container').style.display = 'block';
     document.getElementById('load-history-btn').style.display = 'none';
 }
 
-// 渲染历史记录
+// 渲染歷史記錄
 function renderHistoryRecords(records) {
     const historyBody = document.getElementById('history-body');
     historyBody.innerHTML = '';
     
     records.forEach(record => {
         const row = document.createElement('tr');
+        const formattedDate = formatDate(record.timestamp || Date.now());
         row.innerHTML = `
-            <td>${record.date}</td>
-            <td>${record.mode}</td>
+            <td>${formattedDate}</td>
             <td>${record.time.toFixed(1)}</td>
         `;
         historyBody.appendChild(row);
     });
 }
 
-// 事件监听
+// 事件監聽
 document.getElementById("start-btn").addEventListener("click", checkUsername);
 document.getElementById("reset-btn").addEventListener("click", () => {
     const currentMode = document.querySelector(".game-modes button.active")?.id;
@@ -1264,7 +1272,7 @@ document.getElementById("reset-btn").addEventListener("click", () => {
     }
 });
 
-// 游戏模式选择
+// 游戲模式選擇
 function setupModeButton(buttonId, mode) {
     const button = document.getElementById(buttonId);
     button.addEventListener("click", function() {
@@ -1288,17 +1296,17 @@ setupModeButton("consonants-btn", "consonants");
 setupModeButton("numbers-btn", "numbers");
 setupModeButton("mixed-btn", "mixed");
 
-// 关闭模态框
+// 關閉模態框
 document.getElementById('modal-close-btn').addEventListener('click', function() {
     document.getElementById('completion-modal').classList.remove('active');
     document.getElementById('history-container').style.display = 'none';
     document.getElementById('load-history-btn').style.display = 'block';
 });
 
-// 加载历史记录按钮
+// 加載歷史記錄按鈕
 document.getElementById('load-history-btn').addEventListener('click', loadHistoryRecords);
 
-// 监听主题变化
+// 監聽主題變化
 function updateTheme() {
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     document.body.classList.toggle('dark-mode', isDark);
@@ -1306,30 +1314,30 @@ function updateTheme() {
 window.matchMedia('(prefers-color-scheme: dark)').addListener(updateTheme);
 updateTheme(); // 初始化
 
-// 默认加载元音模式
+// 默認加載元音模式
 setActiveMode(document.getElementById("vowels-btn"));
 initGame("vowels");
-// 初始化后立即预加载数据
+// 初始化後立即預加載數據
 preloadLeaderboardData();
 
-// 用户点击"查看记录"时：
+// 用戶點擊"查看記錄"時：
 document.getElementById('load-history-btn').addEventListener('click', () => {
-    loadHistoryRecords(); // 瞬间显示缓存，后台更新
+    loadHistoryRecords(); // 瞬間顯示緩存，後臺更新
 });
 
 
-// 定时刷新（放在这里确保Firebase已初始化）
-const preloadInterval = setInterval(preloadLeaderboardData, 5 * 60 * 1000); // 每5分钟刷新一次
+// 定時刷新（放在這里確保Firebase已初始化）
+const preloadInterval = setInterval(preloadLeaderboardData, 5 * 60 * 1000); // 每5分鍾刷新一次
 
-// 可选：页面卸载时清除定时器（避免内存泄漏）
+// 可選：頁面卸載時清除定時器（避免內存泄漏）
 window.addEventListener('beforeunload', () => {
     clearInterval(preloadInterval);
 });
 
-// 监听网络恢复事件
+// 監聽網絡恢复事件
 window.addEventListener('online', () => {
-    if (currentUsername && !navigator.userAgent.includes('Firefox')) { // Firefox可能误触发
-        setTimeout(preloadUserHistory, 3000); // 延迟执行避免阻塞
+    if (currentUsername && !navigator.userAgent.includes('Firefox')) { // Firefox可能誤觸發
+        setTimeout(preloadUserHistory, 3000); // 延遲執行避免阻塞
     }
 });
 
