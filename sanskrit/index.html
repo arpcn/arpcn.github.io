@@ -816,30 +816,37 @@ function initGame(dataType) {
     }
 }
 
-// 预加载函数（静默执行）
+// 预加载当前模式的历史记录（静默执行）
 function preloadUserHistory() {
+    const currentMode = document.querySelector(".game-modes button.active")?.textContent;
+    if (!currentMode || !currentUsername) return;
+    
     const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
     
     // 1. 优先检查内存缓存
-    if (cachedUserHistory.length > 0) return;
+    if (cachedUserHistory.length > 0 && 
+        cachedUserHistory[0]?.mode === currentMode) return;
     
     // 2. 检查sessionStorage缓存
     const sessionCache = sessionStorage.getItem('cachedHistory');
     if (sessionCache) {
-        cachedUserHistory = JSON.parse(sessionCache);
-        return;
+        const cachedData = JSON.parse(sessionCache);
+        if (cachedData.length > 0 && cachedData[0]?.mode === currentMode) {
+            cachedUserHistory = cachedData;
+            return;
+        }
     }
     
-    // 3. 从Firebase加载
-    firebase.database().ref(`gameRecords/${sanitizedUsername}`)
+    // 3. 从Firebase加载当前模式的数据
+    firebase.database().ref(`gameRecords/${sanitizedUsername}/${currentMode}`)
         .orderByChild('timestamp')
         .limitToLast(10)
         .once('value')
         .then(snapshot => {
             const records = [];
             snapshot.forEach(record => {
-                records.unshift({ // 按时间倒序排列
-                    mode: record.val().mode,
+                records.unshift({
+                    mode: currentMode,
                     time: record.val().time,
                     date: new Date(record.val().timestamp).toLocaleDateString()
                 });
@@ -946,31 +953,41 @@ function handleCardClick(index) {
     }
 }
 
-// 保存游戏记录
+// 保存游戏记录（按模式分开存储，每种模式最多10条）
 function saveGameRecord(username, mode, time) {
     return new Promise((resolve, reject) => {
         const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
-        const userRecordsRef = firebase.database().ref(`gameRecords/${sanitizedUsername}`);
+        const modeRecordsRef = firebase.database().ref(`gameRecords/${sanitizedUsername}/${mode}`);
         
-        // 获取当前记录数量
-        userRecordsRef.once('value')
+        // 获取当前模式下的所有记录
+        modeRecordsRef.once('value')
             .then(snapshot => {
                 const records = snapshot.val() || {};
                 const recordIds = Object.keys(records);
                 
                 // 如果已有10条记录，删除最旧的一条
                 if (recordIds.length >= 10) {
-                    const oldestRecordId = recordIds.reduce((oldest, current) => {
-                        return records[current].timestamp < records[oldest].timestamp ? current : oldest;
-                    });
-                    userRecordsRef.child(oldestRecordId).remove();
+                    let oldestRecordId = null;
+                    let oldestTimestamp = Number.MAX_SAFE_INTEGER;
+                    
+                    // 找出时间戳最小的记录
+                    for (const id in records) {
+                        if (records[id].timestamp < oldestTimestamp) {
+                            oldestTimestamp = records[id].timestamp;
+                            oldestRecordId = id;
+                        }
+                    }
+                    
+                    if (oldestRecordId) {
+                        return modeRecordsRef.child(oldestRecordId).remove()
+                            .then(() => true);
+                    }
                 }
-                
-                // 添加新记录
-                const newRecordRef = userRecordsRef.push();
-                return newRecordRef.set({
-                    username: username,
-                    mode: mode,
+                return true;
+            })
+            .then(() => {
+                // 添加新记录到当前模式节点下
+                return modeRecordsRef.push().set({
                     time: time,
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
@@ -1172,7 +1189,7 @@ function renderLeaderboard(records, mode, currentTime) {
     });
 }
 
-// 加载历史记录
+// 加载当前模式的历史记录
 function loadHistoryRecords() {
     const historyBody = document.getElementById('history-body');
     
@@ -1182,34 +1199,36 @@ function loadHistoryRecords() {
     } else {
         historyBody.innerHTML = '<tr><td colspan="3">加载中...</td></tr>';
     }
-    
+
     // 2. 后台更新最新数据（无论是否有缓存）
+    const currentMode = document.querySelector(".game-modes button.active").textContent;
     const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
-    firebase.database().ref(`gameRecords/${sanitizedUsername}`)
-        .orderByChild('timestamp')
-        .limitToLast(10)
-        .once('value')
+    const modeRecordsRef = firebase.database().ref(`gameRecords/${sanitizedUsername}/${currentMode}`);
+    
+    modeRecordsRef.orderByChild('timestamp').limitToLast(10).once('value')
         .then(snapshot => {
-            const newRecords = [];
+            const records = [];
             snapshot.forEach(record => {
-                newRecords.unshift({
-                    mode: record.val().mode,
+                records.unshift({ // 使用unshift实现倒序排列
+                    mode: currentMode,
                     time: record.val().time,
                     date: new Date(record.val().timestamp).toLocaleDateString()
                 });
             });
             
-            // 更新缓存
-            cachedUserHistory = newRecords;
-            sessionStorage.setItem('cachedHistory', JSON.stringify(newRecords));
             
             // 仅当用户仍停留在历史记录面板时更新UI
             if (document.getElementById('history-container').style.display === 'block') {
-                renderHistoryRecords(newRecords);
+            // 渲染记录
+            renderHistoryRecords(records);
             }
+            
+            // 更新缓存（仅缓存当前模式）
+            cachedUserHistory = records;
+            sessionStorage.setItem('cachedHistory', JSON.stringify(cachedUserHistory));
         })
         .catch(error => {
-            console.error("更新记录失败:", error);
+            console.error("加载历史记录失败:", error);
             if (cachedUserHistory.length === 0) {
                 historyBody.innerHTML = '<tr><td colspan="3">加载失败</td></tr>';
             }
@@ -1251,6 +1270,9 @@ function setupModeButton(buttonId, mode) {
     button.addEventListener("click", function() {
         setActiveMode(this);
         initGame(mode);
+        if (currentUsername) {
+            preloadUserHistory();
+        }
     });
 }
 
