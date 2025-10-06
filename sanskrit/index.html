@@ -480,6 +480,11 @@ button:disabled {
         background-color: rgba(255, 215, 0, 0.1) !important;
     }
 }
+.modal-content{
+  height: 45vh; /* 占屏幕一部分 */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* 优化iOS滚动 */
+}
 
 </style>
 
@@ -662,6 +667,7 @@ let preloadedLeaderboardData = {
     numbers: null,
     mixed: null
 };
+let cachedUserHistory = []; // 内存缓存
 
 // DOM元素
 const gameBoard = document.getElementById("game-board");
@@ -802,6 +808,46 @@ function initGame(dataType) {
     timerDisplay.textContent = "⏱️ 0.0秒";
     pairsDisplay.textContent = "✅ 0/6";
     document.getElementById("start-btn").disabled = false;
+
+    if (currentUsername) {
+        preloadUserHistory();
+    }
+}
+
+// 预加载函数（静默执行）
+function preloadUserHistory() {
+    const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
+    
+    // 1. 优先检查内存缓存
+    if (cachedUserHistory.length > 0) return;
+    
+    // 2. 检查sessionStorage缓存
+    const sessionCache = sessionStorage.getItem('cachedHistory');
+    if (sessionCache) {
+        cachedUserHistory = JSON.parse(sessionCache);
+        return;
+    }
+    
+    // 3. 从Firebase加载
+    firebase.database().ref(`gameRecords/${sanitizedUsername}`)
+        .orderByChild('timestamp')
+        .limitToLast(10)
+        .once('value')
+        .then(snapshot => {
+            const records = [];
+            snapshot.forEach(record => {
+                records.unshift({ // 按时间倒序排列
+                    mode: record.val().mode,
+                    time: record.val().time,
+                    date: new Date(record.val().timestamp).toLocaleDateString()
+                });
+            });
+            
+            // 更新缓存
+            cachedUserHistory = records;
+            sessionStorage.setItem('cachedHistory', JSON.stringify(records));
+        })
+        .catch(error => console.log("预加载失败（不影响游戏）:", error));
 }
 
 // 开始游戏
@@ -874,6 +920,18 @@ function handleCardClick(index) {
                         document.getElementById('completion-time').textContent = `用时: ${finishTime}秒`;
                         document.getElementById('completion-modal').classList.add('active');
                     });
+                    
+                // 新增：更新本地缓存
+                const newRecord = {
+                    mode: gameMode,
+                    time: parseFloat(finishTime),
+                    date: new Date().toLocaleDateString()
+                };
+                // 更新内存缓存
+                cachedUserHistory.unshift(newRecord);
+                if (cachedUserHistory.length > 10) cachedUserHistory.pop();
+                // 更新sessionStorage
+                sessionStorage.setItem('cachedHistory', JSON.stringify(cachedUserHistory));
             }
 
         } else { // 配对失败时，延迟250ms后取消选中状态 
@@ -1114,36 +1172,50 @@ function renderLeaderboard(records, mode, currentTime) {
 
 // 加载历史记录
 function loadHistoryRecords() {
-    const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
-    const historyQuery = firebase.database().ref(`gameRecords/${sanitizedUsername}`)
-        .orderByChild('timestamp')
-        .limitToLast(10);
-    
     const historyBody = document.getElementById('history-body');
-    historyBody.innerHTML = '<tr><td colspan="3">加载中...</td></tr>';
     
-    document.getElementById('history-container').style.display = 'block';
-    document.getElementById('load-history-btn').style.display = 'none';
+    // 1. 立即显示缓存内容
+    if (cachedUserHistory.length > 0) {
+        renderHistoryRecords(cachedUserHistory);
+    } else {
+        historyBody.innerHTML = '<tr><td colspan="3">加载中...</td></tr>';
+    }
     
-    historyQuery.once('value')
+    // 2. 后台更新最新数据（无论是否有缓存）
+    const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
+    firebase.database().ref(`gameRecords/${sanitizedUsername}`)
+        .orderByChild('timestamp')
+        .limitToLast(10)
+        .once('value')
         .then(snapshot => {
-            const historyRecords = [];
-            snapshot.forEach(recordSnapshot => {
-                const record = recordSnapshot.val();
-                historyRecords.push({
-                    mode: record.mode,
-                    time: record.time,
-                    date: new Date(record.timestamp).toLocaleDateString()
+            const newRecords = [];
+            snapshot.forEach(record => {
+                newRecords.unshift({
+                    mode: record.val().mode,
+                    time: record.val().time,
+                    date: new Date(record.val().timestamp).toLocaleDateString()
                 });
             });
-            historyRecords.reverse();
             
-            renderHistoryRecords(historyRecords);
+            // 更新缓存
+            cachedUserHistory = newRecords;
+            sessionStorage.setItem('cachedHistory', JSON.stringify(newRecords));
+            
+            // 仅当用户仍停留在历史记录面板时更新UI
+            if (document.getElementById('history-container').style.display === 'block') {
+                renderHistoryRecords(newRecords);
+            }
         })
         .catch(error => {
-            console.error("加载历史记录失败:", error);
-            historyBody.innerHTML = '<tr><td colspan="3">加载失败，请重试</td></tr>';
+            console.error("更新记录失败:", error);
+            if (cachedUserHistory.length === 0) {
+                historyBody.innerHTML = '<tr><td colspan="3">加载失败</td></tr>';
+            }
         });
+    
+    // 显示历史记录面板
+    document.getElementById('history-container').style.display = 'block';
+    document.getElementById('load-history-btn').style.display = 'none';
 }
 
 // 渲染历史记录
@@ -1216,12 +1288,25 @@ initGame("vowels");
 // 初始化后立即预加载数据
 preloadLeaderboardData();
 
+// 用户点击"查看记录"时：
+document.getElementById('load-history-btn').addEventListener('click', () => {
+    loadHistoryRecords(); // 瞬间显示缓存，后台更新
+});
+
+
 // 定时刷新（放在这里确保Firebase已初始化）
 const preloadInterval = setInterval(preloadLeaderboardData, 5 * 60 * 1000); // 每5分钟刷新一次
 
 // 可选：页面卸载时清除定时器（避免内存泄漏）
 window.addEventListener('beforeunload', () => {
     clearInterval(preloadInterval);
+});
+
+// 监听网络恢复事件
+window.addEventListener('online', () => {
+    if (currentUsername && !navigator.userAgent.includes('Firefox')) { // Firefox可能误触发
+        setTimeout(preloadUserHistory, 3000); // 延迟执行避免阻塞
+    }
 });
 
 </script>
