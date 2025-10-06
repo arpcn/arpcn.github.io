@@ -1100,16 +1100,24 @@ function updateUserStats(username, mode, currentTime) {
     });
 }
 
-// 預加載排行榜數據
+// 在游戏初始化时预加载排行榜数据
 function preloadLeaderboardData() {
     const modes = ['vowels', 'consonants', 'numbers', 'mixed'];
     
     modes.forEach(mode => {
-        const globalQuery = firebase.database().ref('userStats')
-            .orderByChild(`modes/${mode}/bestTime`)
-            .limitToFirst(10);
+        // 检查是否有缓存数据
+        const cachedData = sessionStorage.getItem(`leaderboard_${mode}`);
+        if (cachedData) {
+            preloadedLeaderboardData[mode] = JSON.parse(cachedData);
+            return; // 使用缓存数据
+        }
         
-        globalQuery.once('value')
+        // 从Firebase加载数据
+        firebase.database().ref('userStats')
+            .orderByChild(`modes/${mode}/bestTime`)
+            .startAt(0) // 只查询有成绩的记录
+            .limitToFirst(10)
+            .once('value')
             .then(snapshot => {
                 const records = [];
                 snapshot.forEach(userSnapshot => {
@@ -1126,13 +1134,14 @@ function preloadLeaderboardData() {
                 
                 records.sort((a, b) => a.time - b.time);
                 preloadedLeaderboardData[mode] = records;
-                // console.log(`預加載 ${mode} 排行榜數據完成`);
+                
+                // 保存到sessionStorage
+                sessionStorage.setItem(`leaderboard_${mode}`, JSON.stringify(records));
             })
-            .catch(error => {
-                // console.error(`預加載 ${mode} 排行榜數據失敗:`, error);
-            });
+            .catch(error => console.error(`预加载 ${mode} 排行榜数据失败:`, error));
     });
 }
+
 
 // 獲取排行榜數據
 function getLeaderboard(mode, currentTime) {
@@ -1194,30 +1203,12 @@ function getLeaderboard(mode, currentTime) {
 // 渲染排行榜-支持預加載數據
 function renderLeaderboard(records, mode, currentTime) {
     const leaderboardBody = document.getElementById('leaderboard-body');
-    leaderboardBody.innerHTML = '';
     
-    // 添加當前用戶數據（如果不在列表中）
-    const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
-    const userRef = firebase.database().ref(`userStats/${sanitizedUsername}/modes/${mode.toLowerCase()}`);
-    
-    userRef.once('value').then(snapshot => {
-        const userData = snapshot.val();
-        if (userData) {
-            const alreadyInList = records.some(r => r.username === currentUsername);
-            if (!alreadyInList) {
-                records.push({
-                    username: currentUsername,
-                    time: userData.bestTime,
-                    gamesPlayed: userData.count || 0,
-                    isCurrentUser: true
-                });
-                // 重新排序
-                records.sort((a, b) => a.time - b.time);
-            }
-        }
+    // 立即显示预加载数据
+    if (records && records.length > 0) {
+        leaderboardBody.innerHTML = '';
         
-        // 渲染排行榜
-        records.slice(0, 11).forEach((record, index) => {
+        records.slice(0, 10).forEach((record, index) => {
             const row = document.createElement('tr');
             if (record.isCurrentUser) {
                 row.classList.add('current-user');
@@ -1230,10 +1221,84 @@ function renderLeaderboard(records, mode, currentTime) {
             `;
             leaderboardBody.appendChild(row);
         });
+    } else {
+        leaderboardBody.innerHTML = '<tr><td colspan="4">加载中...</td></tr>';
+    }
+    
+    document.getElementById('completion-time').textContent = `用时: ${currentTime}秒 (模式: ${mode})`;
+    document.getElementById('completion-modal').classList.add('active');
+    
+    // 后台更新最新数据
+    updateLeaderboard(mode, currentTime);
+}
+
+// 后台更新排行榜数据
+function updateLeaderboard(mode, currentTime) {
+    const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
+    
+    Promise.all([
+        firebase.database().ref('userStats')
+            .orderByChild(`modes/${mode}/bestTime`)
+            .limitToFirst(10)
+            .once('value'),
+        firebase.database().ref(`userStats/${sanitizedUsername}`).once('value')
+    ]).then(([globalSnapshot, userSnapshot]) => {
+        const records = [];
         
-        document.getElementById('completion-time').textContent = `用時: ${currentTime}秒 (模式: ${mode})`;
-        document.getElementById('completion-modal').classList.add('active');
-    });
+        // 处理全局排行榜数据
+        globalSnapshot.forEach(userSnapshot => {
+            const userData = userSnapshot.val();
+            if (userData.modes && userData.modes[mode]) {
+                records.push({
+                    username: userData.username,
+                    time: userData.modes[mode].bestTime,
+                    gamesPlayed: userData.modes[mode].count || 0,
+                    isCurrentUser: userData.username === currentUsername
+                });
+            }
+        });
+        
+        // 添加当前用户数据（如果不在前10名中）
+        const userData = userSnapshot.val();
+        if (userData && userData.modes?.[mode]) {
+            const alreadyInList = records.some(r => r.username === currentUsername);
+            if (!alreadyInList) {
+                records.push({
+                    username: currentUsername,
+                    time: userData.modes[mode].bestTime,
+                    gamesPlayed: userData.modes[mode].count || 0,
+                    isCurrentUser: true
+                });
+            }
+        }
+        
+        // 按时间排序
+        records.sort((a, b) => a.time - b.time);
+        
+        // 更新预加载数据和缓存
+        preloadedLeaderboardData[mode] = records;
+        sessionStorage.setItem(`leaderboard_${mode}`, JSON.stringify(records));
+        
+        // 如果用户仍在查看排行榜，则更新UI
+        if (document.getElementById('completion-modal').classList.contains('active')) {
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            leaderboardBody.innerHTML = '';
+            
+            records.slice(0, 10).forEach((record, index) => {
+                const row = document.createElement('tr');
+                if (record.isCurrentUser) {
+                    row.classList.add('current-user');
+                }
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${record.username} ${record.isCurrentUser ? '(您)' : ''}</td>
+                    <td>${record.time.toFixed(1)}</td>
+                    <td>${record.gamesPlayed}</td>
+                `;
+                leaderboardBody.appendChild(row);
+            });
+        }
+    }).catch(error => console.error("更新排行榜失败:", error));
 }
 
 // 加載當前模式的歷史記錄
