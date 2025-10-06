@@ -7,9 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari&display=swap" rel="stylesheet">
 
-
- <style>
-
+<style>
 :root {
     --primary: #6a5acd;
     --secondary: #ff9800;
@@ -21,25 +19,25 @@
     --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
     
     /* 六種匹配顏色 */
-  /* 高区分度浅色方案 - 基于色相/饱和度调整 */
-  --match-color-1: #D4EDDA; /* 薄荷绿（增加蓝调） */
-  --match-color-2: #fff0bb; /* 淡鹅黄（原黄绿改为纯黄） */
-  --match-color-3: #E1F5FE; /* 淡天蓝（新增冷色调） */
-  --match-color-4: #FCE4EC; /* 淡粉红（新增暖色调） */
-  --match-color-5: #B8D8BA; /* 保留浅草绿 */
-  --match-color-6: #D1C4E9; /* 淡紫（新增互补色） */
-
-  /* 可选更高饱和度版本 */
-  /*
-  --match-color-1: #A5D6A7;
-  --match-color-2: #FFF59D;
-  --match-color-3: #81D4FA;
-  --match-color-4: #F8BBD0;
-  --match-color-5: #C8E6C9;
-  --match-color-6: #B39DDB;
-  */
-
-  transition: background 0.3s ease, color 0.2s ease;
+    /* 高区分度浅色方案 - 基于色相/饱和度调整 */
+    --match-color-1: #D4EDDA; /* 薄荷绿（增加蓝调） */
+    --match-color-2: #fff0bb; /* 淡鹅黄（原黄绿改为纯黄） */
+    --match-color-3: #E1F5FE; /* 淡天蓝（新增冷色调） */
+    --match-color-4: #FCE4EC; /* 淡粉红（新增暖色调） */
+    --match-color-5: #B8D8BA; /* 保留浅草绿 */
+    --match-color-6: #D1C4E9; /* 淡紫（新增互补色） */
+  
+    /* 可选更高饱和度版本 */
+    /*
+    --match-color-1: #A5D6A7;
+    --match-color-2: #FFF59D;
+    --match-color-3: #81D4FA;
+    --match-color-4: #F8BBD0;
+    --match-color-5: #C8E6C9;
+    --match-color-6: #B39DDB;
+    */
+  
+    transition: background 0.3s ease, color 0.2s ease;
 }
 
 body {
@@ -250,12 +248,6 @@ button:disabled {
     }
 }
 
-@media (max-width: 768px) {
-/*     .card {
-        width: 80px;
-        height: 112px;
-    } */
-}
 @media (max-width: 480px) {
     .game-container {
         padding: 20px;
@@ -267,10 +259,6 @@ button:disabled {
     .card[data-type="iast"] .card-content {
         font-size: 0.8em; /* 手機上更小些 */
     }
- /*    .card {
-        width: 60px;
-        height: 84px;
-    } */
     .card-content {
         font-size: 22px;
     }
@@ -279,12 +267,6 @@ button:disabled {
         padding: 10px 15px;
         font-size: 14px;
     }
-}
-@media (max-width: 320px) {
-/*     .card {
-        width: 50px;
-        height: 70px;
-    } */
 }
 
 /* 通關提示樣式 */
@@ -352,7 +334,65 @@ button:disabled {
     background-color: var(--secondary);
 }
 
-/* 系統級夜間模式適配 */
+.username-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.username-input {
+    padding: 12px;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.leaderboard {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaderboard th, .leaderboard td {
+    padding: 8px 12px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.leaderboard th {
+    background-color: var(--primary);
+    color: white;
+}
+
+.leaderboard tr:nth-child(even) {
+    background-color: #f5f5f5;
+}
+
+.current-user {
+    font-weight: bold;
+    background-color: rgba(255, 215, 0, 0.2) !important;
+}
+
+.current-user td {
+    border-left: 3px solid gold;
+}
+
+.load-history-btn {
+    margin-top: 20px;
+    background-color: var(--accent) !important;
+}
+
+.history-container {
+    display: none;
+    margin-top: 20px;
+}
+
+.current-record {
+    background-color: rgba(255, 215, 0, 0.3) !important;
+    font-weight: bold;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --primary: #9c88ff;
@@ -388,102 +428,65 @@ button:disabled {
     */
   }
 
-  body {
-    background: linear-gradient(135deg, #2d3436 0%, #1e272e 100%);
-  }
+    body {
+        background: linear-gradient(135deg, #2d3436 0%, #1e272e 100%);
+    }
 
-  .game-container {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  }
+    .game-container {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
 
-  /* 調整天城體文字顏色 */
-  .card[data-type="devanagari"] .card-content {
-    color: #fd79a8; /* 降低飽和度的粉紅 */
-    text-shadow: 0 0 2px rgba(0,0,0,0.5);
-  }
+    /* 調整天城體文字顏色 */
+    .card[data-type="devanagari"] .card-content {
+      color: #fd79a8; /* 降低飽和度的粉紅 */
+      text-shadow: 0 0 2px rgba(0,0,0,0.5);
+    }
+  
+    .card {
+      /* 方案1：發光邊框（現代風格） 
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 2px 12px rgba(0,0,0,0.3); */
+      
+      /* 方案2：高對比實線邊框（保守方案） */
+      /* border: 1px solid rgba(255,255,255,0.15); */
+      /* box-shadow: 0 2px 12px rgba(0,0,0,0.3); */
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s ease; /* 平滑過渡 */
+    }
 
-  .card {
-    /* 方案1：發光邊框（現代風格） 
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 2px 12px rgba(0,0,0,0.3); */
+    /* 選中狀態強化 */
+    .card.selected {
+        box-shadow: 0 0 0 2px var(--secondary);
+    }
+    .card.selected .card-content {
+        background: #3e4a56;
+        box-shadow: 0 0 0 2px var(--secondary);
+    }
+    /* 強化懸停狀態 */
+    .card:hover {
+      box-shadow: 
+        0 0 0 2px rgba(255,255,255,0.2),
+        0 3px 12px rgba(0,0,0,0.5);
+    }
+
+    .leaderboard tr:nth-child(even) {
+        background-color: #3d3d3d;
+    }
     
-    /* 方案2：高對比實線邊框（保守方案） */
-    /* border: 1px solid rgba(255,255,255,0.15); */
-    /* box-shadow: 0 2px 12px rgba(0,0,0,0.3); */
-    box-shadow: var(--shadow-sm);
-    transition: box-shadow 0.2s ease; /* 平滑過渡 */
-  }
-
-  /* 選中狀態強化 */
-  .card.selected {
-    box-shadow: 0 0 0 2px var(--secondary);
-  }
-  .card.selected .card-content {
-    background: #3e4a56;
-    box-shadow: 0 0 0 2px var(--secondary);
-  }
-  /* 強化懸停狀態 */
-  .card:hover {
-    box-shadow: 
-      0 0 0 2px rgba(255,255,255,0.2),
-      0 3px 12px rgba(0,0,0,0.5);
-  }
+    .leaderboard th, .leaderboard td {
+        border-bottom: 1px solid #555;
+    }
+    
+    .current-record {
+        background-color: rgba(255, 215, 0, 0.1) !important;
+    }
 }
 
-        /* 新增的样式 */
-        .username-modal {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .username-input {
-            padding: 12px;
-            border: 2px solid var(--primary);
-            border-radius: 8px;
-            font-size: 16px;
-            text-align: center;
-        }
-        .leaderboard {
-            margin-top: 20px;
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .leaderboard th, .leaderboard td {
-            padding: 8px 12px;
-            text-align: center;
-            border-bottom: 1px solid #eee;
-        }
-        .leaderboard th {
-            background-color: var(--primary);
-            color: white;
-        }
-        .leaderboard tr:nth-child(even) {
-            background-color: #f5f5f5;
-        }
-        @media (prefers-color-scheme: dark) {
-            .leaderboard tr:nth-child(even) {
-                background-color: #3d3d3d;
-            }
-            .leaderboard th, .leaderboard td {
-                border-bottom: 1px solid #555;
-            }
-        }
-
-.current-user {
-    font-weight: bold;
-    background-color: rgba(255, 215, 0, 0.2) !important;
-}
-
-.current-user td {
-    border-left: 3px solid gold;
-}
-
-
- </style>
+</style>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
-  const firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyAvxH-5gah6gVufzNFrne-c7VfU6VSpcyQ",
     authDomain: "arbzn09.firebaseapp.com",
     databaseURL: "https://arbzn09-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -492,8 +495,8 @@ button:disabled {
     messagingSenderId: "172952488674",
     appId: "1:172952488674:web:1369dc83ac8df8c6ca6cbb",
     measurementId: "G-WNKZZ26059"
-  };
-  firebase.initializeApp(firebaseConfig);
+};
+firebase.initializeApp(firebaseConfig);
 </script>
 
 </head>
@@ -537,6 +540,22 @@ button:disabled {
                 </tbody>
             </table>
             <button class="modal-close" id="modal-close-btn">关闭</button>
+            <button id="load-history-btn" class="load-history-btn">查看我的最近记录</button>
+            <div id="history-container" class="history-container">
+                <h3>您的最近记录</h3>
+                <table class="leaderboard">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>模式</th>
+                            <th>成绩(秒)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body">
+                        <!-- 历史记录将通过JavaScript动态填充 -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -549,6 +568,7 @@ button:disabled {
             </div>
         </div>
     </div>
+</body>
 
 <script>
 // 游戏数据
@@ -571,7 +591,7 @@ const devanagariData = {
         { iast: "oṃ", devanagari: ["ॐ"] },
         { iast: "ḥ", devanagari: ["ः"] },
         { iast: "ṃ", devanagari: ["ं"] },
-        { iast: "'", devanagari: ["ऽ"] },
+        { iast: "'", devanagari: ["ऽ"] }
  //        { iast: "/", devanagari: ["।"] },
  //        { iast: "//", devanagari: ["॥"] }
     ],
@@ -637,42 +657,39 @@ let timeElapsed = 0; // 单位：0.1秒
 let pairColors = []; // 存储每对卡片的颜色索引
 let currentUsername = localStorage.getItem('devanagariGameUsername') || '';
 
-
-        // 初始化时检查用户名
-        function checkUsername() {
-            if (!currentUsername) {
-                document.getElementById('username-modal').classList.add('active');
-                document.getElementById('username-input').focus();
-            } else {
-                startGame();
-            }
-        }
-        
-        // 用户名提交处理
-        document.getElementById('username-submit-btn').addEventListener('click', function() {
-            const username = document.getElementById('username-input').value.trim();
-            if (username) {
-                currentUsername = username;
-                localStorage.setItem('devanagariGameUsername', username);
-                document.getElementById('username-modal').classList.remove('active');
-                startGame();
-            } else {
-                alert('请输入有效的用户名');
-            }
-        });
-
-
 // DOM元素
 const gameBoard = document.getElementById("game-board");
 const timerDisplay = document.getElementById("timer");
 const pairsDisplay = document.getElementById("pairs-matched");
+
+// 初始化时检查用户名
+function checkUsername() {
+    if (!currentUsername) {
+        document.getElementById('username-modal').classList.add('active');
+        document.getElementById('username-input').focus();
+    } else {
+        startGame();
+    }
+}
+
+// 用户名提交处理
+document.getElementById('username-submit-btn').addEventListener('click', function() {
+    const username = document.getElementById('username-input').value.trim();
+    if (username) {
+        currentUsername = username;
+        localStorage.setItem('devanagariGameUsername', username);
+        document.getElementById('username-modal').classList.remove('active');
+        startGame();
+    } else {
+        alert('请输入有效的用户名');
+    }
+});
 
 // 获取随机子集（6对）
 function getRandomSubset(array, count = 6) {
     const shuffled = [...array].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, Math.min(count, array.length));
 }
-
 
 // 准备游戏数据
 function prepareGameData(dataType) {
@@ -837,7 +854,7 @@ function handleCardClick(index) {
                         return saveGameRecord(currentUsername, gameMode, parseFloat(finishTime));
                     })
                     .then(() => {
-                        return getLeaderboardAndHistory(gameMode, parseFloat(finishTime));
+                        return getLeaderboard(gameMode, parseFloat(finishTime));
                     })
                     .catch(error => {
                         console.error("游戏完成处理失败:", error);
@@ -856,8 +873,7 @@ function handleCardClick(index) {
     }
 }
 
-
-// 新增保存游戏记录的函数
+// 保存游戏记录
 function saveGameRecord(username, mode, time) {
     return new Promise((resolve, reject) => {
         const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
@@ -888,84 +904,6 @@ function saveGameRecord(username, mode, time) {
             })
             .then(() => resolve())
             .catch(error => reject(error));
-    });
-}
-
-
-// 修改获取排行榜的函数，添加个人历史记录显示
-function getLeaderboardAndHistory(mode, currentTime) {
-    const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
-    
-    // 查询全局排行榜（前10名）
-    const globalQuery = firebase.database().ref('userStats')
-        .orderByChild(`modes/${mode}/bestTime`)
-        .limitToFirst(10);
-    
-    // 查询当前用户数据
-    const userQuery = firebase.database().ref(`userStats/${sanitizedUsername}`);
-    
-    // 查询当前用户的历史记录
-    const historyQuery = firebase.database().ref(`gameRecords/${sanitizedUsername}`)
-        .orderByChild('timestamp')
-        .limitToLast(5); // 显示最近的5条记录
-    
-    // 并行查询
-    Promise.all([
-        globalQuery.once('value'),
-        userQuery.once('value'),
-        historyQuery.once('value')
-    ])
-    .then(([globalSnapshot, userSnapshot, historySnapshot]) => {
-        // 处理排行榜数据
-        const records = [];
-        globalSnapshot.forEach(userSnapshot => {
-            const userData = userSnapshot.val();
-            if (userData.modes && userData.modes[mode]) {
-                records.push({
-                    username: userData.username,
-                    time: userData.modes[mode].bestTime,
-                    gamesPlayed: userData.modes[mode].count || 0,
-                    isCurrentUser: userData.username === currentUsername
-                });
-            }
-        });
-        
-        // 添加当前用户数据（如果不在前10名中）
-        const userData = userSnapshot.val();
-        if (userData && userData.modes?.[mode]) {
-            const alreadyInList = records.some(r => r.username === currentUsername);
-            if (!alreadyInList) {
-                records.push({
-                    username: currentUsername,
-                    time: userData.modes[mode].bestTime,
-                    gamesPlayed: userData.modes[mode].count || 0,
-                    isCurrentUser: true
-                });
-            }
-        }
-        
-        // 按时间排序
-        records.sort((a, b) => a.time - b.time);
-        
-        // 处理历史记录数据
-        const historyRecords = [];
-        historySnapshot.forEach(recordSnapshot => {
-            const record = recordSnapshot.val();
-            historyRecords.push({
-                mode: record.mode,
-                time: record.time,
-                date: new Date(record.timestamp).toLocaleDateString()
-            });
-        });
-        historyRecords.reverse(); // 最新的在前面
-        
-        // 渲染排行榜和历史记录
-        renderLeaderboardAndHistory(records, historyRecords, mode, currentTime);
-    })
-    .catch(error => {
-        console.error("获取数据失败:", error);
-        document.getElementById('completion-time').textContent = `用时: ${currentTime}秒`;
-        document.getElementById('completion-modal').classList.add('active');
     });
 }
 
@@ -1013,7 +951,7 @@ function updateUserStats(username, mode, currentTime) {
                 }
                 currentData.modes[mode].lastPlayed = firebase.database.ServerValue.TIMESTAMP;
             }
-        return currentData;
+            return currentData;
         }, (error, committed) => {
             if (error) {
                 reject(error);
@@ -1081,12 +1019,11 @@ function getLeaderboard(mode, currentTime) {
         });
 }
 
-// 修改渲染函数，添加历史记录显示
-function renderLeaderboardAndHistory(records, historyRecords, mode, currentTime) {
+// 渲染排行榜
+function renderLeaderboard(records, mode, currentTime) {
     const leaderboardBody = document.getElementById('leaderboard-body');
     leaderboardBody.innerHTML = '';
     
-    // 渲染排行榜
     records.slice(0, 11).forEach((record, index) => {
         const row = document.createElement('tr');
         if (record.isCurrentUser) {
@@ -1102,57 +1039,60 @@ function renderLeaderboardAndHistory(records, historyRecords, mode, currentTime)
         leaderboardBody.appendChild(row);
     });
     
-    // 移除可能存在的旧历史记录部分
-    const oldHistory = document.querySelector('.modal-content .history-section');
-    if (oldHistory) {
-        oldHistory.remove();
-    }
-    
-    // 添加历史记录部分
-    const historySection = document.createElement('div');
-    historySection.className = 'history-section'; // 添加类名以便后续查找
-    historySection.innerHTML = `
-        <h3 style="margin-top: 30px;">您的最近记录</h3>
-        <table class="leaderboard">
-            <thead>
-                <tr>
-                    <th>日期</th>
-                    <th>模式</th>
-                    <th>成绩(秒)</th>
-                </tr>
-            </thead>
-            <tbody id="history-body">
-                ${historyRecords.map(record => `
-                    <tr ${record.mode === mode && record.time === currentTime ? 'class="current-record"' : ''}>
-                        <td>${record.date}</td>
-                        <td>${record.mode}</td>
-                        <td>${record.time.toFixed(1)}</td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-    `;
-    document.querySelector('.modal-content').appendChild(historySection);
-    
     // 显示完成时间
     document.getElementById('completion-time').textContent = `用时: ${currentTime}秒 (模式: ${mode})`;
     document.getElementById('completion-modal').classList.add('active');
 }
 
-// 添加CSS样式
-const style = document.createElement('style');
-style.textContent = `
-    .current-record {
-        background-color: rgba(255, 215, 0, 0.3) !important;
-        font-weight: bold;
-    }
-    @media (prefers-color-scheme: dark) {
-        .current-record {
-            background-color: rgba(255, 215, 0, 0.1) !important;
-        }
-    }
-`;
-document.head.appendChild(style);
+// 加载历史记录
+function loadHistoryRecords() {
+    const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
+    const historyQuery = firebase.database().ref(`gameRecords/${sanitizedUsername}`)
+        .orderByChild('timestamp')
+        .limitToLast(10);
+    
+    const historyBody = document.getElementById('history-body');
+    historyBody.innerHTML = '<tr><td colspan="3">加载中...</td></tr>';
+    
+    document.getElementById('history-container').style.display = 'block';
+    document.getElementById('load-history-btn').style.display = 'none';
+    
+    historyQuery.once('value')
+        .then(snapshot => {
+            const historyRecords = [];
+            snapshot.forEach(recordSnapshot => {
+                const record = recordSnapshot.val();
+                historyRecords.push({
+                    mode: record.mode,
+                    time: record.time,
+                    date: new Date(record.timestamp).toLocaleDateString()
+                });
+            });
+            historyRecords.reverse();
+            
+            renderHistoryRecords(historyRecords);
+        })
+        .catch(error => {
+            console.error("加载历史记录失败:", error);
+            historyBody.innerHTML = '<tr><td colspan="3">加载失败，请重试</td></tr>';
+        });
+}
+
+// 渲染历史记录
+function renderHistoryRecords(records) {
+    const historyBody = document.getElementById('history-body');
+    historyBody.innerHTML = '';
+    
+    records.forEach(record => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${record.date}</td>
+            <td>${record.mode}</td>
+            <td>${record.time.toFixed(1)}</td>
+        `;
+        historyBody.appendChild(row);
+    });
+}
 
 // 事件监听
 document.getElementById("start-btn").addEventListener("click", checkUsername);
@@ -1162,15 +1102,6 @@ document.getElementById("reset-btn").addEventListener("click", () => {
         initGame(currentMode.replace("-btn", ""));
     }
 });
-
-// 監聽主題變化
-function updateTheme() {
-  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  document.body.classList.toggle('dark-mode', isDark);
-}
-window.matchMedia('(prefers-color-scheme: dark)').addListener(updateTheme);
-updateTheme(); // 初始化
-
 
 // 游戏模式选择
 function setupModeButton(buttonId, mode) {
@@ -1196,7 +1127,20 @@ setupModeButton("mixed-btn", "mixed");
 // 关闭模态框
 document.getElementById('modal-close-btn').addEventListener('click', function() {
     document.getElementById('completion-modal').classList.remove('active');
+    document.getElementById('history-container').style.display = 'none';
+    document.getElementById('load-history-btn').style.display = 'block';
 });
+
+// 加载历史记录按钮
+document.getElementById('load-history-btn').addEventListener('click', loadHistoryRecords);
+
+// 监听主题变化
+function updateTheme() {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.body.classList.toggle('dark-mode', isDark);
+}
+window.matchMedia('(prefers-color-scheme: dark)').addListener(updateTheme);
+updateTheme(); // 初始化
 
 // 默认加载元音模式
 setActiveMode(document.getElementById("vowels-btn"));
@@ -1205,3 +1149,4 @@ initGame("vowels");
 
 </body>
 </html>
+
