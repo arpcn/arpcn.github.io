@@ -612,21 +612,40 @@ button:disabled {
     box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.3);
 }
 
-#username-submit-btn {
-    padding: 12px 24px;
-    background-color: var(--primary);
-    color: white;
+/* 登錄按钮 */
+.username-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+#username-cancel-btn:hover {
+    background-color: #e0e0e0;
+}
+
+#username-submit-btn, #username-cancel-btn {
+    flex: 1;
+    padding: 10px;
     border: none;
     border-radius: 20px;
     cursor: pointer;
     font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#username-submit-btn {
+    padding: 12px 24px;
+    background-color: var(--primary);
+    color: white;
+    cursor: pointer;
     transition: all 0.2s;
     width: auto;
-    min-width: 150px;
-    display: flex;          /* 新增 */
     justify-content: center; /* 新增 */
-    align-items: center;    /* 新增 */
-    margin: 0 auto;         /* 新增 - 水平居中 */
+}
+
+#username-cancel-btn {
+    padding: 12px 24px;
+    background-color: #f1f1f1;
+    color: #333;
 }
 
 #username-submit-btn:hover {
@@ -930,7 +949,10 @@ firebase.initializeApp(firebaseConfig);
             <h2 class="modal-title">請輸入用戶名</h2>
             <div class="username-modal">
                 <input type="text" class="username-input" id="username-input" placeholder="您的暱稱" maxlength="20">
-                <button id="username-submit-btn">登 錄</button>
+                <div class="username-buttons">
+                    <button id="username-submit-btn">登 錄</button>
+                    <button id="username-cancel-btn">取 消</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1858,16 +1880,16 @@ document.getElementById('change-user-btn').addEventListener('click', function() 
         showLoginModal();
 });
 
-// 对话框按钮事件处理
+// 對話框按鈕事件處理
 document.getElementById('logout-btn').addEventListener('click', function() {
-    // 退出登录
+    // 退出登錄
     clearUserData();
     document.getElementById('user-action-dialog').style.display = 'none';
-    updateUserButtonText(); // 可选：更新按钮显示为"Sign in"
+    updateUserButtonText(); // 可選：更新按鈕顯示為"Sign in"
 });
 
 document.getElementById('relogin-btn').addEventListener('click', function() {
-    // 重新登录
+    // 重新登錄
     document.getElementById('user-action-dialog').style.display = 'none';
     showLoginModal();
 });
@@ -1877,16 +1899,16 @@ document.getElementById('cancel-btn').addEventListener('click', function() {
     document.getElementById('user-action-dialog').style.display = 'none';
 });
 
-// 点击对话框外部关闭
+// 點擊對話框外部關閉
 document.getElementById('user-action-dialog').addEventListener('click', function(e) {
     if (e.target === this) {
         this.style.display = 'none';
     }
 });
 
-// 可选：更新用户按钮显示文本的函数
+// 可選：更新用戶按鈕顯示文本的函數
 function updateUserButtonText() {
-    const user = getCurrentUser(); // 假设有获取当前用户的函数
+    const user = getCurrentUser(); // 假設有獲取當前用戶的函數
     const btn = document.getElementById('change-user-btn');
     btn.textContent = user ? user.username : 'Sign in';
 }
@@ -1949,6 +1971,10 @@ document.getElementById('username-submit-btn').addEventListener('click', functio
     }
 });
 
+// 取消按钮事件
+document.getElementById('username-cancel-btn').addEventListener('click', function() {
+    document.getElementById('username-modal').classList.remove('active');
+});
 
 // 保存原始 alert 函數
 const originalAlert = window.alert;
