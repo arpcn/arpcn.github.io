@@ -524,65 +524,57 @@ button:disabled {
     }
 }
 
-.user-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding: 8px 12px;
-    background-color: rgba(106, 90, 205, 0.1);
-    border-radius: 20px;
+.title-bar {
+    position: relative; /* 为绝对定位的子元素提供参照 */
+    width: 100%;
+    margin-bottom: 20px; /* 与原设计一致的下边距 */
 }
 
-#current-username {
-    font-weight: bold;
-    color: var(--primary);
+.user-info {
+    position: absolute;
+    right: 0;    /* 贴右侧 */
+    top: 0;      /* 贴顶部 */
+    margin: 0;
+    padding: 0;
+}
+
+#change-user-btn {
+    padding: 5px 12px;
+    font-size: 12px;
+    border-radius: 15px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm); /* 保持原有阴影 */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 180px;
 }
 
-#change-user-btn {
-    padding: 5px 12px;
-    background-color: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 15px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: all 0.2s;
-}
-
 #change-user-btn:hover {
     background-color: var(--secondary);
     transform: translateY(-1px);
+    box-shadow: var(--shadow-md); /* 保持原有阴影 */
 }
-
+/* 移动端适配 */
 @media (max-width: 480px) {
-    .user-info {
-        margin-bottom: 10px;
+    .title-bar {
+        margin-bottom: 15px;
     }
-    
-    #current-username {
-        max-width: 120px;
-    }
-    
     #change-user-btn {
-        padding: 4px 10px;
-        font-size: 11px;
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+    h1 {
+        font-size: 1.5rem; /* 标题缩小避免换行 */
+        padding-right: 70px; /* 为按钮预留空间 */
     }
 }
 
 @media (prefers-color-scheme: dark) {
-    .user-info {
-        background-color: rgba(156, 136, 255, 0.1);
-    }
-    
-    #current-username {
-        color: #9c88ff;
-    }
-    
     #change-user-btn {
         background-color: #9c88ff;
     }
@@ -739,6 +731,115 @@ button:disabled {
   }
 }
 
+/* 用户操作对话框样式 */
+.custom-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center; /* 水平居中 */
+  align-items: center;     /* 垂直居中 */
+  align-items: center;
+  z-index: 1001; /* 高于其他模态框 */
+}
+
+.custom-dialog-box {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  width: 80%;
+  max-width: 200px;
+  overflow: hidden;
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.custom-dialog-buttons {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 12px;
+  align-items: center; /* 按钮内容居中 */
+}
+
+.dialog-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.logout-btn {
+  background-color: #ff4444;
+  color: white;
+}
+
+.logout-btn:hover {
+  background-color: #cc0000;
+}
+
+/* 重新登录按钮样式 */
+.relogin-btn {
+  background-color: #4285f4;
+  color: white;
+}
+
+.relogin-btn:hover {
+  background-color: #3367d6;
+}
+
+/* 取消按钮样式 */
+.cancel-btn {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.cancel-btn:hover {
+  background-color: #e0e0e0;
+}
+
+
+.dialog-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes dialogFadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 暗黑模式适配 */
+@media (prefers-color-scheme: dark) {
+  .custom-dialog-box {
+    background: var(--card-bg);
+  }
+  
+  .cancel-btn {
+    background-color: #3d3d3d;
+    color: var(--light);
+  }
+}
+/* 移动端适配 */
+@media (max-width: 480px) {
+  .custom-dialog-box {
+    width: 85%;
+  }
+  
+  .dialog-btn {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+}
+
+
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -760,11 +861,12 @@ firebase.initializeApp(firebaseConfig);
 </head>
 <body>
     <div class="game-container">
+      <div class="title-bar">
         <h1>天城體字母配對</h1>
-<div class="user-info">
-    <span id="current-username">未登录</span>
-    <button id="change-user-btn">Sign in</button>
-</div>
+        <div class="user-info">
+            <button id="change-user-btn">Sign in</button>
+        </div>
+      </div>
         <div class="game-modes">
             <button id="vowels-btn">元音</button>
             <button id="consonants-btn">輔音</button>
@@ -830,6 +932,16 @@ firebase.initializeApp(firebaseConfig);
             </div>
         </div>
     </div>
+
+<div id="user-action-dialog" class="custom-dialog-overlay">
+  <div class="custom-dialog-box">
+      <div class="custom-dialog-buttons">
+        <button id="logout-btn" class="dialog-btn logout-btn">退出登錄</button>
+        <button id="relogin-btn" class="dialog-btn relogin-btn">重新登錄</button>
+        <button id="cancel-btn" class="dialog-btn cancel-btn">取消</button>
+      </div>
+  </div>
+</div>
 
 <!-- alert -->
 <div id="custom-alert-overlay" class="custom-alert-overlay">
@@ -989,17 +1101,13 @@ function clearUserData() {
 }
 
 function updateUsernameDisplay() {
-    const usernameDisplay = document.getElementById('current-username');
     const changeuserDisplay = document.getElementById('change-user-btn');
     if (currentUsername) {
-        usernameDisplay.textContent = currentUsername;
-        changeuserDisplay.textContent = "切换用户";
+        changeuserDisplay.textContent = currentUsername;
     } else {
-        usernameDisplay.textContent = "未登錄";
-        changeuserDisplay.textContent = "Sign in";
+        changeuserDisplay.textContent = "登錄";
     }
 }
-
 
 // 強制轉換函數
 function forceTraditionalUsername(inputUsername) {
@@ -1732,18 +1840,53 @@ window.addEventListener('online', () => {
 });
 
 // 切換用戶的事件監聽
-document.getElementById('change-user-btn').addEventListener('click', function() {
-    clearUserData();
+// 登錄Modal
+function showLoginModal() {
     document.getElementById('username-input').value = "";
     document.getElementById('username-modal').classList.add('active');
     document.getElementById('username-input').focus();
-    
     // 重置遊戲狀態
     const currentMode = document.querySelector(".game-modes button.active")?.id;
-    if (currentMode) {
-        initGame(currentMode.replace("-btn", ""));
+    if (currentMode) initGame(currentMode.replace("-btn", ""));
+}
+
+document.getElementById('change-user-btn').addEventListener('click', function() {
+    currentUsername ? 
+        document.getElementById('user-action-dialog').style.display = 'flex' :
+        showLoginModal();
+});
+
+// 对话框按钮事件处理
+document.getElementById('logout-btn').addEventListener('click', function() {
+    // 退出登录
+    clearUserData();
+    document.getElementById('user-action-dialog').style.display = 'none';
+    updateUserButtonText(); // 可选：更新按钮显示为"Sign in"
+});
+
+document.getElementById('relogin-btn').addEventListener('click', function() {
+    // 重新登录
+        showLoginModal();
+});
+
+document.getElementById('cancel-btn').addEventListener('click', function() {
+    // 取消操作
+    document.getElementById('user-action-dialog').style.display = 'none';
+});
+
+// 点击对话框外部关闭
+document.getElementById('user-action-dialog').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.style.display = 'none';
     }
 });
+
+// 可选：更新用户按钮显示文本的函数
+function updateUserButtonText() {
+    const user = getCurrentUser(); // 假设有获取当前用户的函数
+    const btn = document.getElementById('change-user-btn');
+    btn.textContent = user ? user.username : 'Sign in';
+}
 
 // 添加回車鍵提交支持
 document.getElementById('username-input').addEventListener('keypress', function(e) {
