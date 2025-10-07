@@ -525,15 +525,15 @@ button:disabled {
 }
 
 .title-bar {
-    position: relative; /* 为绝对定位的子元素提供参照 */
+    position: relative; /* 為絕對定位的子元素提供參照 */
     width: 100%;
-    margin-bottom: 20px; /* 与原设计一致的下边距 */
+    margin-bottom: 20px; /* 與原設計一致的下邊距 */
 }
 
 .user-info {
     position: absolute;
-    right: 0;    /* 贴右侧 */
-    top: 0;      /* 贴顶部 */
+    right: 0;    /* 貼右側 */
+    top: 0;      /* 貼頂部 */
     margin: 0;
     padding: 0;
 }
@@ -547,7 +547,7 @@ button:disabled {
     border: none;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: var(--shadow-sm); /* 保持原有阴影 */
+    box-shadow: var(--shadow-sm); /* 保持原有陰影 */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -557,22 +557,22 @@ button:disabled {
 #change-user-btn:hover {
     background-color: var(--secondary);
     transform: translateY(-1px);
-    box-shadow: var(--shadow-md); /* 保持原有阴影 */
+    box-shadow: var(--shadow-md); /* 保持原有陰影 */
 }
-/* 移动端适配 */
+/* 移動端適配 */
 @media (max-width: 480px) {
     .title-bar {
         margin-bottom: 15px;
     }
     .user-info {
-        right: -10px;    /* 贴右侧 */
+        right: -10px;    /* 貼右側 */
     }
     #change-user-btn {
         padding: 2px 3px;
         font-size: 10px;
     }
     h1 {
-        font-size: 1.9rem; /* 标题缩小避免换行 */
+        font-size: 1.9rem; /* 標題縮小避免換行 */
     }
 }
 
@@ -612,7 +612,7 @@ button:disabled {
     box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.3);
 }
 
-/* 登錄按钮 */
+/* 登錄按鈕 */
 .username-buttons {
     display: flex;
     gap: 10px;
@@ -653,7 +653,7 @@ button:disabled {
     transform: translateY(-2px);
 }
 
-/* 暗黑模式适配 */
+/* 暗黑模式適配 */
 @media (prefers-color-scheme: dark) {
     .username-input {
         background-color: #3d3d3d;
@@ -711,16 +711,16 @@ button:disabled {
   line-height: 1.5;
   color: #af3805;
   text-align: center; /* 新增：文本居中 */
-  padding: 10px 0;    /* 调整内边距 */
+  padding: 10px 0;    /* 調整內邊距 */
 }
 
 .custom-alert-buttons {
   display: flex;
-  justify-content: flex-end; /* 按钮容器右对齐 */
-  width: 100%; /* 确保宽度满幅 */
+  justify-content: flex-end; /* 按鈕容器右對齊 */
+  width: 100%; /* 確保寬度滿幅 */
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #f0f0f0; /* 添加分割线 */
+  border-top: 1px solid #f0f0f0; /* 添加分割線 */
 }
 
 .custom-alert-button {
@@ -733,7 +733,7 @@ button:disabled {
   font-size: 14px;
   transition: background-color 0.3s;
   margin-left: 10px;
-  min-width: 80px; /* 统一按钮宽度 */
+  min-width: 80px; /* 統一按鈕寬度 */
 }
 
 .custom-alert-button:hover {
@@ -752,7 +752,7 @@ button:disabled {
   }
 }
 
-/* 用户操作对话框样式 */
+/* 用戶操作對話框樣式 */
 .custom-dialog-overlay {
   position: fixed;
   top: 0;
@@ -764,7 +764,7 @@ button:disabled {
   justify-content: center; /* 水平居中 */
   align-items: center;     /* 垂直居中 */
   align-items: center;
-  z-index: 1001; /* 高于其他模态框 */
+  z-index: 1001; /* 高於其他模態框 */
 }
 
 .custom-dialog-box {
@@ -783,7 +783,7 @@ button:disabled {
   flex-direction: column;
   padding: 20px;
   gap: 12px;
-  align-items: center; /* 按钮内容居中 */
+  align-items: center; /* 按鈕內容居中 */
 }
 
 .dialog-btn {
@@ -806,7 +806,7 @@ button:disabled {
   background-color: #cc0000;
 }
 
-/* 重新登录按钮样式 */
+/* 重新登錄按鈕樣式 */
 .relogin-btn {
   background-color: #4285f4;
   color: white;
@@ -816,7 +816,7 @@ button:disabled {
   background-color: #3367d6;
 }
 
-/* 取消按钮样式 */
+/* 取消按鈕樣式 */
 .cancel-btn {
   background-color: #f1f1f1;
   color: #333;
@@ -837,7 +837,7 @@ button:disabled {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 暗黑模式适配 */
+/* 暗黑模式適配 */
 @media (prefers-color-scheme: dark) {
   .custom-dialog-box {
     background: var(--card-bg);
@@ -848,7 +848,7 @@ button:disabled {
     color: var(--light);
   }
 }
-/* 移动端适配 */
+/* 移動端適配 */
 @media (max-width: 480px) {
   .custom-dialog-box {
     width: 85%;
@@ -927,7 +927,7 @@ firebase.initializeApp(firebaseConfig);
             </table>
             <button id="load-history-btn" class="load-history-btn">查看我的最近記錄</button>
             <div id="history-container" class="history-container">
-                <h3>您的最近記錄</h3>
+                <h3>我的最近記錄</h3>
                 <table class="leaderboard">
                     <thead>
                         <tr>
@@ -948,7 +948,7 @@ firebase.initializeApp(firebaseConfig);
         <div class="modal-content">
             <h2 class="modal-title">請輸入用戶名</h2>
             <div class="username-modal">
-                <input type="text" class="username-input" id="username-input" placeholder="您的暱稱" maxlength="20">
+                <input type="text" class="username-input" id="username-input" placeholder="輸入暱稱" maxlength="20">
                 <div class="username-buttons">
                     <button id="username-submit-btn">登 錄</button>
                     <button id="username-cancel-btn">取 消</button>
@@ -973,7 +973,7 @@ firebase.initializeApp(firebaseConfig);
     <div class="custom-alert-content">
       <p id="custom-alert-message"></p>
       <div class="custom-alert-buttons">
-        <button id="custom-alert-confirm" class="custom-alert-button">确定</button>
+        <button id="custom-alert-confirm" class="custom-alert-button">確定</button>
       </div>
     </div>
   </div>
@@ -1157,7 +1157,7 @@ function getRandomSubset(array, count = 6) {
     return shuffled.slice(0, Math.min(count, array.length));
 }
 
-// 准備遊戲數據
+// 準備遊戲數據
 function prepareGameData(dataType) {
     let data = [];
     if (dataType === 'vowels') {
@@ -1622,7 +1622,7 @@ function getLeaderboard(mode, currentTime) {
 function renderLeaderboard(records, mode, currentTime) {
     const leaderboardBody = document.getElementById('leaderboard-body');
     
-    // 立即显示预加载数据
+    // 立即顯示預加載數據
     if (records && records.length > 0) {
         leaderboardBody.innerHTML = '';
         
@@ -1640,17 +1640,17 @@ function renderLeaderboard(records, mode, currentTime) {
             leaderboardBody.appendChild(row);
         });
     } else {
-        leaderboardBody.innerHTML = '<tr><td colspan="4">加载中...</td></tr>';
+        leaderboardBody.innerHTML = '<tr><td colspan="4">加載中...</td></tr>';
     }
     
-    document.getElementById('completion-time').textContent = `用时: ${currentTime}秒 (模式: ${mode})`;
+    document.getElementById('completion-time').textContent = `用時: ${currentTime}秒 (模式: ${mode})`;
     document.getElementById('completion-modal').classList.add('active');
     
-    // 后台更新最新数据
+    // 後臺更新最新數據
     updateLeaderboard(mode, currentTime);
 }
 
-// 后台更新排行榜数据
+// 後臺更新排行榜數據
 function updateLeaderboard(mode, currentTime) {
     const sanitizedUsername = currentUsername.replace(/[.$#[\]/]/g, '_');
     
@@ -1663,7 +1663,7 @@ function updateLeaderboard(mode, currentTime) {
     ]).then(([globalSnapshot, userSnapshot]) => {
         const records = [];
         
-        // 处理全局排行榜数据
+        // 處理全局排行榜數據
         globalSnapshot.forEach(userSnapshot => {
             const userData = userSnapshot.val();
             if (userData.modes && userData.modes[mode]) {
@@ -1676,7 +1676,7 @@ function updateLeaderboard(mode, currentTime) {
             }
         });
         
-        // 添加当前用户数据（如果不在前10名中）
+        // 添加當前用戶數據（如果不在前10名中）
         const userData = userSnapshot.val();
         if (userData && userData.modes?.[mode]) {
             const alreadyInList = records.some(r => r.username === currentUsername);
@@ -1690,14 +1690,14 @@ function updateLeaderboard(mode, currentTime) {
             }
         }
         
-        // 按时间排序
+        // 按時間排序
         records.sort((a, b) => a.time - b.time);
         
-        // 更新预加载数据和缓存
+        // 更新預加載數據和緩存
         preloadedLeaderboardData[mode] = records;
         sessionStorage.setItem(`leaderboard_${mode}`, JSON.stringify(records));
         
-        // 如果用户仍在查看排行榜，则更新UI
+        // 如果用戶仍在查看排行榜，則更新UI
         if (document.getElementById('completion-modal').classList.contains('active')) {
             const leaderboardBody = document.getElementById('leaderboard-body');
             leaderboardBody.innerHTML = '';
@@ -1716,7 +1716,7 @@ function updateLeaderboard(mode, currentTime) {
                 leaderboardBody.appendChild(row);
             });
         }
-    }).catch(error => console.error("更新排行榜失败:", error));
+    }).catch(error => console.error("更新排行榜失敗:", error));
 }
 
 // 加載當前模式的歷史記錄
@@ -1848,7 +1848,7 @@ document.getElementById('load-history-btn').addEventListener('click', () => {
 });
 
 
-// 定時刷新（放在這里確保Firebase已初始化）
+// 定時刷新（放在這裏確保Firebase已初始化）
 const preloadInterval = setInterval(preloadLeaderboardData, 5 * 60 * 1000); // 每5分鍾刷新一次
 
 // 可選：頁面卸載時清除定時器（避免內存泄漏）
@@ -1856,7 +1856,7 @@ window.addEventListener('beforeunload', () => {
     clearInterval(preloadInterval);
 });
 
-// 監聽網絡恢复事件
+// 監聽網絡恢復事件
 window.addEventListener('online', () => {
     if (currentUsername && !navigator.userAgent.includes('Firefox')) { // Firefox可能誤觸發
         setTimeout(preloadUserHistory, 3000); // 延遲執行避免阻塞
@@ -1971,7 +1971,7 @@ document.getElementById('username-submit-btn').addEventListener('click', functio
     }
 });
 
-// 取消按钮事件
+// 取消按鈕事件
 document.getElementById('username-cancel-btn').addEventListener('click', function() {
     document.getElementById('username-modal').classList.remove('active');
 });
