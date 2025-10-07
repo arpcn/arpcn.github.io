@@ -652,6 +652,9 @@ button:disabled {
     background-color: var(--secondary);
     transform: translateY(-2px);
 }
+.help-content {
+    height: 0.8em;
+}
 
 /* 暗黑模式適配 */
 @media (prefers-color-scheme: dark) {
@@ -954,6 +957,7 @@ firebase.initializeApp(firebaseConfig);
                     <button id="username-cancel-btn">取 消</button>
                 </div>
             </div>
+            <p class="help-content">班外人員可輸入「遊客」</p>
         </div>
     </div>
 
@@ -1140,6 +1144,7 @@ function forceTraditionalUsername(inputUsername) {
   '论': '論',
   '双': '雙',
   '愿': '願',
+  '云': '雲',
   '泽': '澤',
   // 可擴展其他需要強制轉換的字
 };
