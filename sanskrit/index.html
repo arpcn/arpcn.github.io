@@ -1868,7 +1868,8 @@ document.getElementById('logout-btn').addEventListener('click', function() {
 
 document.getElementById('relogin-btn').addEventListener('click', function() {
     // 重新登录
-        showLoginModal();
+    document.getElementById('user-action-dialog').style.display = 'none';
+    showLoginModal();
 });
 
 document.getElementById('cancel-btn').addEventListener('click', function() {
