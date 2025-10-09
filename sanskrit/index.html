@@ -1791,13 +1791,17 @@ function renderHistoryRecords(records) {
 }
 
 // 事件監聽
-document.getElementById("start-btn").addEventListener("click", checkUsername);
-document.getElementById("reset-btn").addEventListener("click", () => {
+document.getElementById("start-btn").addEventListener("click", () => {
+    checkUsername();  // 原有逻辑
+    resetGame();      // 新增：执行重置
+});
+document.getElementById("reset-btn").addEventListener("click", resetGame);
+function resetGame() {
     const currentMode = document.querySelector(".game-modes button.active")?.id;
     if (currentMode) {
         initGame(currentMode.replace("-btn", ""));
     }
-});
+}
 
 // 遊戲模式選擇
 function setupModeButton(buttonId, mode) {
