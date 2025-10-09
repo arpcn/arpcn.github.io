@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反饋數據</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; }
+        .feedback-item { margin-bottom: 30px; }
+        .feedback-content { white-space: pre-line; }
+        .divider { 
+            border-top: 1px solid #ddd;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                </div>
+                <div class="card-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <button type="button" id="loginBtn" class="btn btn-primary w-100">登錄</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 反饋數據容器（默認隱藏，登錄後顯示） -->
+<div id="feedbackContainer" class="container mt-5" style="display: none;">
+    <h1 class="text-center mb-4">反饋數據</h1>
+    <div id="feedbackList">
+        <!-- 反饋數據將通過JavaScript動態填充 -->
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+
+<script>
+// 你的Firebase配置
+const firebaseConfig = {
+        apiKey: "AIzaSyAsevOrW7BYxlg1xH8FjGuxJKu47Udo_sc",
+        authDomain: "arbzn08.firebaseapp.com",
+        databaseURL: "https://arbzn08-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "arbzn08",
+        storageBucket: "arbzn08.appspot.com",
+        messagingSenderId: "581298403351",
+        appId: "1:581298403351:web:0e6355c9b6a6a9c348c452",
+        measurementId: "G-0WEQ3ED242"
+};
+
+// 初始化Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const auth = firebase.auth();
+
+// 登錄函數
+function loginUser(email, password) {
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            console.log("登錄成功:", userCredential.user);
+            loadFeedbackData();
+        })
+        .catch((error) => {
+            console.error("登錄失敗:", error);
+            alert("登錄失敗: " + error.message);
+        });
+}
+
+// 監聽認證狀態變化
+auth.onAuthStateChanged((user) => {
+    const loginContainer = document.querySelector('.card');
+    const feedbackContainer = document.getElementById('feedbackContainer');
+    
+    if (user) {
+        loginContainer.style.display = 'none';
+        feedbackContainer.style.display = 'block';
+        loadFeedbackData();
+    } else {
+        loginContainer.style.display = 'block';
+        feedbackContainer.style.display = 'none';
+    }
+});
+
+// 加載反饋數據（新格式）
+function loadFeedbackData() {
+    const feedbackRef = database.ref('feedbacks');
+    
+    feedbackRef.on('value', (snapshot) => {
+        const feedbackData = snapshot.val();
+        const feedbackList = document.getElementById('feedbackList');
+        feedbackList.innerHTML = '';
+        
+        if (feedbackData) {
+            // 遍歷所有聯繫人
+            Object.keys(feedbackData).forEach(contact => {
+                // 遍歷每個聯繫人的反饋
+                Object.keys(feedbackData[contact]).forEach(feedbackId => {
+                    const feedback = feedbackData[contact][feedbackId];
+                    
+                    // 創建反饋項容器
+                    const feedbackItem = document.createElement('div');
+                    feedbackItem.className = 'feedback-item';
+                    
+                    // 創建第一行：來自...，日期
+                    const fromLine = document.createElement('div');
+                    fromLine.className = 'feedback-from';
+                    const date = new Date(feedback.timestamp);
+                    fromLine.innerHTML = `來自 <strong>${contact}</strong>，${date.toLocaleString()}`;
+                    feedbackItem.appendChild(fromLine);
+                    
+                    // 創建內容行（處理換行符）
+                    const contentLine = document.createElement('div');
+                    contentLine.className = 'feedback-content mt-2';
+                    contentLine.textContent = feedback.text;
+                    feedbackItem.appendChild(contentLine);
+                    
+                    // 添加分割線
+                    const divider = document.createElement('div');
+                    divider.className = 'divider mt-3';
+                    feedbackItem.appendChild(divider);
+                    
+                    // 將反饋項添加到列表
+                    feedbackList.appendChild(feedbackItem);
+                });
+            });
+        } else {
+            // 沒有數據時顯示提示
+            const emptyMsg = document.createElement('div');
+            emptyMsg.className = 'text-center text-muted';
+            emptyMsg.textContent = '暫無反饋數據';
+            feedbackList.appendChild(emptyMsg);
+        }
+    }, (error) => {
+        console.error('讀取數據失敗:', error);
+        alert('加載數據失敗，請檢查控制臺獲取詳細信息');
+    });
+}
+
+// 登錄按鈕事件
+document.getElementById('loginBtn').addEventListener('click', () => {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    loginUser(email, password);
+});
+</script>
+</body>
+</html>
