@@ -14,24 +14,28 @@
         
         
         /* 反馈列表样式 */
-/* 反馈卡片样式 */
-.feedback-card {
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
+/* 反馈卡片美化 */
+.feedback-item {
+    position: relative;
+    border-left: 4px solid #0d6efd;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
     overflow: hidden;
 }
 
-.feedback-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+.feedback-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .feedback-header {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-bottom: 1px solid #eee;
+    padding: 1.25rem 1.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .feedback-contact {
@@ -39,32 +43,72 @@
     color: #0d6efd;
     display: flex;
     align-items: center;
+    font-size: 1.05rem;
 }
 
 .feedback-contact i {
-    margin-right: 8px;
+    margin-right: 10px;
+    font-size: 1.2rem;
 }
 
 .feedback-time {
     color: #6c757d;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
+    background-color: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
 }
 
 .feedback-content {
-    padding: 1.25rem;
+    padding: 1rem 1.5rem 1.5rem;
     white-space: pre-line;
-    line-height: 1.6;
+    line-height: 1.7;
+    color: #495057;
+    position: relative;
+}
+
+.feedback-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 1.5rem;
+    right: 1.5rem;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 空状态美化 */
+.empty-state-icon {
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+#emptyFeedback:hover .empty-state-icon {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+/* 时间线效果 */
+.feedback-item::after {
+    content: "";
+    position: absolute;
+    top: 2.5rem;
+    left: -1px;
+    bottom: 0;
+    width: 1px;
+    background-color: rgba(13, 110, 253, 0.2);
 }
 
 /* 响应式调整 */
-@media (max-width: 768px) {
+@media (max-width: 576px) {
     .feedback-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 0.5rem;
     }
     
     .feedback-time {
-        margin-top: 0.5rem;
+        align-self: flex-end;
     }
 }
 
@@ -113,22 +157,27 @@
 
 <!-- （默認隱藏） -->
 <div id="feedbackContainer" class="container pt-0" style="display: none;">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 sticky-top bg-white py-3" style="top: 20px; z-index: 1020;">
         <h3 class="m-0 text-primary">
-            <i class="bi bi-chat-left-text-fill"></i> 用户反馈
+            <i class="bi bi-chat-left-text-fill me-2"></i>用户反馈
         </h3>
-        <button id="logoutBtn" class="btn btn-outline-primary">
-            <i class="bi bi-box-arrow-right"></i> 退出
+        <button id="logoutBtn" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-box-arrow-right me-1"></i>退出登录
         </button>
     </div>
     
-    <div id="feedbackList" class="row g-3">
-        <!-- 反馈项将通过JavaScript动态填充 -->
+    <div id="feedbackList" class="row">
+        <div class="col-12">
+            <!-- 反馈项将通过JavaScript动态填充 -->
+        </div>
     </div>
     
-    <div id="emptyFeedback" class="text-center py-5" style="display: none;">
-        <i class="bi bi-chat-square-text text-muted" style="font-size: 3rem;"></i>
-        <p class="text-muted mt-3">暂无用户反馈</p>
+    <div id="emptyFeedback" class="text-center py-5 my-5" style="display: none;">
+        <div class="empty-state-icon">
+            <i class="bi bi-chat-square-text text-muted" style="font-size: 3.5rem;"></i>
+        </div>
+        <h5 class="text-muted mt-4">暂无反馈内容</h5>
+        <p class="text-muted small mt-2">当有用户提交反馈时，内容将显示在这里</p>
     </div>
 </div>
 
@@ -185,7 +234,7 @@ function loadFeedbackData() {
     
     feedbackRef.on('value', (snapshot) => {
         const feedbackData = snapshot.val();
-        const feedbackList = document.getElementById('feedbackList');
+        const feedbackList = document.querySelector('#feedbackList .col-12');
         const emptyFeedback = document.getElementById('emptyFeedback');
         
         feedbackList.innerHTML = '';
@@ -208,12 +257,9 @@ function loadFeedbackData() {
             allFeedbacks.sort((a, b) => b.timestamp - a.timestamp);
             
             // 渲染反馈卡片
-            allFeedbacks.forEach(feedback => {
-                const col = document.createElement('div');
-                col.className = 'col-md-6 col-lg-4';
-                
-                const card = document.createElement('div');
-                card.className = 'feedback-card h-100';
+            allFeedbacks.forEach((feedback, index) => {
+                const feedbackItem = document.createElement('div');
+                feedbackItem.className = 'feedback-item';
                 
                 const date = new Date(feedback.timestamp);
                 const formattedTime = date.toLocaleString('zh-CN', {
@@ -224,40 +270,83 @@ function loadFeedbackData() {
                     minute: '2-digit'
                 });
                 
-                card.innerHTML = `
-                    <div class="feedback-header d-flex justify-content-between align-items-center">
+                // 添加动画延迟效果
+                feedbackItem.style.animationDelay = `${index * 0.05}s`;
+                
+                feedbackItem.innerHTML = `
+                    <div class="feedback-header">
                         <span class="feedback-contact">
                             <i class="bi bi-person-circle"></i>
                             ${feedback.contact || '匿名用户'}
                         </span>
-                        <span class="feedback-time">${formattedTime}</span>
+                        <span class="feedback-time">
+                            <i class="bi bi-clock-history me-1"></i>${formattedTime}
+                        </span>
                     </div>
                     <div class="feedback-content">
                         ${feedback.text}
                     </div>
                 `;
                 
-                col.appendChild(card);
-                feedbackList.appendChild(col);
+                feedbackList.appendChild(feedbackItem);
             });
         } else {
             emptyFeedback.style.display = 'block';
         }
     }, (error) => {
         console.error('读取数据失败:', error);
-        alert('加载数据失败，请检查控制台获取详细信息');
+        
+        // 更友好的错误提示
+        const feedbackList = document.querySelector('#feedbackList .col-12');
+        feedbackList.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>加载数据失败</strong>
+                <p class="mb-0 mt-2">${error.message || '请检查网络连接后重试'}</p>
+            </div>
+        `;
     });
 }
 
-// 添加退出登录功能
-document.getElementById('logoutBtn').addEventListener('click', () => {
-    auth.signOut().then(() => {
-        alert('已安全退出');
-    }).catch((error) => {
-        console.error('退出登录失败:', error);
-    });
-});
+// 添加动画效果
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feedback-item {
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+    </style>
+`);
 
+// 退出登录功能优化
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    if(confirm('确定要退出登录吗？')) {
+        auth.signOut().then(() => {
+            // 添加退出动画
+            document.getElementById('feedbackContainer').style.opacity = '0';
+            document.getElementById('feedbackContainer').style.transition = 'opacity 0.3s';
+            
+            setTimeout(() => {
+                alert('您已安全退出');
+                location.reload();
+            }, 300);
+        }).catch((error) => {
+            console.error('退出登录失败:', error);
+            alert(`退出失败: ${error.message}`);
+        });
+    }
+});
 
 document.getElementById('loginBtn').addEventListener('click', () => {
     const email = document.getElementById('email').value;
