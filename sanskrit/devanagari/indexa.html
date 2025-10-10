@@ -14,65 +14,59 @@
         
         
         /* 反馈列表样式 */
-        #feedbackList .list-group-item {
-            padding: 1rem;
-            border-left: none;
-            border-right: none;
-            transition: background-color 0.2s;
-        }
-        
-        #feedbackList .list-group-item:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .feedback-item {
-            display: flex;
-            flex-direction: column;
-        }
-       /* .feedback-item { margin-bottom: 30px; }
-        .feedback-from { color: #34fa52; } */
+/* 反馈卡片样式 */
+.feedback-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+}
 
-        .feedback-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-        
-        .feedback-contact {
-            font-weight: 500;
-            color: #0d6efd;
-            white-space: pre-line;
-        }
-        
-        .feedback-time {
-            color: #6c757d;
-            font-size: 0.85rem;
-        }
-        
-        .feedback-content {
-            white-space: pre-line;
-            background-color: #f8f9fa;
-            padding: 0.75rem;
-            border-radius: 0.25rem;
-            margin-top: 0.5rem;
-        }
-        
-        .empty-feedback {
-            text-align: center;
-            padding: 2rem;
-            color: #6c757d;
-        }
-        
-        /* 响应式调整 */
-        @media (max-width: 768px) {
-            .feedback-header {
-                flex-direction: column;
-            }
-            
-            .feedback-time {
-                margin-top: 0.25rem;
-            }
-        }
+.feedback-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.feedback-header {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.feedback-contact {
+    font-weight: 600;
+    color: #0d6efd;
+    display: flex;
+    align-items: center;
+}
+
+.feedback-contact i {
+    margin-right: 8px;
+}
+
+.feedback-time {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.feedback-content {
+    padding: 1.25rem;
+    white-space: pre-line;
+    line-height: 1.6;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .feedback-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .feedback-time {
+        margin-top: 0.5rem;
+    }
+}
 
         
         
@@ -120,27 +114,23 @@
 <!-- （默認隱藏） -->
 <div id="feedbackContainer" class="container pt-0" style="display: none;">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="m-0">用户反馈</h3>
-        <button id="logoutBtn" class="btn btn-outline-secondary btn-sm">退出登录</button>
+        <h3 class="m-0 text-primary">
+            <i class="bi bi-chat-left-text-fill"></i> 用户反馈
+        </h3>
+        <button id="logoutBtn" class="btn btn-outline-primary">
+            <i class="bi bi-box-arrow-right"></i> 退出
+        </button>
     </div>
     
-    <div class="card shadow-sm">
-        <div class="card-header bg-light">
-            <div class="row fw-bold">
-                <div class="col-md-3">联系方式</div>
-                <div class="col-md-6">反馈内容</div>
-                <div class="col-md-3">时间</div>
-            </div>
-        </div>
-        <div class="card-body p-0">
-            <div id="feedbackList" class="list-group list-group-flush">
-                <!-- JavaScript动态填充 -->
-            </div>
-        </div>
+    <div id="feedbackList" class="row g-3">
+        <!-- 反馈项将通过JavaScript动态填充 -->
+    </div>
+    
+    <div id="emptyFeedback" class="text-center py-5" style="display: none;">
+        <i class="bi bi-chat-square-text text-muted" style="font-size: 3rem;"></i>
+        <p class="text-muted mt-3">暂无用户反馈</p>
     </div>
 </div>
-
-
 
 
 
@@ -196,17 +186,20 @@ function loadFeedbackData() {
     feedbackRef.on('value', (snapshot) => {
         const feedbackData = snapshot.val();
         const feedbackList = document.getElementById('feedbackList');
+        const emptyFeedback = document.getElementById('emptyFeedback');
+        
         feedbackList.innerHTML = '';
         
-        if (feedbackData) {
-            // 按时间排序
+        if (feedbackData && Object.keys(feedbackData).length > 0) {
+            emptyFeedback.style.display = 'none';
+            
+            // 收集所有反馈并按时间排序
             const allFeedbacks = [];
             Object.keys(feedbackData).forEach(contact => {
                 Object.keys(feedbackData[contact]).forEach(feedbackId => {
-                    const feedback = feedbackData[contact][feedbackId];
                     allFeedbacks.push({
                         contact,
-                        ...feedback
+                        ...feedbackData[contact][feedbackId]
                     });
                 });
             });
@@ -214,10 +207,13 @@ function loadFeedbackData() {
             // 按时间降序排序
             allFeedbacks.sort((a, b) => b.timestamp - a.timestamp);
             
-            // 渲染反馈项
+            // 渲染反馈卡片
             allFeedbacks.forEach(feedback => {
-                const feedbackItem = document.createElement('div');
-                feedbackItem.className = 'list-group-item';
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4';
+                
+                const card = document.createElement('div');
+                card.className = 'feedback-card h-100';
                 
                 const date = new Date(feedback.timestamp);
                 const formattedTime = date.toLocaleString('zh-CN', {
@@ -228,32 +224,35 @@ function loadFeedbackData() {
                     minute: '2-digit'
                 });
                 
-                feedbackItem.innerHTML = `
-                    <div class="feedback-header">
-                        <span class="feedback-contact">${feedback.contact}</span>
+                card.innerHTML = `
+                    <div class="feedback-header d-flex justify-content-between align-items-center">
+                        <span class="feedback-contact">
+                            <i class="bi bi-person-circle"></i>
+                            ${feedback.contact || '匿名用户'}
+                        </span>
                         <span class="feedback-time">${formattedTime}</span>
                     </div>
-                    <div class="feedback-content">${feedback.text}</div>
+                    <div class="feedback-content">
+                        ${feedback.text}
+                    </div>
                 `;
                 
-                feedbackList.appendChild(feedbackItem);
+                col.appendChild(card);
+                feedbackList.appendChild(col);
             });
         } else {
-            const emptyMsg = document.createElement('div');
-            emptyMsg.className = 'empty-feedback';
-            emptyMsg.innerHTML = `
-                <i class="bi bi-chat-square-text" style="font-size: 2rem;"></i>
-                <p class="mt-2">暂无反馈数据</p>
-            `;
-            feedbackList.appendChild(emptyMsg);
+            emptyFeedback.style.display = 'block';
         }
+    }, (error) => {
+        console.error('读取数据失败:', error);
+        alert('加载数据失败，请检查控制台获取详细信息');
     });
 }
 
 // 添加退出登录功能
 document.getElementById('logoutBtn').addEventListener('click', () => {
     auth.signOut().then(() => {
-        alert('已退出登录');
+        alert('已安全退出');
     }).catch((error) => {
         console.error('退出登录失败:', error);
     });
