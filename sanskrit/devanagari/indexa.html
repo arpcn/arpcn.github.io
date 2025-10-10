@@ -443,6 +443,21 @@ function loadFeedbackData() {
 
                 feedbackList.appendChild(feedbackItem);
 
+                const contentDiv = feedbackItem.querySelector('.feedback-content');
+                if (contentDiv) {
+                    contentDiv.addEventListener('copy', function(e) {
+                        const rawText = this.innerText;
+                        const markdownText = rawText
+                            .replace(/\n{3,}/g, '\n\n')  // 合并多个空行
+                            .replace(/\n/g, '\n\n')      // 普通换行转Markdown换行
+                            .replace(/^ +/gm, '');       // 去除行首空格
+                        
+                        e.clipboardData.setData('text/plain', markdownText);
+                        e.clipboardData.setData('text/html', this.innerHTML); // 可选：保留富文本
+                        e.preventDefault();
+                    });
+                }
+
                 // 獲取刪除按鈕元素（必須在appendChild之後）
                 const deleteBtn = feedbackItem.querySelector('.delete-btn');
                 
