@@ -643,8 +643,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const bookRegex = /^《([^《》]+)》：$/;
         if (bookRegex.test(selectedText)) {
             const bookTitle = selectedText.replace(bookRegex, "\$1");
-            const obsidianLink = `obsidian://open?vault=${encodeURIComponent(obsidianConfig.vaultName)}&file=${encodeURIComponent(bookTitle)}`;
-            
+            // const obsidianLink = `obsidian://open?vault=${encodeURIComponent(obsidianConfig.vaultName)}&file=${encodeURIComponent(bookTitle)}`;
+            const obsidianLink = `obsidian://adv-uri?vault=${encodeURIComponent(obsidianConfig.vaultName)}&filepath=${encodeURIComponent(bookTitle)}`;
+
             // 打开Obsidian链接（添加确认提示）
             if (confirm(`是否要打开Obsidian中的「${obsidianLink}」？`)) {
                  openObsidian(obsidianLink, "修订文件");
