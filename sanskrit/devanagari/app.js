@@ -40,7 +40,18 @@ function loadUserStats() {
         Object.keys(data).forEach(uid => {
             const user = data[uid];
             const modes = user.modes || {};
-            
+
+            // 獲取最後遊戲時間（兼容中英文鍵名）
+            const getLastPlayed = () => {
+                let latestTimestamp = 0;
+                Object.keys(modes).forEach(mode => {
+                    if (modes[mode]?.lastPlayed && modes[mode].lastPlayed > latestTimestamp) {
+                        latestTimestamp = modes[mode].lastPlayed;
+                    }
+                });
+                return latestTimestamp > 0 ? new Date(latestTimestamp).toLocaleString() : '從未遊戲';
+            };
+
             // 獲取最佳時間（兼容中英文鍵名）
             const getBestTime = (modeKeys) => {
                 for (const key of modeKeys) {
@@ -56,6 +67,7 @@ function loadUserStats() {
             row.innerHTML = `
                 <td>${uid}</td>
                 <td>${user.gameCount || 0}</td>
+                <td>${getLastPlayed()}</td>
                 <td>${getBestTime(['vowels', '元音'])}</td>
                 <td>${getBestTime(['consonants', '輔音'])}</td>
                 <td>${getBestTime(['numbers', '數字'])}</td>
