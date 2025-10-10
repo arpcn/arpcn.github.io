@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反饋數據</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; }
+        .divider { 
+            border-top: 1px solid #ddd;
+            margin: 15px 0;
+        }
+        
+        
+// 变量控制阴影强度
+:root {
+    --shadow-intensity: 0.3;
+}
+
+#deleteSelectedBtn {
+    text-shadow: 0 0 calc(4px * var(--shadow-intensity)) rgba(220, 53, 69, var(--shadow-intensity));
+}
+/* 反馈卡片美化 */
+.feedback-item {
+    position: relative;
+    border-left: 4px solid #9ac2fe;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    transition: all 0.2s ease;
+    overflow: hidden;
+    padding-left: 15px;
+}
+
+.feedback-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, 
+        rgba(255,255,255,0.8) 0%, 
+        rgba(255,255,255,0.5) 50%, 
+        rgba(255,255,255,0.2) 100%);
+    box-shadow: 1px 0 2px rgba(0,0,0,0.1);
+}
+
+/* 基础色 */
+.feedback-item::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: #9d9ff7; /* indigo-600 */
+    opacity: 0.8;
+    z-index: -1;
+}
+/* 时间线效果 
+.feedback-item::after {
+    content: "";
+    position: absolute;
+    top: 2.5rem;
+    left: -1px;
+    bottom: 0;
+    width: 1px;
+    background-color: rgba(13, 110, 253, 0.2);
+}*/
+
+.feedback-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #0d6efd;
+}
+
+.feedback-item.selected {
+    border-left: 3px solid #dc3545;
+}
+
+.checkbox-container {
+    position: absolute;
+    left: -15px;
+    top: 15px;
+    z-index: 1;
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #dc3545;
+}
+
+/* 批量操作按钮样式 */
+#deleteSelectedBtn {
+    transition: all 0.2s ease;
+    text-shadow: 0 0 2px rgba(220, 53, 69, 0.3);
+}
+
+#deleteSelectedBtn:hover, 
+#deleteSelectedBtn:focus {
+    text-shadow: 0 0 4px rgba(220, 53, 69, 0.5);
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}
+
+#deleteSelectedBtn:active {
+    text-shadow: 0 0 6px rgba(220, 53, 69, 0.7);
+}
+
+/* 退出按钮位置固定 */
+#logoutBtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1030;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.feedback-header {
+    padding: 1.25rem 1.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.feedback-contact {
+    font-weight: 600;
+    color: #0d6efd;
+    display: flex;
+    align-items: center;
+    font-size: 1.05rem;
+}
+
+.feedback-contact i {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.feedback-time {
+    color: #6c757d;
+    font-size: 0.9rem;
+    background-color: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+}
+
+.feedback-content {
+    padding: 1rem 1.5rem 1.5rem;
+    white-space: pre-line;
+    line-height: 1.7;
+    color: #495057;
+    position: relative;
+    pointer-events: none; /* 防止内容区域点击触发选中 */
+}
+
+.feedback-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 1.5rem;
+    right: 1.5rem;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 空状态美化 */
+.empty-state-icon {
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+#emptyFeedback:hover .empty-state-icon {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+
+/* 删除按钮样式 */
+.delete-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+    opacity: 0.5;
+    transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+    opacity: 1;
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* 移动端调整 */
+@media (max-width: 576px) {
+    .feedback-header .d-flex {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .delete-btn {
+        margin-left: auto;
+    }
+
+    
+    .feedback-time {
+        align-self: flex-end;
+    }
+}
+
+        
+        
+        #loginForm {
+            transition: opacity 0.3s ease;
+        }
+        #loginBtn {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #loginBtn:hover {
+            background-color: #0b5ed7;
+        }
+        
+        
+    </style>
+</head>
+<body>
+
+<div class="container mt-3" style="opacity: 0; transition: opacity 0.3s ease;">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                </div>
+                <div class="card-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                        <button type="button" id="loginBtn" class="btn btn-primary w-100">ॐ</button>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                            <input type="password" class="form-control" id="password" required>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- （默認隱藏） -->
+<div id="feedbackContainer" class="container pt-0" style="display: none;">
+    <!-- 退出登录按钮（固定在右上角） -->
+    <button id="logoutBtn" class="btn btn-sm btn-outline-secondary position-fixed" 
+            style="top: 20px; right: 20px; z-index: 1030;">
+        <i class="bi bi-box-arrow-right me-1"></i>退出登录
+    </button>
+
+    <div class="d-flex justify-content-between align-items-center mb-4 sticky-top bg-white py-3" 
+         style="top: 20px; z-index: 1020;">
+        <h3 class="m-0 text-primary">
+            <i class="bi bi-chat-left-text-fill me-2"></i>用户反馈
+        </h3>
+        <div id="batchActions" class="d-none">
+            <button id="selectAllBtn" class="btn btn-sm btn-outline-secondary me-2">
+                <i class="bi bi-check-all me-1"></i>全选
+            </button>
+            <button id="deleteSelectedBtn" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash me-1"></i>删除选中
+            </button>
+        </div>
+    </div>
+    
+    <div class="row" id="feedbackList">
+        <div class="col-12">
+            <!-- 反馈项将通过JavaScript动态填充 -->
+        </div>
+    </div>
+
+    <div id="emptyFeedback" class="text-center py-5 my-5" style="display: none;">
+        <div class="empty-state-icon">
+            <i class="bi bi-chat-square-text text-muted" style="font-size: 3.5rem;"></i>
+        </div>
+        <h5 class="text-muted mt-4">暂无反馈内容</h5>
+        <p class="text-muted small mt-2">当有用户提交反馈时，内容将显示在这里</p>
+    </div>
+</div>
+
+
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+        apiKey: "AIzaSyAsevOrW7BYxlg1xH8FjGuxJKu47Udo_sc",
+        authDomain: "arbzn08.firebaseapp.com",
+        databaseURL: "https://arbzn08-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "arbzn08",
+        storageBucket: "arbzn08.appspot.com",
+        messagingSenderId: "581298403351",
+        appId: "1:581298403351:web:0e6355c9b6a6a9c348c452",
+        measurementId: "G-0WEQ3ED242"
+};
+
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const auth = firebase.auth();
+
+function loginUser(email, password) {
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            loadFeedbackData();
+        })
+        .catch((error) => {
+            console.error("error:", error);
+            alert("error: " + error.message);
+        });
+}
+
+auth.onAuthStateChanged((user) => {
+    const loginContainer = document.querySelector('.card');
+    const feedbackContainer = document.getElementById('feedbackContainer');
+    
+    if (user) {
+        loginContainer.style.display = 'none';
+        feedbackContainer.style.display = 'block';
+        loadFeedbackData();
+    } else {
+        loginContainer.style.display = 'block';
+        feedbackContainer.style.display = 'none';
+    }
+});
+
+// 全局变量存储选中的反馈项
+let selectedFeedbacks = [];
+
+// 加载反馈数据
+function loadFeedbackData() {
+    const feedbackRef = database.ref('feedbacks');
+    
+    feedbackRef.on('value', (snapshot) => {
+        const feedbackData = snapshot.val();
+        const feedbackList = document.querySelector('#feedbackList');
+        const emptyFeedback = document.getElementById('emptyFeedback');
+        const batchActions = document.getElementById('batchActions');
+        
+        feedbackList.innerHTML = '';
+        selectedFeedbacks = [];
+        batchActions.classList.add('d-none');
+        
+        if (feedbackData && Object.keys(feedbackData).length > 0) {
+            emptyFeedback.style.display = 'none';
+            
+            // 收集所有反馈并按时间排序
+            const allFeedbacks = [];
+            Object.keys(feedbackData).forEach(contact => {
+                Object.keys(feedbackData[contact]).forEach(feedbackId => {
+                    allFeedbacks.push({
+                        contact,
+                        feedbackId,
+                        ...feedbackData[contact][feedbackId]
+                    });
+                });
+            });
+            
+            // 按时间降序排序
+            allFeedbacks.sort((a, b) => b.timestamp - a.timestamp);
+            
+            // 渲染反馈卡片
+            allFeedbacks.forEach((feedback, index) => {
+                const feedbackItem = document.createElement('div');
+                feedbackItem.className = 'feedback-item card mb-3';
+                feedbackItem.dataset.contact = encodeURIComponent(feedback.contact);
+                feedbackItem.dataset.id = feedback.feedbackId;
+                
+                const date = new Date(feedback.timestamp);
+                const formattedTime = date.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                feedbackItem.innerHTML = `
+                    <div class="checkbox-container">
+                        <input type="checkbox" class="form-check-input feedback-checkbox" 
+                               data-contact="${encodeURIComponent(feedback.contact)}" 
+                               data-id="${feedback.feedbackId}">
+                    </div>
+                    <div class="card-body">
+                        <div class="feedback-header d-flex justify-content-between align-items-start mb-2">
+                            <span class="feedback-contact">
+                                <i class="bi bi-person-circle"></i>
+                                ${feedback.contact || '匿名用户'}
+                            </span>
+                            <span class="feedback-time text-muted">
+                                <i class="bi bi-clock-history me-1"></i>${formattedTime}
+                            </span>
+                        </div>
+                        <div class="feedback-content">
+                            ${feedback.text}
+                        </div>
+                    </div>
+                `;
+                
+                feedbackList.appendChild(feedbackItem);
+                
+                // 仅复选框点击事件
+                const checkbox = feedbackItem.querySelector('.feedback-checkbox');
+                checkbox.addEventListener('change', (e) => {
+                    toggleFeedbackSelection(e.target);
+                    updateBatchActions();
+                });
+            });
+        } else {
+            emptyFeedback.style.display = 'block';
+        }
+    });
+}
+
+// 切换选中状态
+function toggleFeedbackSelection(checkbox) {
+    const contact = decodeURIComponent(checkbox.dataset.contact);
+    const feedbackId = checkbox.dataset.id;
+    const feedbackItem = checkbox.closest('.feedback-item');
+    
+    if (checkbox.checked) {
+        selectedFeedbacks.push({ contact, feedbackId });
+        feedbackItem.classList.add('selected');
+    } else {
+        selectedFeedbacks = selectedFeedbacks.filter(
+            item => !(item.contact === contact && item.feedbackId === feedbackId)
+        );
+        feedbackItem.classList.remove('selected');
+    }
+}
+
+// 更新批量操作栏
+function updateBatchActions() {
+    const batchActions = document.getElementById('batchActions');
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const checkboxes = document.querySelectorAll('.feedback-checkbox');
+    
+    if (selectedFeedbacks.length > 0) {
+        batchActions.classList.remove('d-none');
+        
+        // 更新全选按钮状态
+        const allChecked = selectedFeedbacks.length === checkboxes.length;
+        selectAllBtn.innerHTML = allChecked ? 
+            '<i class="bi bi-x-circle me-1"></i>取消全选' : 
+            '<i class="bi bi-check-all me-1"></i>全选';
+        
+        // 更新删除按钮文本
+        deleteSelectedBtn.innerHTML = selectedFeedbacks.length > 1 ?
+            `<i class="bi bi-trash me-1"></i>删除(${selectedFeedbacks.length}项)` :
+            '<i class="bi bi-trash me-1"></i>删除选中';
+    } else {
+        batchActions.classList.add('d-none');
+    }
+}
+
+// 全选/取消全选
+document.getElementById('selectAllBtn').addEventListener('click', () => {
+    const checkboxes = document.querySelectorAll('.feedback-checkbox');
+    const allChecked = selectedFeedbacks.length === checkboxes.length;
+    
+    checkboxes.forEach(checkbox => {
+        if (checkbox.checked === allChecked) {
+            checkbox.checked = !allChecked;
+            const event = new Event('change');
+            checkbox.dispatchEvent(event);
+        }
+    });
+});
+
+// 批量删除
+document.getElementById('deleteSelectedBtn').addEventListener('click', () => {
+    if (selectedFeedbacks.length === 0) return;
+    
+    if (!confirm(`确定要删除选中的 ${selectedFeedbacks.length} 条反馈吗？此操作不可撤销！`)) {
+        return;
+    }
+    
+    // 禁用按钮防止重复点击
+    const deleteBtn = document.getElementById('deleteSelectedBtn');
+    deleteBtn.disabled = true;
+    deleteBtn.innerHTML = '<i class="bi bi-trash me-1"></i>删除中...';
+    
+    // 批量删除
+    const deletePromises = selectedFeedbacks.map(item => {
+        return database.ref(`feedbacks/${item.contact}/${item.feedbackId}`).remove();
+    });
+    
+    Promise.all(deletePromises)
+        .then(() => {
+            // 删除动画
+            document.querySelectorAll('.feedback-item.selected').forEach(item => {
+                item.style.transform = 'translateX(-100%)';
+                item.style.opacity = '0';
+                setTimeout(() => item.remove(), 300);
+            });
+            
+            // 重置状态
+            selectedFeedbacks = [];
+            document.getElementById('batchActions').classList.add('d-none');
+            
+            // 检查是否已无反馈
+            if (document.querySelectorAll('.feedback-item').length === 0) {
+                document.getElementById('emptyFeedback').style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('批量删除失败:', error);
+            alert(`删除失败: ${error.message}`);
+        })
+        .finally(() => {
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML = '<i class="bi bi-trash me-1"></i>删除选中';
+        });
+});
+
+// 添加动画效果
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feedback-item {
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+    </style>
+`);
+
+// 退出登录功能优化
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    if(confirm('确定要退出登录吗？')) {
+        auth.signOut().then(() => {
+            // 添加退出动画
+            document.getElementById('feedbackContainer').style.opacity = '0';
+            document.getElementById('feedbackContainer').style.transition = 'opacity 0.3s';
+            
+            setTimeout(() => {
+                alert('您已安全退出');
+                location.reload();
+            }, 300);
+        }).catch((error) => {
+            console.error('退出登录失败:', error);
+            alert(`退出失败: ${error.message}`);
+        });
+    }
+});
+
+document.getElementById('loginBtn').addEventListener('click', () => {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    loginUser(email, password);
+});
+document.getElementById('loginBtn').addEventListener('mouseenter', () => {
+    document.querySelector('.container.mt-3').style.opacity = '1';
+});
+</script>
+</body>
+</html>
