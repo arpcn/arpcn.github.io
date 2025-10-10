@@ -52,6 +52,16 @@
     opacity: 0.8;
     z-index: -1;
 }
+/* 时间线效果 
+.feedback-item::after {
+    content: "";
+    position: absolute;
+    top: 2.5rem;
+    left: -1px;
+    bottom: 0;
+    width: 1px;
+    background-color: rgba(13, 110, 253, 0.2);
+}*/
 
 .feedback-item:hover {
     transform: translateY(-3px);
@@ -116,33 +126,43 @@
     transform: scale(1.05);
 }
 
-/* 时间线效果 */
-.feedback-item::after {
-    content: "";
-    position: absolute;
-    top: 2.5rem;
-    left: -1px;
-    bottom: 0;
-    width: 1px;
-    background-color: rgba(13, 110, 253, 0.2);
+
+/* 删除按钮样式 */
+.delete-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+    opacity: 0.5;
+    transition: all 0.2s ease;
 }
 
-/* 响应式调整 */
+.delete-btn:hover {
+    opacity: 1;
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* 移动端调整 */
 @media (max-width: 576px) {
-    .feedback-header {
-        flex-direction: column;
-        align-items: flex-start;
+    .feedback-header .d-flex {
+        flex-direction: row;
+        align-items: center;
         gap: 0.5rem;
     }
+    
+    .delete-btn {
+        margin-left: auto;
+    }
+
     
     .feedback-time {
         align-self: flex-end;
     }
 }
 
-        
-        
-        
         
         
         #loginForm {
@@ -307,9 +327,14 @@ function loadFeedbackData() {
                             <i class="bi bi-person-circle"></i>
                             ${feedback.contact || '匿名用户'}
                         </span>
-                        <span class="feedback-time">
-                            <i class="bi bi-clock-history me-1"></i>${formattedTime}
-                        </span>
+                        <div class="d-flex align-items-center">
+                            <span class="feedback-time me-2">
+                                <i class="bi bi-clock-history me-1"></i>${formattedTime}
+                            </span>
+                            <button class="btn btn-sm btn-outline-danger delete-btn" data-contact="${feedback.contact}" data-id="${feedbackId}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="feedback-content">
                         ${feedback.text}
@@ -317,6 +342,15 @@ function loadFeedbackData() {
                 `;
                 
                 feedbackList.appendChild(feedbackItem);
+                
+                // 添加删除按钮事件
+                const deleteBtn = feedbackItem.querySelector('.delete-btn');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteFeedback(feedback.contact, feedbackId);
+                    });
+                }
             });
         } else {
             emptyFeedback.style.display = 'block';
@@ -334,6 +368,46 @@ function loadFeedbackData() {
             </div>
         `;
     });
+}
+
+// 新增删除反馈函数
+function deleteFeedback(contact, feedbackId) {
+    if (!confirm('确定要删除这条反馈吗？此操作不可撤销！')) {
+        return;
+    }
+    
+    const feedbackRef = database.ref(`feedbacks/${contact}/${feedbackId}`);
+    
+    // 添加删除动画
+    const card = document.querySelector(`.delete-btn[data-id="${feedbackId}"]`).closest('.feedback-item');
+    card.style.transform = 'scale(0.95)';
+    card.style.opacity = '0.5';
+    card.style.transition = 'all 0.3s ease';
+    
+    feedbackRef.remove()
+        .then(() => {
+            // 删除动画
+            card.style.transform = 'translateX(-100%)';
+            card.style.opacity = '0';
+            
+            // 动画完成后移除元素
+            setTimeout(() => {
+                card.remove();
+                
+                // 检查是否已无反馈
+                if (document.querySelectorAll('.feedback-item').length === 0) {
+                    document.getElementById('emptyFeedback').style.display = 'block';
+                }
+            }, 300);
+        })
+        .catch((error) => {
+            console.error('删除失败:', error);
+            alert('删除失败: ' + error.message);
+            
+            // 恢复卡片状态
+            card.style.transform = '';
+            card.style.opacity = '';
+        });
 }
 
 // 添加动画效果
