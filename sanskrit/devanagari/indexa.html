@@ -296,6 +296,7 @@ function loadFeedbackData() {
                 Object.keys(feedbackData[contact]).forEach(feedbackId => {
                     allFeedbacks.push({
                         contact,
+                        feedbackId, // 添加这行，确保feedbackId被传递
                         ...feedbackData[contact][feedbackId]
                     });
                 });
@@ -331,7 +332,9 @@ function loadFeedbackData() {
                             <span class="feedback-time me-2">
                                 <i class="bi bi-clock-history me-1"></i>${formattedTime}
                             </span>
-                            <button class="btn btn-sm btn-outline-danger delete-btn" data-contact="${feedback.contact}" data-id="${feedbackId}">
+                            <button class="btn btn-sm btn-outline-danger delete-btn" 
+                                    data-contact="${encodeURIComponent(feedback.contact)}" 
+                                    data-id="${feedback.feedbackId}">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
@@ -345,20 +348,18 @@ function loadFeedbackData() {
                 
                 // 添加删除按钮事件
                 const deleteBtn = feedbackItem.querySelector('.delete-btn');
-                if (deleteBtn) {
-                    deleteBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        deleteFeedback(feedback.contact, feedbackId);
-                    });
-                }
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const contact = decodeURIComponent(deleteBtn.getAttribute('data-contact'));
+                    const feedbackId = deleteBtn.getAttribute('data-id');
+                    deleteFeedback(contact, feedbackId);
+                });
             });
         } else {
             emptyFeedback.style.display = 'block';
         }
     }, (error) => {
         console.error('读取数据失败:', error);
-        
-        // 更友好的错误提示
         const feedbackList = document.querySelector('#feedbackList .col-12');
         feedbackList.innerHTML = `
             <div class="alert alert-danger">
@@ -370,8 +371,13 @@ function loadFeedbackData() {
     });
 }
 
-// 新增删除反馈函数
+// 删除反馈函数
 function deleteFeedback(contact, feedbackId) {
+    if (!contact || !feedbackId) {
+        console.error('删除失败: 缺少必要参数', {contact, feedbackId});
+        return;
+    }
+
     if (!confirm('确定要删除这条反馈吗？此操作不可撤销！')) {
         return;
     }
@@ -379,34 +385,40 @@ function deleteFeedback(contact, feedbackId) {
     const feedbackRef = database.ref(`feedbacks/${contact}/${feedbackId}`);
     
     // 添加删除动画
-    const card = document.querySelector(`.delete-btn[data-id="${feedbackId}"]`).closest('.feedback-item');
-    card.style.transform = 'scale(0.95)';
-    card.style.opacity = '0.5';
-    card.style.transition = 'all 0.3s ease';
+    const card = document.querySelector(`.delete-btn[data-id="${feedbackId}"]`)?.closest('.feedback-item');
+    if (card) {
+        card.style.transform = 'scale(0.95)';
+        card.style.opacity = '0.5';
+        card.style.transition = 'all 0.3s ease';
+    }
     
     feedbackRef.remove()
         .then(() => {
-            // 删除动画
-            card.style.transform = 'translateX(-100%)';
-            card.style.opacity = '0';
-            
-            // 动画完成后移除元素
-            setTimeout(() => {
-                card.remove();
+            if (card) {
+                // 删除动画
+                card.style.transform = 'translateX(-100%)';
+                card.style.opacity = '0';
                 
-                // 检查是否已无反馈
-                if (document.querySelectorAll('.feedback-item').length === 0) {
-                    document.getElementById('emptyFeedback').style.display = 'block';
-                }
-            }, 300);
+                // 动画完成后移除元素
+                setTimeout(() => {
+                    card.remove();
+                    
+                    // 检查是否已无反馈
+                    if (document.querySelectorAll('.feedback-item').length === 0) {
+                        document.getElementById('emptyFeedback').style.display = 'block';
+                    }
+                }, 300);
+            }
         })
         .catch((error) => {
             console.error('删除失败:', error);
             alert('删除失败: ' + error.message);
             
             // 恢复卡片状态
-            card.style.transform = '';
-            card.style.opacity = '';
+            if (card) {
+                card.style.transform = '';
+                card.style.opacity = '';
+            }
         });
 }
 
