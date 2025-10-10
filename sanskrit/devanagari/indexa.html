@@ -11,7 +11,12 @@
             border-top: 1px solid #ddd;
             margin: 15px 0;
         }
-        
+::selection {
+    background-color: rgba(13, 110, 253, 0.2);
+}
+.feedback-content::selection {
+    background-color: rgba(106, 90, 205, 0.3); /* 紫罗兰色 */
+}
         
 // 变量控制阴影强度
 :root {
@@ -185,7 +190,7 @@
     justify-content: center;
     padding: 0;
     border-radius: 50%;
-    opacity: 1; /* 默认半透明 */
+    opacity: 0.3; /* 默认半透明 */
     transition: all 0.2s ease;
     margin-left: 10px;
     color: #dc3545;
@@ -618,6 +623,40 @@ document.getElementById('loginBtn').addEventListener('click', () => {
 document.getElementById('loginBtn').addEventListener('mouseenter', () => {
     document.querySelector('.container.mt-3').style.opacity = '1';
 });
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Obsidian配置（可修改）
+    const obsidianConfig = {
+        vaultName: "ancient"  // 替换为您的实际库名称
+    };
+
+    // 文本选择监听
+    document.addEventListener('mouseup', (e) => {
+        // 排除在输入框中的选择
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        
+        const selection = window.getSelection();
+        const selectedText = selection.toString().trim();
+        
+        const bookRegex = /^《([^《》]+)》：$/;
+        if (bookRegex.test(selectedText)) {
+            const bookTitle = selectedText.replace(bookRegex, "\$1");
+            const obsidianLink = `obsidian://open?vault=${encodeURIComponent(obsidianConfig.vaultName)}&file=${encodeURIComponent(bookTitle)}`;
+            
+            // 打开Obsidian链接（添加确认提示）
+            if (confirm(`是否要打开Obsidian中的「${bookTitle}」？`)) {
+                window.open(obsidianLink);
+            }
+            
+            // 清除选中状态
+            selection.removeAllRanges();
+        }
+    });
+});
+
+
 </script>
 </body>
 </html>
