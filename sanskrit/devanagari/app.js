@@ -55,7 +55,7 @@ function loadUserStats() {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${uid}</td>
-                <td>${user.username || 'N/A'}</td>
+              <!--     <td>${user.username || 'N/A'}</td>  -->
                 <td>${user.gameCount || 0}</td>
                 <td>${getBestTime(['vowels', '元音'])}</td>
                 <td>${getBestTime(['consonants', '輔音'])}</td>

@@ -12,6 +12,17 @@
         .table-container {
             margin-top: 20px;
         }
+        table {
+            border-collapse: collapse; /* 合并边框 */
+            width: 100%; /* 表格宽度 */
+        }
+        th {
+            border: 1px solid #ddd; /* 边框 */
+            padding: 8px; /* 内边距 */
+            text-align: center; /* 水平居中 */
+            vertical-align: middle; /* 垂直居中 */
+            background-color: #f2f2f2; /* 背景色（可选） */
+        }
         .tab-content {
             padding: 15px;
             border-left: 1px solid #ddd;
@@ -47,13 +58,16 @@
                         <table class="table table-striped table-bordered" id="userStatsTable">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>用戶ID</th>
-                                    <th>用戶名</th>
-                                    <th>游戲次數</th>
-                                    <th>元音最佳時間</th>
-                                    <th>輔音最佳時間</th>
-                                    <th>數字最佳時間</th>
-                                    <th>混合最佳時間</th>
+                                    <th rowspan="2">用戶ID</th>
+                               <!--       <th rowspan="2">用戶名</th>  -->
+                                    <th rowspan="2">游戲次數</th>
+                                    <th colspan="4">最佳時間</th>
+                                </tr>
+                                <tr>
+                                    <th>元音</th>
+                                    <th>輔音</th>
+                                    <th>數字</th>
+                                    <th>混合</th>
                                 </tr>
                             </thead>
                             <tbody id="userStatsBody">
