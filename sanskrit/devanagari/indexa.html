@@ -26,6 +26,33 @@
     overflow: hidden;
 }
 
+.feedback-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, 
+        rgba(255,255,255,0.8) 0%, 
+        rgba(255,255,255,0.5) 50%, 
+        rgba(255,255,255,0.2) 100%);
+    box-shadow: 1px 0 2px rgba(0,0,0,0.1);
+}
+
+/* 基础色 */
+.feedback-item::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: #6366f1; /* indigo-600 */
+    opacity: 0.8;
+    z-index: -1;
+}
+
 .feedback-item:hover {
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
