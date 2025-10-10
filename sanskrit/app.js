@@ -1,16 +1,3 @@
-
-const firebaseConfig = {
-    apiKey: "AIzaSyAvxH-5gah6gVufzNFrne-c7VfU6VSpcyQ",
-    authDomain: "arbzn09.firebaseapp.com",
-    databaseURL: "https://arbzn09-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "arbzn09",
-    storageBucket: "arbzn09.firebasestorage.app",
-    messagingSenderId: "172952488674",
-    appId: "1:172952488674:web:1369dc83ac8df8c6ca6cbb",
-    measurementId: "G-WNKZZ26059"
-};
-firebase.initializeApp(firebaseConfig);
-
 // 遊戲數據
 const devanagariData = {
     vowels: [
@@ -85,7 +72,6 @@ const devanagariData = {
         { iast: "9", devanagari: ["९"] }
     ]
 };
-
 
 // 遊戲變量
 let currentPairs = [];
