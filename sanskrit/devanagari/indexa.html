@@ -410,6 +410,19 @@ function loadFeedbackData() {
                 
                 
 
+                // 卡片点击事件（不触发选中）
+                feedbackItem.addEventListener('click', (e) => {
+                    // 如果点击的是删除按钮或其子元素，则不执行
+                    if (e.target.closest('.delete-btn')) return;
+                    
+                    // 取消所有选中状态
+                    document.querySelectorAll('.feedback-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    selectedFeedbacks = [];
+                    document.getElementById('batchActions').classList.add('d-none');
+                    updateBatchActions();
+                });
                 
                 feedbackList.appendChild(feedbackItem);
                 
