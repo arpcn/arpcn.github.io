@@ -1078,6 +1078,7 @@ let preloadedLeaderboardData = {
     mixed: null
 };
 let cachedUserHistory = []; // 內存緩存
+let isExcludedUsersLoaded = false;
 
 // DOM元素
 const gameBoard = document.getElementById("game-board");
@@ -1102,6 +1103,18 @@ function checkUsername() {
                     localStorage.removeItem('devanagariGameUsername');
                     updateUsernameDisplay(); // 更新顯示
                 } else {
+                    firebase.database().ref('excludedUsers/' + currentUsername.replace(/[.$#[\]/]/g, '_'))
+                        .once('value')
+                        .then(snapshot => {
+                            if (snapshot.exists()) {
+                                isExcludedUsersLoaded = true;
+                               //  alert("此賬戶是排除用户");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("檢查排除用户失敗:", error);
+                            startGame(); // 出錯時默認允許
+                        });
                     startGame();
                 }
             })
@@ -1374,6 +1387,8 @@ function handleCardClick(index) {
                 if (preloadedLeaderboardData[modeKey]) {
                     renderLeaderboard(preloadedLeaderboardData[modeKey], gameMode, parseFloat(finishTime));
                 }
+
+                if (isExcludedUsersLoaded) return; // 直接返回成功，但不執行任何操作
                 
                 // 更新用戶統計并保存遊戲記錄
                 updateUserStats(currentUsername, gameMode, parseFloat(finishTime))
@@ -1424,17 +1439,8 @@ function formatDate(timestamp) {
     return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
 }
 
-// 從數據庫加載排除名單
-const excludedUsers = firebase.database().ref('excludedUsers').once('value')
-    .then(snapshot => snapshot.val() || [])
-    .catch(() => []);
-
-
 // 保存遊戲記錄（按模式分開存儲，每種模式最多10條）
 function saveGameRecord(username, mode, time) {
-
-    if (excludedUsers.includes(username)) return Promise.resolve(); // 直接返回成功，但不執行任何操作
-
     return new Promise((resolve, reject) => {
         const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
         const modeRecordsRef = firebase.database().ref(`gameRecords/${sanitizedUsername}/${mode}`);
@@ -1480,9 +1486,6 @@ function saveGameRecord(username, mode, time) {
 
 // 更新用戶統計數據
 function updateUserStats(username, mode, currentTime) {
-
-    if (excludedUsers.includes(username)) return Promise.resolve(); // 直接返回成功，但不執行任何操作
-
     return new Promise((resolve, reject) => {
         const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
         const userRef = firebase.database().ref(`userStats/${sanitizedUsername}`);
