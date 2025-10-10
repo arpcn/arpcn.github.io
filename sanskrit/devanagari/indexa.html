@@ -647,11 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 打开Obsidian链接（添加确认提示）
             if (confirm(`是否要打开Obsidian中的「${obsidianLink}」？`)) {
-
-               //  app.openWithDefaultApp(obsidianLink); // 最佳实践
-               //  window.open(obsidianLink);         // 备选方案
-                require('electron').shell.openExternal(obsidianLink); // 需要开启 NodeJS
-
+                 openObsidian(obsidianLink, "修订文件");
             }
             
             // 清除选中状态
@@ -659,6 +655,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+function openObsidian(link, title) {
+  // 第一步：尝试静默打开
+  try {
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = link;
+    document.body.appendChild(iframe);
+    setTimeout(() => iframe.remove(), 200);
+    
+    // 检测是否成功（非100%准确）
+    setTimeout(() => {
+      if (!document.hidden) {
+        throw new Error('Fallback needed');
+      }
+    }, 300);
+    
+    return;
+  } catch (e) {
+    // 静默失败后的备选方案
+    if (confirm(`在Obsidian中打开「${title}」？`)) {
+        window.location.href = link;  //  或 window.open(link);  
+      //  app.openWithDefaultApp(link); // 最佳实践
+      //  require('electron').shell.openExternal(link); // 需要开启 NodeJS
+    }
+  }
+}
 
 
 </script>
