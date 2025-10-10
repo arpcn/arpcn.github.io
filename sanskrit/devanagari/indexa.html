@@ -184,12 +184,19 @@
     margin-left: 10px;
     color: #dc3545;
     border: 1px solid transparent;
+    background-color: transparent;
 }
 
 .delete-btn:hover {
     opacity: 1;
     background-color: rgba(220, 53, 69, 0.1);
     border-color: rgba(220, 53, 69, 0.2);
+}
+.delete-btn.selected {
+    color: white;
+    background-color: #dc3545;
+    opacity: 1;
+    border-color: #dc3545;
 }
 
 /* 移动端调整 */
@@ -408,7 +415,7 @@ function loadFeedbackData() {
                     </div>
                 `;
                 
-                // 卡片点击事件（不触发选中）
+                // 卡片点击事件处理（不触发选中）
                 feedbackItem.addEventListener('click', (e) => {
                     // 如果点击的是删除按钮或其子元素，则不执行
                     if (e.target.closest('.delete-btn')) return;
@@ -416,6 +423,9 @@ function loadFeedbackData() {
                     // 取消所有选中状态
                     document.querySelectorAll('.feedback-item').forEach(item => {
                         item.classList.remove('selected');
+                    });
+                    document.querySelectorAll('.delete-btn').forEach(btn => {
+                        btn.classList.remove('selected');
                     });
                     selectedFeedbacks = [];
                     updateBatchActions();
@@ -441,10 +451,12 @@ function loadFeedbackData() {
                         // 如果已选中则取消选中
                         selectedFeedbacks.splice(index, 1);
                         feedbackItem.classList.remove('selected');
+                        deleteBtn.classList.remove('selected'); // 移除选中样式
                     } else {
                         // 如果未选中则选中
                         selectedFeedbacks.push({ contact, feedbackId });
                         feedbackItem.classList.add('selected');
+                        deleteBtn.classList.add('selected'); // 添加选中样式
                     }
                     
                     updateBatchActions();
@@ -490,6 +502,7 @@ document.getElementById('selectAllBtn').addEventListener('click', () => {
     if (allChecked) {
         // 取消全选
         feedbackItems.forEach(item => item.classList.remove('selected'));
+        deleteBtns.forEach(btn => btn.classList.remove('selected'));
         selectedFeedbacks = [];
     } else {
         // 全选
@@ -499,6 +512,7 @@ document.getElementById('selectAllBtn').addEventListener('click', () => {
             const feedbackId = btn.dataset.id;
             selectedFeedbacks.push({ contact, feedbackId });
             btn.closest('.feedback-item').classList.add('selected');
+            btn.classList.add('selected'); // 添加选中样式
         });
     }
     
