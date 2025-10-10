@@ -648,9 +648,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // 打开Obsidian链接（添加确认提示）
             if (confirm(`是否要打开Obsidian中的「${obsidianLink}」？`)) {
 
-                // app.openWithDefaultApp(obsidianLink); // 最佳实践
-                // window.open(obsidianLink);         // 备选方案
-                require('electron').shell.openExternal(obsidianLink); // 需要开启 NodeJS
+                app.openWithDefaultApp(obsidianLink); // 最佳实践
+               //  window.open(obsidianLink);         // 备选方案
+               //  require('electron').shell.openExternal(obsidianLink); // 需要开启 NodeJS
 
             }
             
