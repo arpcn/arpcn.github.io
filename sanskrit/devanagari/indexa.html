@@ -180,35 +180,37 @@
     padding: 0;
     border-radius: 50%;
     opacity: 0.3; /* 默认半透明 */
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* 添加平滑过渡动画 */
+    transition: all 0.2s ease;
     margin-left: 10px;
     color: #dc3545;
     border: 1px solid transparent;
     background-color: transparent;
     transform: scale(0.9);  /* 默认稍小 */
 }
-
-/* 卡片悬停时删除按钮效果 */
-.feedback-item:hover .delete-btn {
+/* 卡片悬停时删除按钮效果 - 但排除选中状态 */
+.feedback-item:hover .delete-btn:not(.selected) {
     opacity: 0.8;  /* 悬停时更明显 */
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     transform: translateY(-1px) scale(1); /* 恢复正常大小 */
     background-color: rgba(220, 53, 69, 0.05);
 }
-/* 删除按钮悬停效果 */
-.delete-btn:hover {
+/* 删除按钮悬停效果 - 但排除选中状态 */
+.delete-btn:not(.selected):hover {
     opacity: 1;
     background-color: rgba(220, 53, 69, 0.1);
     border-color: rgba(220, 53, 69, 0.2);
     transform: scale(1.05);  /* 轻微放大 */
 }
-/* 选中状态的删除按钮 */
-.delete-btn.selected {
-    color: white;
-    background-color: #dc3545;
-    opacity: 1;
-    border-color: #dc3545;
-    transform: scale(1);
+/* 选中状态的删除按钮 - 提高优先级 */
+.delete-btn.selected,
+.feedback-item:hover .delete-btn.selected,
+.delete-btn.selected:hover {
+    color: white !important;
+    background-color: #dc3545 !important;
+    opacity: 1 !important;
+    border-color: #dc3545 !important;
+    transform: scale(1) !important;
+    box-shadow: none !important;
 }
 
 /* 移动端调整 */
