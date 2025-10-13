@@ -343,20 +343,6 @@ button:disabled {
     transform: scale(1.1);
 }
 
-.username-modal {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.username-input {
-    padding: 12px;
-    border: 2px solid var(--primary);
-    border-radius: 8px;
-    font-size: 16px;
-    text-align: center;
-}
-
 .leaderboard {
     margin-top: 20px;
     width: 100%;
@@ -586,7 +572,6 @@ button:disabled {
     }
 }
 
-
 .username-modal {
     display: flex;
     flex-direction: column;
@@ -595,7 +580,7 @@ button:disabled {
     width: 100%;
 }
 
-.username-input {
+.username-input, .password-input {
     padding: 12px;
     border: 2px solid var(--primary);
     border-radius: 8px;
@@ -606,7 +591,7 @@ button:disabled {
     transition: all 0.2s;
 }
 
-.username-input:focus {
+.username-input:focus, .password-input:focus {
     outline: none;
     border-color: var(--secondary);
     box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.3);
@@ -658,13 +643,13 @@ button:disabled {
 
 /* 暗黑模式適配 */
 @media (prefers-color-scheme: dark) {
-    .username-input {
+    .username-input, .password-input {
         background-color: #3d3d3d;
         color: white;
         border-color: var(--primary);
     }
     
-    .username-input:focus {
+    .username-input:focus, .password-input:focus {
         border-color: var(--secondary);
         box-shadow: 0 0 0 3px rgba(156, 136, 255, 0.3);
     }
@@ -947,11 +932,13 @@ firebase.initializeApp(firebaseConfig);
         </div>
     </div>
 
+
     <div class="modal-overlay" id="username-modal">
         <div class="modal-content">
-            <h2 class="modal-title">請輸入用戶名</h2>
+            <h2 class="modal-title">用戶登錄</h2>
             <div class="username-modal">
-                <input type="text" class="username-input" id="username-input" placeholder="輸入暱稱" maxlength="20">
+                <input type="text" class="username-input" id="username-input" placeholder="用戶名" maxlength="20">
+                <input type="password" class="password-input" id="password-input" placeholder="密碼">
                 <div class="username-buttons">
                     <button id="username-submit-btn">登 錄</button>
                     <button id="username-cancel-btn">取 消</button>
@@ -960,6 +947,7 @@ firebase.initializeApp(firebaseConfig);
             <p class="help-content">班外人員可輸入「遊客」</p>
         </div>
     </div>
+
 
 <div id="user-action-dialog" class="custom-dialog-overlay">
   <div class="custom-dialog-box">
@@ -1909,7 +1897,7 @@ document.getElementById('logout-btn').addEventListener('click', function() {
     // 退出登錄
     clearUserData();
     document.getElementById('user-action-dialog').style.display = 'none';
-    updateUserButtonText(); // 可選：更新按鈕顯示為"Sign in"
+   // updateUserButtonText(); // 可選：更新按鈕顯示為"Sign in"
 });
 
 document.getElementById('relogin-btn').addEventListener('click', function() {
@@ -1930,12 +1918,12 @@ document.getElementById('user-action-dialog').addEventListener('click', function
     }
 });
 
-// 可選：更新用戶按鈕顯示文本的函數
+/* 可選：更新用戶按鈕顯示文本的函數
 function updateUserButtonText() {
     const user = getCurrentUser(); // 假設有獲取當前用戶的函數
     const btn = document.getElementById('change-user-btn');
     btn.textContent = user ? user.username : 'Sign in';
-}
+} */
 
 // 添加回車鍵提交支持
 document.getElementById('username-input').addEventListener('keypress', function(e) {
@@ -1948,8 +1936,9 @@ document.getElementById('username-input').addEventListener('keypress', function(
 // 用戶名提交處理
 document.getElementById('username-submit-btn').addEventListener('click', function() {
     let username = document.getElementById('username-input').value.trim();
+    const password = document.getElementById('password-input').value.trim();
 
-    if (username) {
+    if (username&&password) {
           const result = forceTraditionalUsername(username);
           username = result.displayName;
         // 先檢查白名單
@@ -1974,10 +1963,34 @@ document.getElementById('username-submit-btn').addEventListener('click', functio
                 }
             })
             .then(username => {
-                currentUsername = username;
-                localStorage.setItem('devanagariGameUsername', username);
-                document.getElementById('username-modal').classList.remove('active');
-                updateUsernameDisplay();
+
+                const sanitizedUsername = username.replace(/[.$#[\]/]/g, '_');
+                const userRef = firebase.database().ref(`userAccounts/${sanitizedUsername}`);
+                // 檢查用戶是否存在
+                userRef.once('value').then(snapshot => {
+                    if (snapshot.exists()) {
+                        // 驗證密碼
+                        if (snapshot.val().password === password) {
+                           currentUsername = username;
+                           localStorage.setItem('devanagariGameUsername', username);
+                           document.getElementById('username-modal').classList.remove('active');
+                           updateUsernameDisplay();
+                        } else {
+                            throw new Error('密碼錯誤');
+                        }
+                    } else {
+                        /* 新用戶自動註冊
+                        return userRef.set({
+                            password: password,
+                            createdAt: firebase.database.ServerValue.TIMESTAMP
+                        }).then(() => handleSuccessfulLogin(username));*/
+                    }
+                }).catch(error => {
+                    console.error('登錄失敗:', error);
+                    alert(error.message || '登錄失敗');
+                });
+
+
             })
             .catch(error => {
                 if (error.message === "NOT_WHITELISTED") {
@@ -1991,7 +2004,7 @@ document.getElementById('username-submit-btn').addEventListener('click', functio
                 document.getElementById('username-input').value = "";
             });
     } else {
-        alert('請輸入有效的用戶名');
+        alert('請輸入有效的用戶名及密碼');
     }
 });
 
