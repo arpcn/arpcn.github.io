@@ -1145,12 +1145,13 @@ function forceTraditionalUsername(inputUsername) {
   '会': '會',
   '论': '論',
   '双': '雙',
+  '游': '遊',
   '愿': '願',
   '云': '雲',
   '泽': '澤',
   // 可擴展其他需要強制轉換的字
 };
-  canonicalUsername =  inputUsername.replace(/[会论双愿泽]/g, char => forcedConversionMap[char] || char);
+  canonicalUsername =  inputUsername.replace(/[会论双游愿云泽]/g, char => forcedConversionMap[char] || char);
   
   return {
     displayName: canonicalUsername,
