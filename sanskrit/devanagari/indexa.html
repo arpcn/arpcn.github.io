@@ -435,6 +435,10 @@ function loadFeedbackData() {
                             </div>
                         </div>
                         <div class="feedback-content">${markdownText}</div>
+                                <button class="delete-btn ms-2" data-contact="${encodeURIComponent(feedback.contact)}" 
+                                        data-id="${feedback.feedbackId}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                     </div>
                 `;
 
