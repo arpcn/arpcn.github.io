@@ -121,14 +121,6 @@
     justify-content: space-between;
     align-items: center;
 }
-.feedback-header::before {
-    content: "\A";      /* Unicode 换行符 */
-    white-space: pre;   /* 保留空白符 */
-    display: block;     /* 确保换行生效 */
-    height: 0;          /* 不占用视觉空间 */
-    visibility: hidden; /* 隐藏但可复制 */
-    user-select: text;  /* 允许复制 */
-}
 
 .feedback-contact {
     font-weight: 600;
@@ -451,6 +443,7 @@ function loadFeedbackData() {
                         <div class="feedback-content">${markdownText}
                         </div>
                     </div>
+                    <span style="display: none; user-select: text;">\n</span>
                 `;
 
                 feedbackList.appendChild(feedbackItem);
