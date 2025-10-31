@@ -428,7 +428,7 @@ function loadFeedbackData() {
                         <div class="feedback-header d-flex justify-content-between align-items-start mb-2">
                             <span class="feedback-contact">
                                 <i class="bi bi-person-circle"></i>
-                                ${feedback.contact || '匿名用戶'}
+                                ◤${feedback.contact || '匿名用戶'}
                             </span>
                             <div class="d-flex align-items-center">
                                 <span class="feedback-time text-muted">
@@ -443,7 +443,6 @@ function loadFeedbackData() {
                         <div class="feedback-content">${markdownText}
                         </div>
                     </div>
-                    <div style="display: none; user-select: text;">\n</div>
                 `;
 
                 feedbackList.appendChild(feedbackItem);
