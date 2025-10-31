@@ -17,7 +17,7 @@
 .feedback-content::selection {
     background-color: rgba(106, 90, 205, 0.3); /* 紫羅蘭色 */
 }
-        
+
 // 變量控制陰影強度
 :root {
     --shadow-intensity: 0.3;
@@ -133,6 +133,11 @@
 .feedback-contact i {
     margin-right: 10px;
     font-size: 1.2rem;
+}
+.feedback-contact::before {
+    content: "◎";
+    margin-right: 4px;
+    color: #a4aab0; /* 可选颜色调整 */
 }
 
 .feedback-time {
@@ -418,10 +423,8 @@ function loadFeedbackData() {
                     minute: '2-digit'
                 });
 
-
                 const markdownText = feedback.text
                             .replace(/\n/g, '<br>');       // 换行
-
 
                 feedbackItem.innerHTML = `
                     <div class="card-body">
