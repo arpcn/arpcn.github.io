@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反饋數據</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; }
+        .divider { 
+            border-top: 1px solid #ddd;
+            margin: 15px 0;
+        }
+::selection {
+    background-color: rgba(13, 110, 253, 0.2);
+}
+.feedback-content::selection {
+    background-color: rgba(106, 90, 205, 0.3); /* 紫羅蘭色 */
+}
+
+// 變量控制陰影強度
+:root {
+    --shadow-intensity: 0.3;
+}
+
+#deleteSelectedBtn {
+    text-shadow: 0 0 calc(4px * var(--shadow-intensity)) rgba(220, 53, 69, var(--shadow-intensity));
+}
+/* 反饋卡片美化 */
+.feedback-item {
+    position: relative;
+    border-left: 4px solid #9ac2fe;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    transition: all 0.2s ease;
+    overflow: hidden;
+    padding-left: 15px;
+}
+
+.feedback-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, 
+        rgba(255,255,255,0.8) 0%, 
+        rgba(255,255,255,0.5) 50%, 
+        rgba(255,255,255,0.2) 100%);
+    box-shadow: 1px 0 2px rgba(0,0,0,0.1);
+}
+
+/* 時間線效果 
+.feedback-item::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: #9d9ff7; 
+    opacity: 0.8;
+    z-index: -1;
+}*/
+.feedback-item::after {
+    content: "";
+    position: absolute;
+    top: 2.5rem;
+    left: -1px;
+    bottom: 0;
+    width: 1px;
+    background-color: rgba(13, 110, 253, 0.2);
+}
+
+.feedback-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #0d6efd;
+}
+
+.feedback-item.selected {
+    border-left: 3px solid #dc3545 !important;
+    background-color: rgba(220, 53, 69, 0.03) !important;
+}
+
+/* 批量操作按鈕樣式 */
+#deleteSelectedBtn {
+    transition: all 0.2s ease;
+    text-shadow: 0 0 2px rgba(220, 53, 69, 0.3);
+}
+
+#deleteSelectedBtn:hover, 
+#deleteSelectedBtn:focus {
+    text-shadow: 0 0 4px rgba(220, 53, 69, 0.5);
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}
+
+#deleteSelectedBtn:active {
+    text-shadow: 0 0 6px rgba(220, 53, 69, 0.7);
+}
+
+/* 退出按鈕位置固定 */
+#logoutBtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1030;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.feedback-header {
+    padding: 1.25rem 1.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.feedback-contact {
+    font-weight: 600;
+    color: #0d6efd;
+    display: flex;
+    align-items: center;
+    font-size: 1.05rem;
+}
+
+.feedback-contact i {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.feedback-time {
+    color: #6c757d;
+    font-size: 0.9rem;
+    background-color: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+}
+
+.feedback-content {
+    padding: 1rem 1.5rem 1.5rem;
+   /* white-space: pre-line;*/
+    line-height: 1.7;
+    color: #495057;
+    position: relative;
+    pointer-events: none !important; /* 強制阻止點擊等所有事件 */
+    user-select: text; /* 允許文本選擇 
+    cursor: default; /* 默認光標樣式 */
+}
+/* 讓內容區域內的鏈接可以點擊（如果有的話） */
+.feedback-content a {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.feedback-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 1.5rem;
+    right: 1.5rem;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 空狀態美化 */
+.empty-state-icon {
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+#emptyFeedback:hover .empty-state-icon {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+
+/* 刪除按鈕樣式 */
+.delete-btn {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+    opacity: 0.3; /* 默認半透明 */
+    transition: all 0.2s ease;
+    margin-left: 10px;
+    color: #dc3545;
+    border: 1px solid transparent;
+    background-color: transparent;
+    transform: scale(0.9);  /* 默認稍小 */
+}
+/* 卡片懸停時刪除按鈕效果 - 但排除選中狀態 */
+.feedback-item:hover .delete-btn:not(.selected) {
+    opacity: 0.8;  /* 懸停時更明顯 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transform: translateY(-1px) scale(1); /* 恢复正常大小 */
+    background-color: rgba(220, 53, 69, 0.05);
+}
+/* 刪除按鈕懸停效果 - 但排除選中狀態 */
+.delete-btn:not(.selected):hover {
+    opacity: 1;
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.2);
+    transform: scale(1.05);  /* 輕微放大 */
+}
+/* 選中狀態的刪除按鈕 - 提高優先級 */
+.delete-btn.selected,
+.feedback-item:hover .delete-btn.selected,
+.delete-btn.selected:hover {
+    color: white !important;
+    background-color: #dc3545 !important;
+    opacity: 1 !important;
+    border-color: #dc3545 !important;
+    transform: scale(1) !important;
+    box-shadow: none !important;
+    pointer-events: auto !important; /* 確保選中按鈕仍可點擊 */
+}
+
+/* 移動端調整 */
+@media (max-width: 576px) {
+    .feedback-header .d-flex {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .delete-btn {
+        margin-left: auto;
+    }
+
+    
+    .feedback-time {
+        align-self: flex-end;
+    }
+}
+
+        
+        
+        #loginForm {
+            transition: opacity 0.3s ease;
+        }
+        #loginBtn {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #loginBtn:hover {
+            background-color: #0b5ed7;
+        }
+        
+        
+    </style>
+</head>
+<body>
+
+<div class="container mt-3" style="opacity: 0; transition: opacity 0.3s ease;">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                </div>
+                <div class="card-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                        <button type="button" id="loginBtn" class="btn btn-primary w-100">ॐ</button>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                            <input type="password" class="form-control" id="password" required>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- （默認隱藏） -->
+<div id="feedbackContainer" class="container pt-0" style="display: none;">
+    <!-- 退出登錄按鈕（固定在右上角） -->
+    <button id="logoutBtn" class="btn btn-sm btn-outline-secondary position-fixed" 
+            style="top: 20px; right: 20px; z-index: 1030;">
+        <i class="bi bi-box-arrow-right me-1"></i>退出
+    </button>
+
+    <div class="d-flex justify-content-between align-items-center mb-4 sticky-top bg-white py-3" 
+         style="top: 20px; z-index: 1020;">
+        <h3 class="m-0 text-primary">
+            <i class="bi bi-chat-left-text-fill me-2"></i>修訂
+        </h3>
+        <div id="batchActions" class="d-none">
+            <button id="selectAllBtn" class="btn btn-sm btn-outline-secondary me-2">
+                <i class="bi bi-check-all me-1"></i>全選
+            </button>
+            <button id="deleteSelectedBtn" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash me-1"></i>刪除選中
+            </button>
+        </div>
+    </div>
+    
+    <div class="row" id="feedbackList">
+        <div class="col-12">
+            <!-- 反饋項將通過JavaScript動態填充 -->
+        </div>
+    </div>
+
+    <div id="emptyFeedback" class="text-center py-5 my-5" style="display: none;">
+        <div class="empty-state-icon">
+            <i class="bi bi-chat-square-text text-muted" style="font-size: 3.5rem;"></i>
+        </div>
+        <h5 class="text-muted mt-4">暫無反饋內容</h5>
+        <p class="text-muted small mt-2">當有用戶提交反饋時，內容將顯示在這里</p>
+    </div>
+</div>
+
+
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+        apiKey: "AIzaSyAsevOrW7BYxlg1xH8FjGuxJKu47Udo_sc",
+        authDomain: "arbzn08.firebaseapp.com",
+        databaseURL: "https://arbzn08-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "arbzn08",
+        storageBucket: "arbzn08.appspot.com",
+        messagingSenderId: "581298403351",
+        appId: "1:581298403351:web:0e6355c9b6a6a9c348c452",
+        measurementId: "G-0WEQ3ED242"
+};
+
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const auth = firebase.auth();
+
+function loginUser(email, password) {
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            loadFeedbackData();
+        })
+        .catch((error) => {
+            console.error("error:", error);
+            alert("error: " + error.message);
+        });
+}
+
+auth.onAuthStateChanged((user) => {
+    const loginContainer = document.querySelector('.card');
+    const feedbackContainer = document.getElementById('feedbackContainer');
+    
+    if (user) {
+        loginContainer.style.display = 'none';
+        feedbackContainer.style.display = 'block';
+        loadFeedbackData();
+    } else {
+        loginContainer.style.display = 'block';
+        feedbackContainer.style.display = 'none';
+    }
+});
+
+// 全局變量存儲選中的反饋項
+let selectedFeedbacks = [];
+
+// 加載反饋數據
+function loadFeedbackData() {
+    const feedbackRef = database.ref('feedbacks');
+
+    feedbackRef.on('value', (snapshot) => {
+        const feedbackData = snapshot.val();
+        const feedbackList = document.querySelector('#feedbackList');
+        const emptyFeedback = document.getElementById('emptyFeedback');
+        const batchActions = document.getElementById('batchActions');
+        
+        feedbackList.innerHTML = '';
+        selectedFeedbacks = [];
+        batchActions.classList.add('d-none');
+        
+        if (feedbackData && Object.keys(feedbackData).length > 0) {
+            emptyFeedback.style.display = 'none';
+            
+            // 收集所有反饋并按時間排序
+            const allFeedbacks = [];
+            Object.keys(feedbackData).forEach(contact => {
+                Object.keys(feedbackData[contact]).forEach(feedbackId => {
+                    allFeedbacks.push({
+                        contact,
+                        feedbackId,
+                        ...feedbackData[contact][feedbackId]
+                    });
+                });
+            });
+            
+            // 按時間降序排序
+            allFeedbacks.sort((a, b) => b.timestamp - a.timestamp);
+            
+            // 在 loadFeedbackData() 函數中修改反饋卡片創建部分的代碼
+            allFeedbacks.forEach((feedback, index) => {
+                const feedbackItem = document.createElement('div');
+                feedbackItem.className = 'feedback-item card mb-3';
+                feedbackItem.dataset.contact = encodeURIComponent(feedback.contact);
+                feedbackItem.dataset.id = feedback.feedbackId;
+            
+                const date = new Date(feedback.timestamp);
+                const formattedTime = date.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const markdownText = feedback.text
+                            .replace(/\n/g, '<br>');       // 换行
+
+                feedbackItem.innerHTML = `
+                    <div class="card-body">
+                        <div class="feedback-header d-flex justify-content-between align-items-start mb-2">
+                            <span class="feedback-contact">
+                                <i class="bi bi-person-circle"></i>
+                                ◎ ${feedback.contact || '匿名用戶'}
+                            </span>
+                            <div class="d-flex align-items-center">
+                                <span class="feedback-time text-muted">
+                                    <i class="bi bi-clock-history me-1"></i>${formattedTime}
+                                </span>
+                                <button class="delete-btn ms-2" data-contact="${encodeURIComponent(feedback.contact)}" 
+                                        data-id="${feedback.feedbackId}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="feedback-content">${markdownText}</div>
+                    </div>
+                `;
+
+                feedbackList.appendChild(feedbackItem);
+
+                // 獲取刪除按鈕元素（必須在appendChild之後）
+                const deleteBtn = feedbackItem.querySelector('.delete-btn');
+                
+                // 刪除按鈕點擊事件
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const contact = decodeURIComponent(deleteBtn.dataset.contact);
+                    const feedbackId = deleteBtn.dataset.id;
+                    
+                    // 檢查是否已選中
+                    const index = selectedFeedbacks.findIndex(
+                        item => item.contact === contact && item.feedbackId === feedbackId
+                    );
+                    
+                    if (index >= 0) {
+                        // 如果已選中則取消選中
+                        selectedFeedbacks.splice(index, 1);
+                        feedbackItem.classList.remove('selected');
+                        deleteBtn.classList.remove('selected'); // 移除選中樣式
+                    } else {
+                        // 如果未選中則選中
+                        selectedFeedbacks.push({ contact, feedbackId });
+                        feedbackItem.classList.add('selected');
+                        deleteBtn.classList.add('selected'); // 添加選中樣式
+                    }
+                    
+                    updateBatchActions();
+                });
+            });
+        } else {
+            emptyFeedback.style.display = 'block';
+        }
+    });
+}
+
+// 更新批量操作欄
+function updateBatchActions() {
+    const batchActions = document.getElementById('batchActions');
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const feedbackItems = document.querySelectorAll('.feedback-item');
+    
+    if (selectedFeedbacks.length > 0) {
+        batchActions.classList.remove('d-none');
+        
+        // 更新全選按鈕狀態
+        const allChecked = selectedFeedbacks.length === feedbackItems.length;
+        selectAllBtn.innerHTML = allChecked ? 
+            '<i class="bi bi-x-circle me-1"></i>取消全選' : 
+            '<i class="bi bi-check-all me-1"></i>全選';
+        
+        // 更新刪除按鈕文本
+        deleteSelectedBtn.innerHTML = selectedFeedbacks.length > 1 ?
+            `<i class="bi bi-trash me-1"></i>刪除(${selectedFeedbacks.length}項)` :
+            '<i class="bi bi-trash me-1"></i>刪除選中';
+    } else {
+        batchActions.classList.add('d-none');
+    }
+}
+
+// 全選/取消全選
+document.getElementById('selectAllBtn').addEventListener('click', () => {
+    const feedbackItems = document.querySelectorAll('.feedback-item');
+    const deleteBtns = document.querySelectorAll('.delete-btn');
+    const allChecked = selectedFeedbacks.length === feedbackItems.length;
+    
+    if (allChecked) {
+        // 取消全選
+        feedbackItems.forEach(item => item.classList.remove('selected'));
+        deleteBtns.forEach(btn => btn.classList.remove('selected'));
+        selectedFeedbacks = [];
+    } else {
+        // 全選
+        selectedFeedbacks = [];
+        deleteBtns.forEach(btn => {
+            const contact = decodeURIComponent(btn.dataset.contact);
+            const feedbackId = btn.dataset.id;
+            selectedFeedbacks.push({ contact, feedbackId });
+            btn.closest('.feedback-item').classList.add('selected');
+            btn.classList.add('selected'); // 添加選中樣式
+        });
+    }
+    
+    updateBatchActions();
+});
+
+// 批量刪除
+document.getElementById('deleteSelectedBtn').addEventListener('click', () => {
+    if (selectedFeedbacks.length === 0) return;
+    
+    if (!confirm(`確定要刪除選中的 ${selectedFeedbacks.length} 條反饋嗎？此操作不可撤銷！`)) {
+        return;
+    }
+    
+    // 禁用按鈕防止重复點擊
+    const deleteBtn = document.getElementById('deleteSelectedBtn');
+    deleteBtn.disabled = true;
+    deleteBtn.innerHTML = '<i class="bi bi-trash me-1"></i>刪除中...';
+    
+    // 批量刪除
+    const deletePromises = selectedFeedbacks.map(item => {
+        return database.ref(`feedbacks/${item.contact}/${item.feedbackId}`).remove();
+    });
+    
+    Promise.all(deletePromises)
+        .then(() => {
+            // 刪除動畫
+            document.querySelectorAll('.feedback-item.selected').forEach(item => {
+                item.style.transform = 'translateX(-100%)';
+                item.style.opacity = '0';
+                setTimeout(() => item.remove(), 300);
+            });
+            
+            // 重置狀態
+            selectedFeedbacks = [];
+            document.getElementById('batchActions').classList.add('d-none');
+            
+            // 檢查是否已無反饋
+            if (document.querySelectorAll('.feedback-item').length === 0) {
+                document.getElementById('emptyFeedback').style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('批量刪除失敗:', error);
+            alert(`刪除失敗: ${error.message}`);
+        })
+        .finally(() => {
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML = '<i class="bi bi-trash me-1"></i>刪除選中';
+        });
+});
+
+// 添加動畫效果
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feedback-item {
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+    </style>
+`);
+
+// 退出登錄功能優化
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    if(confirm('確定要退出登錄嗎？')) {
+        auth.signOut().then(() => {
+            // 添加退出動畫
+            document.getElementById('feedbackContainer').style.opacity = '0';
+            document.getElementById('feedbackContainer').style.transition = 'opacity 0.3s';
+            
+            setTimeout(() => {
+                alert('您已安全退出');
+                location.reload();
+            }, 300);
+        }).catch((error) => {
+            console.error('退出登錄失敗:', error);
+            alert(`退出失敗: ${error.message}`);
+        });
+    }
+});
+
+document.getElementById('loginBtn').addEventListener('click', () => {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    loginUser(email, password);
+});
+document.getElementById('loginBtn').addEventListener('mouseenter', () => {
+    document.querySelector('.container.mt-3').style.opacity = '1';
+});
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Obsidian配置（可修改）
+    const obsidianConfig = {
+        vaultName: "ancient"  // 替換為您的實際庫名稱
+    };
+
+    // 文本選擇監聽
+    document.addEventListener('mouseup', (e) => {
+        // 排除在輸入框中的選擇
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        
+        const selection = window.getSelection();
+        const selectedText = selection.toString().trim();
+        
+        const bookRegex = /^《([^《》]+)》：$/;
+        if (bookRegex.test(selectedText)) {
+            const bookTitle = selectedText.replace(bookRegex, "\$1");
+            // const obsidianLink = `obsidian://open?vault=${encodeURIComponent(obsidianConfig.vaultName)}&file=${encodeURIComponent(bookTitle)}`;
+            const obsidianLink = `obsidian://adv-uri?vault=${encodeURIComponent(obsidianConfig.vaultName)}&filepath=${encodeURIComponent(bookTitle)}`;
+
+            // 打開Obsidian鏈接（添加確認提示）
+            if (confirm(`是否要打開Obsidian中的「${obsidianLink}」？`)) {
+                 openObsidian(obsidianLink, "修訂文件");
+            }
+            
+            // 清除選中狀態
+            selection.removeAllRanges();
+        }
+    });
+});
+
+function openObsidian(link, title) {
+  // 第一步：嘗試靜默打開
+  try {
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = link;
+    document.body.appendChild(iframe);
+    setTimeout(() => iframe.remove(), 200);
+    
+    // 檢測是否成功（非100%准確）
+    setTimeout(() => {
+      if (!document.hidden) {
+        throw new Error('Fallback needed');
+      }
+    }, 300);
+    
+    return;
+  } catch (e) {
+    // 靜默失敗後的備選方案
+    if (confirm(`在Obsidian中打開「${title}」？`)) {
+        window.location.href = link;  //  或 window.open(link);  
+      //  app.openWithDefaultApp(link); // 最佳實踐
+      //  require('electron').shell.openExternal(link); // 需要開啟 NodeJS
+    }
+  }
+}
+
+
+</script>
+</body>
+</html>
