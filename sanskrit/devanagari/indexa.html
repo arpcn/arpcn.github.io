@@ -120,6 +120,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
 }
 
 .feedback-contact {
@@ -145,12 +146,12 @@
 
 .feedback-content {
     padding: 1rem 1.5rem 1.5rem;
-   /* white-space: pre-line;*/
+    white-space: pre-line;
     line-height: 1.7;
     color: #495057;
     position: relative;
     pointer-events: none !important; /* 強制阻止點擊等所有事件 */
-    user-select: text; /* 允許文本選擇 
+    user-select: text; /* 允許文本選擇 */
     cursor: default; /* 默認光標樣式 */
 }
 /* 讓內容區域內的鏈接可以點擊（如果有的話） */
@@ -197,6 +198,9 @@
     border: 1px solid transparent;
     background-color: transparent;
     transform: scale(0.9);  /* 默認稍小 */
+    position: absolute;
+    right: 0;
+    margin: 0;
 }
 /* 卡片懸停時刪除按鈕效果 - 但排除選中狀態 */
 .feedback-item:hover .delete-btn:not(.selected) {
@@ -426,19 +430,17 @@ function loadFeedbackData() {
                         <div class="feedback-header d-flex justify-content-between align-items-start mb-2">
                             <span class="feedback-contact">
                                 <i class="bi bi-person-circle"></i>
-                                ◎ ${feedback.contact || '匿名用戶'}
+                                ${feedback.contact || '匿名用戶'}
                             </span>
-                            <div class="d-flex align-items-center">
-                                <span class="feedback-time text-muted">
-                                    <i class="bi bi-clock-history me-1"></i>${formattedTime}
-                                </span>
-                            </div>
+                            <span class="feedback-time text-muted">
+                                <i class="bi bi-clock-history me-1"></i>${formattedTime}
+                            </span>
+                            <button class="delete-btn ms-2" data-contact="${encodeURIComponent(feedback.contact)}" 
+                                    data-id="${feedback.feedbackId}">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         </div>
                         <div class="feedback-content">${markdownText}</div>
-                                <button class="delete-btn ms-2" data-contact="${encodeURIComponent(feedback.contact)}" 
-                                        data-id="${feedback.feedbackId}">
-                                    <i class="bi bi-trash"></i>
-                                </button>
                     </div>
                 `;
 
