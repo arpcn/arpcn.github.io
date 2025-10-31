@@ -197,6 +197,8 @@
     border: 1px solid transparent;
     background-color: transparent;
     transform: scale(0.9);  /* 默認稍小 */
+    user-select: none; /* 禁止选中按钮内容 */
+    -webkit-user-select: none; /* Safari 兼容 */
 }
 /* 卡片懸停時刪除按鈕效果 - 但排除選中狀態 */
 .feedback-item:hover .delete-btn:not(.selected) {
@@ -422,7 +424,25 @@ function loadFeedbackData() {
                             .replace(/\n/g, '<br>');       // 换行
 
                 feedbackItem.innerHTML = `
-<div class="card-body"><div class="feedback-header d-flex justify-content-between align-items-start mb-2"><span class="feedback-contact"><i class="bi bi-person-circle"></i>${feedback.contact || '匿名用戶'}</span><div class="d-flex align-items-center"><span class="feedback-time text-muted"><i class="bi bi-clock-history me-1"></i>${formattedTime}</span><button class="delete-btn ms-2" data-contact="${encodeURIComponent(feedback.contact)}" data-id="${feedback.feedbackId}"><i class="bi bi-trash"></i></button></div></div><div class="feedback-content">${markdownText}</div></div>
+                    <div class="card-body">
+                        <div class="feedback-header d-flex justify-content-between align-items-start mb-2">
+                            <span class="feedback-contact">
+                                <i class="bi bi-person-circle"></i>
+                                ${feedback.contact || '匿名用戶'}
+                            </span>
+                            <div class="d-flex align-items-center">
+                                <span class="feedback-time text-muted">
+                                    <i class="bi bi-clock-history me-1"></i>${formattedTime}
+                                </span>
+                                <button class="delete-btn ms-2" data-contact="${encodeURIComponent(feedback.contact)}" 
+                                        data-id="${feedback.feedbackId}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="feedback-content">${markdownText}
+                        </div>
+                    </div>
                 `;
 
                 feedbackList.appendChild(feedbackItem);
