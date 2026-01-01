@@ -4,6 +4,7 @@ Allow: /agama/
 Allow: /vibhasa/
 Allow: /kosa/
 Allow: /others/
+Allow: /notes/wechat-md/
 Disallow: /agama/agama/
 Disallow: /Tipitaka/
-Disallow: /notes/
+
