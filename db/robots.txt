@@ -1,2 +1,9 @@
+# robots.txt 
 User-agent: *
-Allow: /
+Allow: /agama/
+Allow: /vibhasa/
+Allow: /kosa/
+Allow: /others/
+Disallow: /agama/agama/
+Disallow: /Tipitaka/
+Disallow: /notes/
