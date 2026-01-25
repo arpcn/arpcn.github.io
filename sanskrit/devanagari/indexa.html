@@ -444,10 +444,10 @@
     <div class="spinner"></div>
 </div>
 
-<!-- 使用國內可訪問的 Firebase CDN -->
-<script src="https://cdn.jsdelivr.net/npm/firebase@9.22.0/compat/app/dist/index.cjs.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/firebase@9.22.0/compat/auth/dist/index.cjs.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/firebase@9.22.0/compat/database/dist/index.cjs.js"></script>
+<!-- 使用正確的 Firebase CDN（UMD 格式） -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
 // 顯示加載動畫
@@ -479,11 +479,6 @@ function clearError(field) {
     errorElement.style.display = 'none';
 }
 
-// 檢查 Firebase 是否加載成功
-function checkFirebaseLoaded() {
-    return typeof firebase !== 'undefined' && firebase.app;
-}
-
 // Firebase 配置
 const firebaseConfig = {
     apiKey: "AIzaSyAsevOrW7BYxlg1xH8FjGuxJKu47Udo_sc",
@@ -496,55 +491,55 @@ const firebaseConfig = {
     measurementId: "G-0WEQ3ED242"
 };
 
-// 初始化 Firebase
+// 全局變量
 let app, database, auth;
+let isFirebaseInitialized = false;
 
-try {
-    if (!checkFirebaseLoaded()) {
-        throw new Error('Firebase 庫加載失敗，請檢查網絡連接');
-    }
-    
-    app = firebase.initializeApp(firebaseConfig);
-    database = firebase.database();
-    auth = firebase.auth();
-    
-    console.log('Firebase 初始化成功');
-} catch (error) {
-    console.error('Firebase 初始化失敗:', error);
-    alert('系統初始化失敗: ' + error.message + '\n請檢查網絡連接後刷新頁面。');
-}
-
-// Firebase 初始化錯誤處理
-function initFirebaseWithFallback() {
-    if (!checkFirebaseLoaded()) {
-        // 嘗試使用備用 CDN
-        console.log('嘗試加載備用 Firebase 庫...');
-        const fallbackScript = document.createElement('script');
-        fallbackScript.src = 'https://unpkg.com/firebase@8.10.0/compat/app/dist/index.cjs.js';
-        fallbackScript.onload = () => {
-            console.log('備用庫加載成功');
-            try {
-                app = firebase.initializeApp(firebaseConfig);
-                database = firebase.database();
-                auth = firebase.auth();
-                console.log('Firebase 備用初始化成功');
-            } catch (err) {
-                console.error('備用初始化失敗:', err);
-                showFirebaseError();
-            }
-        };
-        fallbackScript.onerror = () => {
-            console.error('備用庫加載失敗');
-            showFirebaseError();
-        };
-        document.head.appendChild(fallbackScript);
+// 初始化 Firebase - 使用更簡單的方法
+function initializeFirebase() {
+    try {
+        // 檢查 firebase 是否已加載
+        if (typeof firebase === 'undefined') {
+            console.error('Firebase 庫未加載');
+            showFirebaseError('Firebase 庫未加載，請檢查網絡連接');
+            return false;
+        }
+        
+        // 檢查是否已初始化
+        if (firebase.apps.length === 0) {
+            app = firebase.initializeApp(firebaseConfig);
+        } else {
+            app = firebase.app();
+        }
+        
+        database = firebase.database();
+        auth = firebase.auth();
+        
+        console.log('Firebase 初始化成功');
+        isFirebaseInitialized = true;
+        return true;
+    } catch (error) {
+        console.error('Firebase 初始化失敗:', error);
+        showFirebaseError('Firebase 初始化失敗: ' + error.message);
+        return false;
     }
 }
 
-function showFirebaseError() {
+// 顯示 Firebase 錯誤
+function showFirebaseError(message) {
     document.getElementById('loginBtn').disabled = true;
-    document.getElementById('loginBtn').innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>系統錯誤，請刷新頁面';
-    alert('無法加載必要的系統資源。\n請檢查網絡連接，如果使用VPN請確保已連接，然後刷新頁面重試。');
+    document.getElementById('loginBtn').innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>系統錯誤';
+    alert('系統錯誤:\n' + message + '\n\n請檢查網絡連接後刷新頁面。');
+}
+
+// 檢查 Firebase 狀態
+function checkFirebaseStatus() {
+    if (!isFirebaseInitialized) {
+        if (!initializeFirebase()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // 登錄功能
@@ -552,6 +547,12 @@ let isLoggingIn = false;
 
 function loginUser(email, password) {
     if (isLoggingIn) return;
+    
+    // 檢查 Firebase 狀態
+    if (!checkFirebaseStatus()) {
+        alert('系統初始化失敗，請刷新頁面重試');
+        return;
+    }
     
     // 驗證輸入
     if (!email) {
@@ -578,8 +579,6 @@ function loginUser(email, password) {
     auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
             console.log('登錄成功');
-            // 登錄成功後自動加載數據
-            loadFeedbackData();
         })
         .catch((error) => {
             console.error("登錄錯誤:", error);
@@ -618,28 +617,43 @@ function loginUser(email, password) {
 }
 
 // 監聽認證狀態
-auth.onAuthStateChanged((user) => {
-    const loginContainer = document.getElementById('loginContainer');
-    const feedbackContainer = document.getElementById('feedbackContainer');
-    
-    if (user) {
-        console.log('用戶已登錄:', user.email);
-        loginContainer.style.display = 'none';
-        feedbackContainer.style.display = 'block';
-        // 加載反饋數據
-        loadFeedbackData();
-    } else {
-        console.log('用戶未登錄');
-        loginContainer.style.display = 'block';
-        feedbackContainer.style.display = 'none';
+function setupAuthListener() {
+    if (!checkFirebaseStatus()) {
+        setTimeout(setupAuthListener, 1000); // 1秒後重試
+        return;
     }
-});
+    
+    auth.onAuthStateChanged((user) => {
+        const loginContainer = document.getElementById('loginContainer');
+        const feedbackContainer = document.getElementById('feedbackContainer');
+        
+        if (user) {
+            console.log('用戶已登錄:', user.email);
+            loginContainer.style.display = 'none';
+            feedbackContainer.style.display = 'block';
+            // 加載反饋數據
+            loadFeedbackData();
+        } else {
+            console.log('用戶未登錄');
+            loginContainer.style.display = 'block';
+            feedbackContainer.style.display = 'none';
+        }
+    }, (error) => {
+        console.error('認證監聽錯誤:', error);
+        setTimeout(setupAuthListener, 2000); // 2秒後重試
+    });
+}
 
 // 全局變量存儲選中的反饋項
 let selectedFeedbacks = [];
 
 // 加載反饋數據
 function loadFeedbackData() {
+    if (!checkFirebaseStatus()) {
+        alert('系統未初始化，無法加載數據');
+        return;
+    }
+    
     showLoading();
     
     const feedbackRef = database.ref('feedbacks');
@@ -950,7 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const bookRegex = /^《([^《》]+)》：$/;
         if (bookRegex.test(selectedText)) {
-            const bookTitle = selectedText.replace(bookRegex, "\$1");
+            const bookTitle = selectedText.replace(bookRegex, "\\$1");
             const obsidianLink = `obsidian://adv-uri?vault=${encodeURIComponent(obsidianConfig.vaultName)}&filepath=${encodeURIComponent(bookTitle)}`;
 
             // 打開Obsidian鏈接
@@ -986,14 +1000,26 @@ function openObsidian(link, title) {
     }
 }
 
-// 頁面加載時檢查 Firebase
+// 頁面加載時初始化
 window.addEventListener('load', () => {
-    setTimeout(() => {
-        if (!checkFirebaseLoaded()) {
-            console.log('加載備用 Firebase 庫...');
-            initFirebaseWithFallback();
-        }
-    }, 1000);
+    // 嘗試初始化 Firebase
+    if (initializeFirebase()) {
+        setupAuthListener();
+    }
+    
+    // 檢查 URL 參數，如果有登錄信息則自動嘗試登錄
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    const password = urlParams.get('password');
+    
+    if (email && password && checkFirebaseStatus()) {
+        // 自動填充並登錄
+        document.getElementById('email').value = email;
+        document.getElementById('password').value = password;
+        setTimeout(() => {
+            loginUser(email, password);
+        }, 500);
+    }
 });
 
 // 防止重複提交
@@ -1007,4 +1033,3 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 </script>
 </body>
 </html>
-
