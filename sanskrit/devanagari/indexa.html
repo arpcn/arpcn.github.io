@@ -5,279 +5,396 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>反饋數據</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
-        body { padding: 20px; }
+        body { padding: 20px; background-color: #f8f9fa; }
+        
+        /* 登錄界面美化 */
+        .login-card {
+            margin-top: 100px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            border: none;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .login-logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        #loginForm {
+            padding: 20px;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 0.25rem rgba(106, 17, 203, 0.25);
+        }
+        
+        #loginBtn {
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border: none;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        #loginBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+        }
+        
+        #loginBtn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        
+        .login-loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
         .divider { 
             border-top: 1px solid #ddd;
             margin: 15px 0;
         }
-::selection {
-    background-color: rgba(13, 110, 253, 0.2);
-}
-.feedback-content::selection {
-    background-color: rgba(106, 90, 205, 0.3); /* 紫羅蘭色 */
-}
-
-// 變量控制陰影強度
-:root {
-    --shadow-intensity: 0.3;
-}
-
-#deleteSelectedBtn {
-    text-shadow: 0 0 calc(4px * var(--shadow-intensity)) rgba(220, 53, 69, var(--shadow-intensity));
-}
-/* 反饋卡片美化 */
-.feedback-item {
-    position: relative;
-    border-left: 4px solid #9ac2fe;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    margin-bottom: 1.5rem;
-    transition: all 0.2s ease;
-    overflow: hidden;
-    padding-left: 15px;
-}
-
-.feedback-item::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: linear-gradient(135deg, 
-        rgba(255,255,255,0.8) 0%, 
-        rgba(255,255,255,0.5) 50%, 
-        rgba(255,255,255,0.2) 100%);
-    box-shadow: 1px 0 2px rgba(0,0,0,0.1);
-}
-
-/* 時間線效果 
-.feedback-item::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background-color: #9d9ff7; 
-    opacity: 0.8;
-    z-index: -1;
-}*/
-.feedback-item::after {
-    content: "";
-    position: absolute;
-    top: 2.5rem;
-    left: -1px;
-    bottom: 0;
-    width: 1px;
-    background-color: rgba(13, 110, 253, 0.2);
-}
-
-.feedback-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    border-left: 4px solid #0d6efd;
-}
-
-.feedback-item.selected {
-    border-left: 3px solid #dc3545 !important;
-    background-color: rgba(220, 53, 69, 0.03) !important;
-}
-
-/* 批量操作按鈕樣式 */
-#deleteSelectedBtn {
-    transition: all 0.2s ease;
-    text-shadow: 0 0 2px rgba(220, 53, 69, 0.3);
-}
-
-#deleteSelectedBtn:hover, 
-#deleteSelectedBtn:focus {
-    text-shadow: 0 0 4px rgba(220, 53, 69, 0.5);
-    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
-}
-
-#deleteSelectedBtn:active {
-    text-shadow: 0 0 6px rgba(220, 53, 69, 0.7);
-}
-
-/* 退出按鈕位置固定 */
-#logoutBtn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1030;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.feedback-header {
-    padding: 1.25rem 1.5rem 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.feedback-contact {
-    font-weight: 600;
-    color: #0d6efd;
-    display: flex;
-    align-items: center;
-    font-size: 1.05rem;
-}
-
-.feedback-contact i {
-    margin-right: 10px;
-    font-size: 1.2rem;
-}
-
-.feedback-time {
-    color: #6c757d;
-    font-size: 0.9rem;
-    background-color: #f8f9fa;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-}
-
-.feedback-content {
-    padding: 1rem 1.5rem 1.5rem;
-    white-space: pre-line;
-    line-height: 1.7;
-    color: #495057;
-    position: relative;
-    pointer-events: none !important; /* 強制阻止點擊等所有事件 */
-    user-select: text; /* 允許文本選擇 */
-    cursor: default; /* 默認光標樣式 */
-}
-/* 讓內容區域內的鏈接可以點擊（如果有的話） */
-.feedback-content a {
-    pointer-events: auto;
-    cursor: pointer;
-}
-
-.feedback-content::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 1.5rem;
-    right: 1.5rem;
-    height: 1px;
-    background-color: rgba(0, 0, 0, 0.05);
-}
-
-/* 空狀態美化 */
-.empty-state-icon {
-    opacity: 0.7;
-    transition: all 0.3s ease;
-}
-
-#emptyFeedback:hover .empty-state-icon {
-    opacity: 1;
-    transform: scale(1.05);
-}
-
-
-/* 刪除按鈕樣式 */
-.delete-btn {
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border-radius: 50%;
-    opacity: 0.3; /* 默認半透明 */
-    transition: all 0.2s ease;
-    margin-left: 10px;
-    color: #dc3545;
-    border: 1px solid transparent;
-    background-color: transparent;
-    transform: scale(0.9);  /* 默認稍小 */
-    user-select: none; /* 禁止选中按钮内容。 复制时，按钮会被忽略，但按钮仍可点击。 */
-    -webkit-user-select: none; /* Safari 兼容 */
-}
-/* 卡片懸停時刪除按鈕效果 - 但排除選中狀態 */
-.feedback-item:hover .delete-btn:not(.selected) {
-    opacity: 0.8;  /* 懸停時更明顯 */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transform: translateY(-1px) scale(1); /* 恢复正常大小 */
-    background-color: rgba(220, 53, 69, 0.05);
-}
-/* 刪除按鈕懸停效果 - 但排除選中狀態 */
-.delete-btn:not(.selected):hover {
-    opacity: 1;
-    background-color: rgba(220, 53, 69, 0.1);
-    border-color: rgba(220, 53, 69, 0.2);
-    transform: scale(1.05);  /* 輕微放大 */
-}
-/* 選中狀態的刪除按鈕 - 提高優先級 */
-.delete-btn.selected,
-.feedback-item:hover .delete-btn.selected,
-.delete-btn.selected:hover {
-    color: white !important;
-    background-color: #dc3545 !important;
-    opacity: 1 !important;
-    border-color: #dc3545 !important;
-    transform: scale(1) !important;
-    box-shadow: none !important;
-    pointer-events: auto !important; /* 確保選中按鈕仍可點擊 */
-}
-
-/* 移動端調整 */
-@media (max-width: 576px) {
-    .feedback-header .d-flex {
-        flex-direction: row;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .delete-btn {
-        margin-left: auto;
-    }
-
-    
-    .feedback-time {
-        align-self: flex-end;
-    }
-}
-
         
-        
-        #loginForm {
-            transition: opacity 0.3s ease;
+        ::selection {
+            background-color: rgba(13, 110, 253, 0.2);
         }
-        #loginBtn {
+        
+        .feedback-content::selection {
+            background-color: rgba(106, 90, 205, 0.3);
+        }
+        
+        :root {
+            --shadow-intensity: 0.3;
+        }
+        
+        #deleteSelectedBtn {
+            text-shadow: 0 0 calc(4px * var(--shadow-intensity)) rgba(220, 53, 69, var(--shadow-intensity));
+        }
+        
+        /* 反饋卡片美化 */
+        .feedback-item {
+            position: relative;
+            border-left: 4px solid #9ac2fe;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            transition: all 0.2s ease;
+            overflow: hidden;
+            padding-left: 15px;
+        }
+        
+        .feedback-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(135deg, 
+                rgba(255,255,255,0.8) 0%, 
+                rgba(255,255,255,0.5) 50%, 
+                rgba(255,255,255,0.2) 100%);
+            box-shadow: 1px 0 2px rgba(0,0,0,0.1);
+        }
+        
+        .feedback-item::after {
+            content: "";
+            position: absolute;
+            top: 2.5rem;
+            left: -1px;
+            bottom: 0;
+            width: 1px;
+            background-color: rgba(13, 110, 253, 0.2);
+        }
+        
+        .feedback-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #0d6efd;
+        }
+        
+        .feedback-item.selected {
+            border-left: 3px solid #dc3545 !important;
+            background-color: rgba(220, 53, 69, 0.03) !important;
+        }
+        
+        /* 批量操作按鈕樣式 */
+        #deleteSelectedBtn {
+            transition: all 0.2s ease;
+            text-shadow: 0 0 2px rgba(220, 53, 69, 0.3);
+        }
+        
+        #deleteSelectedBtn:hover, 
+        #deleteSelectedBtn:focus {
+            text-shadow: 0 0 4px rgba(220, 53, 69, 0.5);
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+        
+        #deleteSelectedBtn:active {
+            text-shadow: 0 0 6px rgba(220, 53, 69, 0.7);
+        }
+        
+        /* 退出按鈕位置固定 */
+        #logoutBtn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1030;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .feedback-header {
+            padding: 1.25rem 1.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .feedback-contact {
+            font-weight: 600;
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+            font-size: 1.05rem;
+        }
+        
+        .feedback-contact i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .feedback-time {
+            color: #6c757d;
+            font-size: 0.9rem;
+            background-color: #f8f9fa;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+        }
+        
+        .feedback-content {
+            padding: 1rem 1.5rem 1.5rem;
+            white-space: pre-line;
+            line-height: 1.7;
+            color: #495057;
+            position: relative;
+            pointer-events: none !important;
+            user-select: text;
+            cursor: default;
+        }
+        
+        .feedback-content a {
+            pointer-events: auto;
             cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        #loginBtn:hover {
-            background-color: #0b5ed7;
         }
         
+        .feedback-content::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 1.5rem;
+            right: 1.5rem;
+            height: 1px;
+            background-color: rgba(0, 0, 0, 0.05);
+        }
         
+        /* 空狀態美化 */
+        .empty-state-icon {
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+        
+        #emptyFeedback:hover .empty-state-icon {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        
+        /* 刪除按鈕樣式 */
+        .delete-btn {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border-radius: 50%;
+            opacity: 0.3;
+            transition: all 0.2s ease;
+            margin-left: 10px;
+            color: #dc3545;
+            border: 1px solid transparent;
+            background-color: transparent;
+            transform: scale(0.9);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        .feedback-item:hover .delete-btn:not(.selected) {
+            opacity: 0.8;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transform: translateY(-1px) scale(1);
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+        
+        .delete-btn:not(.selected):hover {
+            opacity: 1;
+            background-color: rgba(220, 53, 69, 0.1);
+            border-color: rgba(220, 53, 69, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .delete-btn.selected,
+        .feedback-item:hover .delete-btn.selected,
+        .delete-btn.selected:hover {
+            color: white !important;
+            background-color: #dc3545 !important;
+            opacity: 1 !important;
+            border-color: #dc3545 !important;
+            transform: scale(1) !important;
+            box-shadow: none !important;
+            pointer-events: auto !important;
+        }
+        
+        /* 移動端調整 */
+        @media (max-width: 576px) {
+            .feedback-header .d-flex {
+                flex-direction: row;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .delete-btn {
+                margin-left: auto;
+            }
+            
+            .feedback-time {
+                align-self: flex-end;
+            }
+            
+            .login-card {
+                margin-top: 50px;
+            }
+        }
+        
+        /* 錯誤提示 */
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .has-error .form-control {
+            border-color: #dc3545;
+        }
+        
+        .has-error .error-message {
+            display: block;
+        }
+        
+        /* 加載動畫 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #6a11cb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
     </style>
 </head>
 <body>
 
-<div class="container mt-3" style="opacity: 1; transition: opacity 0.3s ease;">
+<!-- 登錄界面 -->
+<div id="loginContainer" class="container">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
+        <div class="col-md-5 col-lg-4">
+            <div class="card login-card">
                 <div class="card-header">
+                    <div class="login-logo">ॐ</div>
+                    <div class="login-title">管理後台</div>
                 </div>
                 <div class="card-body">
                     <form id="loginForm">
-                        <div class="mb-3">
-                        <button type="button" id="loginBtn" class="btn btn-primary w-100">ॐ</button>
+                        <div class="mb-4">
+                            <label for="email" class="form-label">郵箱地址</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="請輸入郵箱" required>
+                            <div class="error-message" id="emailError"></div>
                         </div>
-                        <div class="mb-3">
-                            <input type="email" class="form-control" id="email" required>
+                        <div class="mb-4">
+                            <label for="password" class="form-label">密碼</label>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   placeholder="請輸入密碼" required>
+                            <div class="error-message" id="passwordError"></div>
                         </div>
-                            <input type="password" class="form-control" id="password" required>
+                        <button type="submit" id="loginBtn" class="btn btn-primary w-100">
+                            <span id="loginText">登錄系統</span>
+                            <span id="loginSpinner" style="display: none;">
+                                <span class="login-loading"></span>登錄中...
+                            </span>
+                        </button>
                     </form>
                 </div>
             </div>
@@ -285,18 +402,17 @@
     </div>
 </div>
 
-<!-- （默認隱藏） -->
+<!-- 反饋管理界面（默認隱藏） -->
 <div id="feedbackContainer" class="container pt-0" style="display: none;">
-    <!-- 退出登錄按鈕（固定在右上角） -->
-    <button id="logoutBtn" class="btn btn-sm btn-outline-secondary position-fixed" 
-            style="top: 20px; right: 20px; z-index: 1030;">
+    <!-- 退出登錄按鈕 -->
+    <button id="logoutBtn" class="btn btn-sm btn-outline-secondary position-fixed">
         <i class="bi bi-box-arrow-right me-1"></i>退出
     </button>
 
     <div class="d-flex justify-content-between align-items-center mb-4 sticky-top bg-white py-3" 
          style="top: 20px; z-index: 1020;">
         <h3 class="m-0 text-primary">
-            <i class="bi bi-chat-left-text-fill me-2"></i>修訂
+            <i class="bi bi-chat-left-text-fill me-2"></i>修訂管理
         </h3>
         <div id="batchActions" class="d-none">
             <button id="selectAllBtn" class="btn btn-sm btn-outline-secondary me-2">
@@ -319,51 +435,201 @@
             <i class="bi bi-chat-square-text text-muted" style="font-size: 3.5rem;"></i>
         </div>
         <h5 class="text-muted mt-4">暫無反饋內容</h5>
-        <p class="text-muted small mt-2">當有用戶提交反饋時，內容將顯示在這里</p>
+        <p class="text-muted small mt-2">當有用戶提交反饋時，內容將顯示在這裡</p>
     </div>
 </div>
 
+<!-- 加載動畫 -->
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="spinner"></div>
+</div>
 
+<!-- 使用國內可訪問的 Firebase CDN -->
 <script src="https://cdn.jsdelivr.net/npm/firebase@9.22.0/compat/app/dist/index.cjs.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@9.22.0/compat/auth/dist/index.cjs.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@9.22.0/compat/database/dist/index.cjs.js"></script>
 
 <script>
+// 顯示加載動畫
+function showLoading() {
+    document.getElementById('loadingOverlay').style.display = 'flex';
+}
+
+// 隱藏加載動畫
+function hideLoading() {
+    document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+// 顯示錯誤信息
+function showError(field, message) {
+    const input = document.getElementById(field);
+    const errorElement = document.getElementById(field + 'Error');
+    
+    input.classList.add('has-error');
+    errorElement.textContent = message;
+    errorElement.style.display = 'block';
+}
+
+// 清除錯誤信息
+function clearError(field) {
+    const input = document.getElementById(field);
+    const errorElement = document.getElementById(field + 'Error');
+    
+    input.classList.remove('has-error');
+    errorElement.style.display = 'none';
+}
+
+// 檢查 Firebase 是否加載成功
+function checkFirebaseLoaded() {
+    return typeof firebase !== 'undefined' && firebase.app;
+}
+
+// Firebase 配置
 const firebaseConfig = {
-        apiKey: "AIzaSyAsevOrW7BYxlg1xH8FjGuxJKu47Udo_sc",
-        authDomain: "arbzn08.firebaseapp.com",
-        databaseURL: "https://arbzn08-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "arbzn08",
-        storageBucket: "arbzn08.appspot.com",
-        messagingSenderId: "581298403351",
-        appId: "1:581298403351:web:0e6355c9b6a6a9c348c452",
-        measurementId: "G-0WEQ3ED242"
+    apiKey: "AIzaSyAsevOrW7BYxlg1xH8FjGuxJKu47Udo_sc",
+    authDomain: "arbzn08.firebaseapp.com",
+    databaseURL: "https://arbzn08-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "arbzn08",
+    storageBucket: "arbzn08.appspot.com",
+    messagingSenderId: "581298403351",
+    appId: "1:581298403351:web:0e6355c9b6a6a9c348c452",
+    measurementId: "G-0WEQ3ED242"
 };
 
-const app = firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-const auth = firebase.auth();
+// 初始化 Firebase
+let app, database, auth;
+
+try {
+    if (!checkFirebaseLoaded()) {
+        throw new Error('Firebase 庫加載失敗，請檢查網絡連接');
+    }
+    
+    app = firebase.initializeApp(firebaseConfig);
+    database = firebase.database();
+    auth = firebase.auth();
+    
+    console.log('Firebase 初始化成功');
+} catch (error) {
+    console.error('Firebase 初始化失敗:', error);
+    alert('系統初始化失敗: ' + error.message + '\n請檢查網絡連接後刷新頁面。');
+}
+
+// Firebase 初始化錯誤處理
+function initFirebaseWithFallback() {
+    if (!checkFirebaseLoaded()) {
+        // 嘗試使用備用 CDN
+        console.log('嘗試加載備用 Firebase 庫...');
+        const fallbackScript = document.createElement('script');
+        fallbackScript.src = 'https://unpkg.com/firebase@8.10.0/compat/app/dist/index.cjs.js';
+        fallbackScript.onload = () => {
+            console.log('備用庫加載成功');
+            try {
+                app = firebase.initializeApp(firebaseConfig);
+                database = firebase.database();
+                auth = firebase.auth();
+                console.log('Firebase 備用初始化成功');
+            } catch (err) {
+                console.error('備用初始化失敗:', err);
+                showFirebaseError();
+            }
+        };
+        fallbackScript.onerror = () => {
+            console.error('備用庫加載失敗');
+            showFirebaseError();
+        };
+        document.head.appendChild(fallbackScript);
+    }
+}
+
+function showFirebaseError() {
+    document.getElementById('loginBtn').disabled = true;
+    document.getElementById('loginBtn').innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>系統錯誤，請刷新頁面';
+    alert('無法加載必要的系統資源。\n請檢查網絡連接，如果使用VPN請確保已連接，然後刷新頁面重試。');
+}
+
+// 登錄功能
+let isLoggingIn = false;
 
 function loginUser(email, password) {
+    if (isLoggingIn) return;
+    
+    // 驗證輸入
+    if (!email) {
+        showError('email', '請輸入郵箱地址');
+        return;
+    }
+    
+    if (!password) {
+        showError('password', '請輸入密碼');
+        return;
+    }
+    
+    // 清除之前的錯誤
+    clearError('email');
+    clearError('password');
+    
+    // 顯示登錄狀態
+    isLoggingIn = true;
+    document.getElementById('loginText').style.display = 'none';
+    document.getElementById('loginSpinner').style.display = 'inline';
+    document.getElementById('loginBtn').disabled = true;
+    
+    // 執行登錄
     auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
+            console.log('登錄成功');
+            // 登錄成功後自動加載數據
             loadFeedbackData();
         })
         .catch((error) => {
-            console.error("error:", error);
-            alert("error: " + error.message);
+            console.error("登錄錯誤:", error);
+            
+            // 根據錯誤類型顯示不同的提示
+            let errorMessage = "登錄失敗";
+            switch(error.code) {
+                case 'auth/invalid-email':
+                    errorMessage = "郵箱格式不正確";
+                    showError('email', errorMessage);
+                    break;
+                case 'auth/user-not-found':
+                    errorMessage = "用戶不存在";
+                    showError('email', errorMessage);
+                    break;
+                case 'auth/wrong-password':
+                    errorMessage = "密碼錯誤";
+                    showError('password', errorMessage);
+                    break;
+                case 'auth/network-request-failed':
+                    errorMessage = "網絡連接失敗，請檢查網絡";
+                    alert(errorMessage);
+                    break;
+                default:
+                    errorMessage = "登錄失敗: " + error.message;
+                    alert(errorMessage);
+            }
+        })
+        .finally(() => {
+            // 重置登錄狀態
+            isLoggingIn = false;
+            document.getElementById('loginText').style.display = 'inline';
+            document.getElementById('loginSpinner').style.display = 'none';
+            document.getElementById('loginBtn').disabled = false;
         });
 }
 
+// 監聽認證狀態
 auth.onAuthStateChanged((user) => {
-    const loginContainer = document.querySelector('.card');
+    const loginContainer = document.getElementById('loginContainer');
     const feedbackContainer = document.getElementById('feedbackContainer');
     
     if (user) {
+        console.log('用戶已登錄:', user.email);
         loginContainer.style.display = 'none';
         feedbackContainer.style.display = 'block';
+        // 加載反饋數據
         loadFeedbackData();
     } else {
+        console.log('用戶未登錄');
         loginContainer.style.display = 'block';
         feedbackContainer.style.display = 'none';
     }
@@ -374,6 +640,8 @@ let selectedFeedbacks = [];
 
 // 加載反饋數據
 function loadFeedbackData() {
+    showLoading();
+    
     const feedbackRef = database.ref('feedbacks');
 
     feedbackRef.on('value', (snapshot) => {
@@ -410,6 +678,7 @@ function loadFeedbackData() {
                 feedbackItem.className = 'feedback-item card mb-3';
                 feedbackItem.dataset.contact = encodeURIComponent(feedback.contact);
                 feedbackItem.dataset.id = feedback.feedbackId;
+                feedbackItem.style.animationDelay = `${index * 0.05}s`;
             
                 const date = new Date(feedback.timestamp);
                 const formattedTime = date.toLocaleString('zh-CN', {
@@ -421,7 +690,9 @@ function loadFeedbackData() {
                 });
 
                 const markdownText = feedback.text
-                            .replace(/\n/g, '<br>');       // 换行
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/\n/g, '<br>');
 
                 feedbackItem.innerHTML = `
                     <div class="card-body">
@@ -479,6 +750,12 @@ function loadFeedbackData() {
         } else {
             emptyFeedback.style.display = 'block';
         }
+        
+        hideLoading();
+    }, (error) => {
+        console.error('加載反饋數據失敗:', error);
+        hideLoading();
+        alert('加載數據失敗: ' + error.message);
     });
 }
 
@@ -521,12 +798,14 @@ document.getElementById('selectAllBtn').addEventListener('click', () => {
     } else {
         // 全選
         selectedFeedbacks = [];
-        deleteBtns.forEach(btn => {
-            const contact = decodeURIComponent(btn.dataset.contact);
-            const feedbackId = btn.dataset.id;
+        feedbackItems.forEach(item => {
+            const deleteBtn = item.querySelector('.delete-btn');
+            const contact = decodeURIComponent(deleteBtn.dataset.contact);
+            const feedbackId = deleteBtn.dataset.id;
+            
             selectedFeedbacks.push({ contact, feedbackId });
-            btn.closest('.feedback-item').classList.add('selected');
-            btn.classList.add('selected'); // 添加選中樣式
+            item.classList.add('selected');
+            deleteBtn.classList.add('selected');
         });
     }
     
@@ -540,6 +819,8 @@ document.getElementById('deleteSelectedBtn').addEventListener('click', () => {
     if (!confirm(`確定要刪除選中的 ${selectedFeedbacks.length} 條反饋嗎？此操作不可撤銷！`)) {
         return;
     }
+    
+    showLoading();
     
     // 禁用按鈕防止重复點擊
     const deleteBtn = document.getElementById('deleteSelectedBtn');
@@ -568,15 +849,67 @@ document.getElementById('deleteSelectedBtn').addEventListener('click', () => {
             if (document.querySelectorAll('.feedback-item').length === 0) {
                 document.getElementById('emptyFeedback').style.display = 'block';
             }
+            
+            hideLoading();
         })
         .catch(error => {
             console.error('批量刪除失敗:', error);
             alert(`刪除失敗: ${error.message}`);
+            hideLoading();
         })
         .finally(() => {
             deleteBtn.disabled = false;
             deleteBtn.innerHTML = '<i class="bi bi-trash me-1"></i>刪除選中';
         });
+});
+
+// 退出登錄功能
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    if(confirm('確定要退出登錄嗎？')) {
+        showLoading();
+        auth.signOut().then(() => {
+            setTimeout(() => {
+                alert('您已安全退出');
+                location.reload();
+            }, 300);
+        }).catch((error) => {
+            console.error('退出登錄失敗:', error);
+            hideLoading();
+            alert(`退出失敗: ${error.message}`);
+        });
+    }
+});
+
+// 登錄表單提交事件
+document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    loginUser(email, password);
+});
+
+// 輸入框實時驗證
+document.getElementById('email').addEventListener('input', function() {
+    clearError('email');
+    // 實時驗證郵箱格式
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (this.value && !emailRegex.test(this.value)) {
+        showError('email', '請輸入有效的郵箱地址');
+    }
+});
+
+document.getElementById('password').addEventListener('input', function() {
+    clearError('password');
+});
+
+// 按回車鍵登錄
+document.getElementById('password').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        loginUser(email, password);
+    }
 });
 
 // 添加動畫效果
@@ -600,46 +933,17 @@ document.head.insertAdjacentHTML('beforeend', `
     </style>
 `);
 
-// 退出登錄功能優化
-document.getElementById('logoutBtn').addEventListener('click', () => {
-    if(confirm('確定要退出登錄嗎？')) {
-        auth.signOut().then(() => {
-            // 添加退出動畫
-            document.getElementById('feedbackContainer').style.opacity = '0';
-            document.getElementById('feedbackContainer').style.transition = 'opacity 0.3s';
-            
-            setTimeout(() => {
-                alert('您已安全退出');
-                location.reload();
-            }, 300);
-        }).catch((error) => {
-            console.error('退出登錄失敗:', error);
-            alert(`退出失敗: ${error.message}`);
-        });
-    }
-});
-
-document.getElementById('loginBtn').addEventListener('click', () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    loginUser(email, password);
-});
-document.getElementById('loginBtn').addEventListener('mouseenter', () => {
-    document.querySelector('.container.mt-3').style.opacity = '1';
-});
-
-
-
+// Obsidian 配置
 document.addEventListener('DOMContentLoaded', () => {
-    // Obsidian配置（可修改）
     const obsidianConfig = {
-        vaultName: "ancient"  // 替換為您的實際庫名稱
+        vaultName: "ancient"
     };
 
     // 文本選擇監聽
     document.addEventListener('mouseup', (e) => {
         // 排除在輸入框中的選擇
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || 
+            e.target.closest('.feedback-item')) return;
         
         const selection = window.getSelection();
         const selectedText = selection.toString().trim();
@@ -647,12 +951,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const bookRegex = /^《([^《》]+)》：$/;
         if (bookRegex.test(selectedText)) {
             const bookTitle = selectedText.replace(bookRegex, "\$1");
-            // const obsidianLink = `obsidian://open?vault=${encodeURIComponent(obsidianConfig.vaultName)}&file=${encodeURIComponent(bookTitle)}`;
             const obsidianLink = `obsidian://adv-uri?vault=${encodeURIComponent(obsidianConfig.vaultName)}&filepath=${encodeURIComponent(bookTitle)}`;
 
-            // 打開Obsidian鏈接（添加確認提示）
-            if (confirm(`是否要打開Obsidian中的「${obsidianLink}」？`)) {
-                 openObsidian(obsidianLink, "修訂文件");
+            // 打開Obsidian鏈接
+            if (confirm(`是否要打開Obsidian中的「${bookTitle}」？`)) {
+                openObsidian(obsidianLink, bookTitle);
             }
             
             // 清除選中狀態
@@ -662,33 +965,46 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function openObsidian(link, title) {
-  // 第一步：嘗試靜默打開
-  try {
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = link;
-    document.body.appendChild(iframe);
-    setTimeout(() => iframe.remove(), 200);
-    
-    // 檢測是否成功（非100%准確）
-    setTimeout(() => {
-      if (!document.hidden) {
-        throw new Error('Fallback needed');
-      }
-    }, 300);
-    
-    return;
-  } catch (e) {
-    // 靜默失敗後的備選方案
-    if (confirm(`在Obsidian中打開「${title}」？`)) {
-        window.location.href = link;  //  或 window.open(link);  
-      //  app.openWithDefaultApp(link); // 最佳實踐
-      //  require('electron').shell.openExternal(link); // 需要開啟 NodeJS
+    try {
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = link;
+        document.body.appendChild(iframe);
+        setTimeout(() => iframe.remove(), 200);
+        
+        setTimeout(() => {
+            if (!document.hidden) {
+                throw new Error('Fallback needed');
+            }
+        }, 300);
+        
+        return;
+    } catch (e) {
+        if (confirm(`在Obsidian中打開「${title}」？`)) {
+            window.location.href = link;
+        }
     }
-  }
 }
 
+// 頁面加載時檢查 Firebase
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        if (!checkFirebaseLoaded()) {
+            console.log('加載備用 Firebase 庫...');
+            initFirebaseWithFallback();
+        }
+    }, 1000);
+});
 
+// 防止重複提交
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('loginBtn');
+    if (submitBtn.disabled) {
+        e.preventDefault();
+        return false;
+    }
+});
 </script>
 </body>
 </html>
+
