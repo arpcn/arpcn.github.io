@@ -1006,7 +1006,7 @@ window.addEventListener('load', () => {
     if (initializeFirebase()) {
         setupAuthListener();
     }
-    <---
+    
     // 檢查 URL 參數，如果有登錄信息則自動嘗試登錄
     const urlParams = new URLSearchParams(window.location.search);
     const email = urlParams.get('email');
@@ -1020,7 +1020,7 @@ window.addEventListener('load', () => {
             loginUser(email, password);
         }, 500);
     }
-    --->
+    
 });
 
 // 防止重複提交
