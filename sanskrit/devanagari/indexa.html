@@ -373,7 +373,7 @@
             <div class="card login-card">
                 <div class="card-header">
                     <div class="login-logo">ॐ</div>
-                    <div class="login-title">管理後台</div>
+                    <div class="login-title">登  錄</div>
                 </div>
                 <div class="card-body">
                     <form id="loginForm">
@@ -390,7 +390,7 @@
                             <div class="error-message" id="passwordError"></div>
                         </div>
                         <button type="submit" id="loginBtn" class="btn btn-primary w-100">
-                            <span id="loginText">登錄系統</span>
+                            <span id="loginText">確  認</span>
                             <span id="loginSpinner" style="display: none;">
                                 <span class="login-loading"></span>登錄中...
                             </span>
@@ -1006,7 +1006,7 @@ window.addEventListener('load', () => {
     if (initializeFirebase()) {
         setupAuthListener();
     }
-    
+    <---
     // 檢查 URL 參數，如果有登錄信息則自動嘗試登錄
     const urlParams = new URLSearchParams(window.location.search);
     const email = urlParams.get('email');
@@ -1020,6 +1020,7 @@ window.addEventListener('load', () => {
             loginUser(email, password);
         }, 500);
     }
+    --->
 });
 
 // 防止重複提交
