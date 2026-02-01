@@ -1,24 +1,566 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
-    <title>Eruda 書籤生成器</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARPCN 調試工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #2196F3, #673AB7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        h2 {
+            color: #2196F3;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .url-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .url-item {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .url-item:hover {
+            border-color: #2196F3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.1);
+        }
+        
+        .url-title {
+            font-weight: bold;
+            color: #2196F3;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .url-path {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #388E3C;
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background: #FF9800;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #F57C00;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: #F44336;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #D32F2F;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #9E9E9E;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #757575;
+            transform: translateY(-2px);
+        }
+        
+        .bookmark-section {
+            background: #fff3e0;
+            border-left-color: #FF9800;
+        }
+        
+        .tips {
+            background: #e8f5e9;
+            border-left-color: #4CAF50;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .tip-item {
+            margin-bottom: 8px;
+            padding-left: 10px;
+            border-left: 3px solid #4CAF50;
+        }
+        
+        .status-panel {
+            background: #e3f2fd;
+            border-left-color: #2196F3;
+            font-size: 14px;
+        }
+        
+        .status-item {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+        }
+        
+        .code-block {
+            background: #263238;
+            color: #eceff1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .url-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Eruda 控制台書籤生成器</h1>
-    <p>長按下面的鏈接，選擇「加入書籤」：</p>
-    
-    <a href="javascript:(function(){var%20script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/eruda';script.onload=function(){eruda.init();};document.body.appendChild(script);})();">
-        🔧 Eruda 控制台
-    </a>
-    
+    <div class="container">
+        <h1>🔧 ARPCN 網站調試工具</h1>
+        
+        <!-- 狀態面板 -->
+        <div class="section status-panel">
+            <h2>📊 當前狀態</h2>
+            <div class="status-item">
+                <strong>當前 URL:</strong> <span id="current-url">載入中...</span>
+            </div>
+            <div class="status-item">
+                <strong>屏幕尺寸:</strong> <span id="screen-size">載入中...</span>
+            </div>
+            <div class="status-item">
+                <strong>設備信息:</strong> <span id="device-info">載入中...</span>
+            </div>
+            <div class="status-item">
+                <strong>簡單模式:</strong> <span id="simple-mode">載入中...</span>
+            </div>
+        </div>
+        
+        <!-- 快速訪問 -->
+        <div class="section">
+            <h2>🚀 快速訪問頁面</h2>
+            <div class="buttons">
+                <button class="btn btn-primary" onclick="openUrl('/')">🏠 首頁</button>
+                <button class="btn btn-success" onclick="openUrlWithDebug('/')">🐛 首頁（調試）</button>
+                <button class="btn btn-warning" onclick="openUrl('/Tipitaka/mula/vinaya/vinaya1')">📖 Vinaya</button>
+                <button class="btn btn-danger" onclick="openUrlWithDebug('/Tipitaka/mula/vinaya/vinaya1')">🐛 Vinaya（調試）</button>
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <h3>常用頁面列表</h3>
+                <div class="url-list" id="url-list">
+                    <!-- 頁面列表會由 JavaScript 動態生成 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 調試工具 -->
+        <div class="section">
+            <h2>🔧 調試工具</h2>
+            <div class="buttons">
+                <button class="btn btn-primary" onclick="enableEruda()">🎯 啟用 Eruda 控制台</button>
+                <button class="btn btn-success" onclick="testSimpleButton()">🔄 測試替代版按鈕</button>
+                <button class="btn btn-warning" onclick="checkPreloadStatus()">📊 檢查預加載狀態</button>
+                <button class="btn btn-danger" onclick="clearConsole()">🧹 清空控制台</button>
+            </div>
+        </div>
+        
+        <!-- 書籤工具 -->
+        <div class="section bookmark-section">
+            <h2>📚 創建調試書籤</h2>
+            <div class="buttons">
+                <button class="btn btn-primary" onclick="createBookmark()">⭐ 創建 Eruda 書籤</button>
+                <button class="btn btn-success" onclick="createDebugBookmark()">🐛 創建調試書籤</button>
+                <button class="btn btn-warning" onclick="createSimpleBookmark()">🔄 創建 Simple 書籤</button>
+            </div>
+            
+            <div class="code-block" id="bookmark-code">
+                // 點擊按鈕生成書籤代碼
+            </div>
+            
+            <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                <strong>使用方法:</strong> 長按上面的代碼，選擇「複製」，然後創建新書籤，貼上代碼即可。
+            </p>
+        </div>
+        
+        <!-- 使用提示 -->
+        <div class="section tips">
+            <h2>💡 使用提示</h2>
+            <div class="tip-item">1. 點擊「快速訪問」按鈕可以直接打開對應頁面</div>
+            <div class="tip-item">2. 帶 🐛 的按鈕會開啟調試模式（URL 添加 ?debug=1）</div>
+            <div class="tip-item">3. Eruda 控制台會在頁面右下角顯示綠色工具箱圖標</div>
+            <div class="tip-item">4. 創建的書籤可以在任何頁面使用，開啟調試模式</div>
+            <div class="tip-item">5. 如果按鈕不顯示，可以點擊「測試替代版按鈕」</div>
+            <div class="tip-item">6. 移動端建議使用「創建書籤」功能，方便隨時調試</div>
+        </div>
+        
+        <!-- 自定義訪問 -->
+        <div class="section">
+            <h2>🔗 自定義訪問</h2>
+            <div style="margin-bottom: 15px;">
+                <input type="text" id="custom-path" placeholder="輸入路徑，例如：/Tipitaka/mula/vinaya/vinaya1" 
+                       style="width: 100%; padding: 12px; border: 2px solid #2196F3; border-radius: 8px; font-size: 16px; margin-bottom: 10px;">
+                <div class="buttons">
+                    <button class="btn btn-primary" onclick="openCustomUrl()">前往</button>
+                    <button class="btn btn-success" onclick="openCustomUrlWithDebug()">前往（調試）</button>
+                    <button class="btn btn-warning" onclick="openCustomUrlWithSimple()">前往（Simple 版）</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-    // 自動檢測並生成合適的代碼
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const code = isIOS ? 
-        "javascript:(function(){var%20s=document.createElement('script');s.src='//cdn.jsdelivr.net/npm/eruda';s.onload=()=>eruda.init();document.body.appendChild(s);})();" :
-        "javascript:(function(){var%20script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/eruda';script.onload=function(){eruda.init();};document.body.appendChild(script);})();";
-    
-    document.querySelector('a').href = code;
+        // 基礎 URL
+        const BASE_URL = 'https://arpcn.top';
+        
+        // 常用頁面列表
+        const commonPages = [
+            { title: '首頁', path: '/', desc: '網站首頁' },
+            { title: '經藏', path: '/Tipitaka/mula/vinaya/vinaya1', desc: '律藏第一冊' },
+            { title: '論藏', path: '/vibhasa/', desc: '毘婆沙論' },
+            { title: '阿含經', path: '/agama/', desc: '阿含經' },
+            { title: '俱舍論', path: '/kosa/', desc: '阿毘達磨俱舍論' },
+            { title: '筆記', path: '/notes/', desc: '學習筆記' },
+            { title: 'CBETA', path: '/cbeta/', desc: 'CBETA 對照' },
+            { title: '工具', path: '/sync/', desc: '同步工具' },
+            { title: '其他', path: '/others/', desc: '其他資源' },
+            { title: '404 頁面', path: '/404', desc: '錯誤頁面' }
+        ];
+        
+        // 初始化函數
+        function init() {
+            // 更新狀態
+            updateStatus();
+            
+            // 生成頁面列表
+            generateUrlList();
+            
+            // 生成書籤代碼
+            updateBookmarkCode();
+            
+            // 添加鍵盤快捷鍵
+            setupKeyboardShortcuts();
+        }
+        
+        // 更新狀態面板
+        function updateStatus() {
+            document.getElementById('current-url').textContent = window.location.href;
+            document.getElementById('screen-size').textContent = `${window.innerWidth} × ${window.innerHeight} (dpr: ${window.devicePixelRatio})`;
+            document.getElementById('device-info').textContent = navigator.userAgent.substring(0, 80) + '...';
+            document.getElementById('simple-mode').textContent = window.location.href.includes('simple') ? '是' : '否';
+        }
+        
+        // 生成頁面列表
+        function generateUrlList() {
+            const urlList = document.getElementById('url-list');
+            urlList.innerHTML = '';
+            
+            commonPages.forEach(page => {
+                const item = document.createElement('div');
+                item.className = 'url-item';
+                item.innerHTML = `
+                    <div class="url-title">${page.title}</div>
+                    <div class="url-path">${page.path}</div>
+                    <div style="color: #666; font-size: 13px; margin-bottom: 10px;">${page.desc}</div>
+                    <div class="buttons">
+                        <button class="btn btn-primary" onclick="openUrl('${page.path}')" style="padding: 6px 12px; font-size: 12px;">前往</button>
+                        <button class="btn btn-success" onclick="openUrlWithDebug('${page.path}')" style="padding: 6px 12px; font-size: 12px;">調試</button>
+                        <button class="btn btn-warning" onclick="openUrl('${page.path}?simple')" style="padding: 6px 12px; font-size: 12px;">Simple</button>
+                    </div>
+                `;
+                urlList.appendChild(item);
+            });
+        }
+        
+        // 更新書籤代碼
+        function updateBookmarkCode() {
+            const erudaCode = `javascript:(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/eruda';s.onload=function(){eruda.init();console.log('Eruda 已啟用');};document.body.appendChild(s);})();`;
+            document.getElementById('bookmark-code').textContent = erudaCode;
+        }
+        
+        // 設置鍵盤快捷鍵
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Ctrl + D: 開啟調試
+                if (e.ctrlKey && e.key === 'd') {
+                    e.preventDefault();
+                    enableEruda();
+                }
+                
+                // Ctrl + H: 返回首頁
+                if (e.ctrlKey && e.key === 'h') {
+                    e.preventDefault();
+                    openUrl('/');
+                }
+                
+                // Ctrl + S: Simple 模式
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    window.location.href = BASE_URL + '?simple';
+                }
+            });
+        }
+        
+        // === 核心功能函數 ===
+        
+        // 打開 URL
+        function openUrl(path) {
+            window.open(BASE_URL + path, '_blank');
+        }
+        
+        // 打開帶調試的 URL
+        function openUrlWithDebug(path) {
+            const url = BASE_URL + path + (path.includes('?') ? '&' : '?') + 'debug=1';
+            window.open(url, '_blank');
+        }
+        
+        // 打開自定義 URL
+        function openCustomUrl() {
+            const path = document.getElementById('custom-path').value.trim();
+            if (path) {
+                openUrl(path);
+            } else {
+                alert('請輸入路徑');
+            }
+        }
+        
+        // 打開帶調試的自定義 URL
+        function openCustomUrlWithDebug() {
+            const path = document.getElementById('custom-path').value.trim();
+            if (path) {
+                openUrlWithDebug(path);
+            } else {
+                alert('請輸入路徑');
+            }
+        }
+        
+        // 打開 Simple 版的自定義 URL
+        function openCustomUrlWithSimple() {
+            const path = document.getElementById('custom-path').value.trim();
+            if (path) {
+                openUrl(path + (path.includes('?') ? '&' : '?') + 'simple');
+            } else {
+                alert('請輸入路徑');
+            }
+        }
+        
+        // 啟用 Eruda 控制台
+        function enableEruda() {
+            if (typeof eruda === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/eruda';
+                script.onload = function() {
+                    eruda.init();
+                    console.log('🎯 Eruda 控制台已啟用');
+                    alert('Eruda 控制台已啟用！請查看頁面右下角的綠色工具箱圖標。');
+                };
+                document.body.appendChild(script);
+            } else {
+                eruda.show();
+                console.log('🎯 Eruda 控制台已顯示');
+                alert('Eruda 控制台已經開啟');
+            }
+        }
+        
+        // 測試替代版按鈕
+        function testSimpleButton() {
+            if (window.opener && window.opener.createFloatingButton) {
+                try {
+                    window.opener.createFloatingButton();
+                    console.log('✅ 已在目標頁面創建按鈕');
+                    alert('已嘗試在目標頁面創建替代版按鈕');
+                } catch (e) {
+                    console.error('創建按鈕失敗:', e);
+                    alert('創建按鈕失敗：' + e.message);
+                }
+            } else {
+                console.log('⚠️ 無法訪問目標頁面，請在新標籤頁打開頁面');
+                alert('請先在新標籤頁打開一個頁面，然後返回此頁面測試');
+            }
+        }
+        
+        // 檢查預加載狀態
+        function checkPreloadStatus() {
+            if (window.opener) {
+                try {
+                    const status = {
+                        PRELOAD_INITIALIZED: window.opener.PRELOAD_INITIALIZED,
+                        PAGE_ENHANCEMENTS_INITIALIZED: window.opener.PAGE_ENHANCEMENTS_INITIALIZED,
+                        simpleModeButtonAdded: window.opener.simpleModeButtonAdded,
+                        searchBoxFound: window.opener.searchBoxFound
+                    };
+                    console.log('📊 預加載狀態:', status);
+                    alert('狀態已輸出到控制台');
+                } catch (e) {
+                    console.error('檢查狀態失敗:', e);
+                    alert('無法檢查目標頁面狀態');
+                }
+            } else {
+                console.log('當前頁面狀態:', {
+                    PRELOAD_INITIALIZED: window.PRELOAD_INITIALIZED,
+                    PAGE_ENHANCEMENTS_INITIALIZED: window.PAGE_ENHANCEMENTS_INITIALIZED
+                });
+                alert('當前頁面狀態已輸出到控制台');
+            }
+        }
+        
+        // 清空控制台
+        function clearConsole() {
+            console.clear();
+            console.log('🧹 控制台已清空');
+            alert('控制台已清空');
+        }
+        
+        // 創建書籤
+        function createBookmark() {
+            const code = `javascript:(function(){var%20s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/eruda';s.onload=function(){eruda.init();console.log('Eruda%20已啟用');};document.body.appendChild(s);})();`;
+            
+            // 嘗試自動創建書籤（僅在某些瀏覽器有效）
+            try {
+                window.external.AddFavorite(location.href, 'Eruda 控制台');
+            } catch (e) {
+                // 如果自動創建失敗，顯示代碼讓用戶手動創建
+                const bookmarkCode = document.getElementById('bookmark-code');
+                bookmarkCode.style.backgroundColor = '#e8f5e9';
+                bookmarkCode.style.border = '2px solid #4CAF50';
+                
+                setTimeout(() => {
+                    bookmarkCode.style.backgroundColor = '';
+                    bookmarkCode.style.border = '';
+                }, 2000);
+                
+                alert('請手動創建書籤：\n1. 長按並複製上面的代碼\n2. 創建新書籤\n3. 名稱：Eruda 控制台\n4. URL：貼上複製的代碼');
+            }
+        }
+        
+        // 創建調試書籤
+        function createDebugBookmark() {
+            const code = `javascript:(function(){location.href=location.href+(location.href.includes('?')?'&':'?')+'debug=1';})();`;
+            document.getElementById('bookmark-code').textContent = code;
+            alert('調試書籤代碼已更新\n\n使用此書籤可在任何頁面開啟調試模式');
+        }
+        
+        // 創建 Simple 書籤
+        function createSimpleBookmark() {
+            const code = `javascript:(function(){location.href=location.href+(location.href.includes('?')?'&':'?')+'simple';})();`;
+            document.getElementById('bookmark-code').textContent = code;
+            alert('Simple 版書籤代碼已更新\n\n使用此書籤可在任何頁面切換到 Simple 模式');
+        }
+        
+        // 初始化
+        window.addEventListener('load', init);
+        
+        // 全局函數，方便其他頁面調用
+        window.openArpcnPage = openUrl;
+        window.openArpcnPageWithDebug = openUrlWithDebug;
+        window.enableDebugMode = enableEruda;
+        
+        console.log('🔧 ARPCN 調試工具已加載');
+        console.log('快捷鍵：Ctrl+D 啟用調試，Ctrl+H 首頁，Ctrl+S Simple 模式');
     </script>
 </body>
 </html>
