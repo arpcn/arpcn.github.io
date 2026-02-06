@@ -140,10 +140,11 @@
     const normalizedPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
 
   // 使用相对路径，会 重定向到 arpcn.top
-  return `/access/39a393bd37490e3597370f63f89358a6${normalizedPath}.md`;
-    
+  // return `/access/${CONFIG.uid}${normalizedPath}.md`;
+   //  return `https://arpcn.top/${CONFIG.uid}${normalizedPath}.md`;
+
     // 或者直接使用原始URL（如果fixScript能处理）：
-    // return `https://publish-01.obsidian.md/access/${CONFIG.uid}${normalizedPath}.md`;
+    return `https://publish-01.obsidian.md/access/${CONFIG.uid}${normalizedPath}.md`;
   }
   
   // 立即显示内容
