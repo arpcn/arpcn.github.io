@@ -269,7 +269,7 @@
         signal: fetchController.signal,
         headers: {
           'Accept': 'text/markdown, text/plain, text/html',
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400'
         }
       });
       
