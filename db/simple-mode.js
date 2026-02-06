@@ -355,7 +355,7 @@
       window.fullVersionReady = false;
       window.fullVersionCache = null;
       window.fullVersionPromise = null;
-      const CacheUrl = "https://arpcn.top/cache/${window.PAGE_CONFIG.siteUid}?full";
+      const CacheUrl = "https://arpcn.top/cache/39a393bd37490e3597370f63f89358a6?full";
       
       function loadBackground() {
         if (window.fullVersionPromise) return window.fullVersionPromise;
