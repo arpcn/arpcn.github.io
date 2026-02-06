@@ -83,182 +83,259 @@
   }
 })();
 
-// ================ 快速Markdown预览（使用注入的路径） ================
+// ================ 快速Markdown预览（修复版） ================
 (function(){
-  // 只在Full模式下执行
-  if (!window.PAGE_CONFIG || !window.PAGE_CONFIG.isFullMode) return;
+  // 只在Full模式下执行，不检查PAGE_CONFIG
+  if (window.location.search.includes('simple')) return;
+  
+  console.log('快速Markdown预览初始化...');
   
   // 配置
   const CONFIG = {
-    previewTimeout: 2000, // 2秒超时
-    minContentLength: 100 // 最少显示100字符
+    previewTimeout: 3000, // 3秒超时
+    minContentLength: 50, // 最少显示50字符
+    uid: '39a393bd37490e3597370f63f89358a6' // 固定UID
   };
   
-  // 从preload-content中获取注入的markdownPath
-  function getInjectedMarkdownPath() {
+  // 获取当前页面的路径
+  function getCurrentPagePath() {
+    let pathname = window.location.pathname;
+    if (pathname === '/' || pathname === '') {
+      return '/Index';
+    }
+    return pathname;
+  }
+  
+  // 直接从pre元素获取路径（备用方法）
+  function getPathFromPreElement() {
     const container = document.getElementById('preload-container');
-    if (!container) return null;
+    if (!container) {
+      console.log('找不到 preload-container');
+      return null;
+    }
     
     const preElement = container.querySelector('.preload-content pre');
-    if (!preElement) return null;
+    if (!preElement) {
+      console.log('找不到 pre 元素');
+      return null;
+    }
     
-    // 获取pre元素中的内容（应该是markdownPath）
     const content = preElement.textContent.trim();
+    console.log('从pre元素获取的内容:', content);
     
-    // 检查是否是路径格式（包含斜杠）
-    if (content && (content.includes('/') || content.includes('.'))) {
+    // 检查是否是路径格式
+    if (content && (content.includes('/') || content.includes('\\'))) {
       return content;
     }
     
     return null;
   }
   
-  // 构建完整的markdown URL
-  function buildMarkdownUrl(markdownPath) {
-    // 移除可能的前导/尾随换行符和空格
-  }
-  
-  async function quickMarkdownPreview() {
-    // 1. 从注入的内容中获取markdown路径
-    const markdownPath = getInjectedMarkdownPath();
-    if (!markdownPath) {
-      console.warn('No markdown path injected');
-      return;
-    }
-    
-    
-    const cleanPath = markdownPath.trim();
+  // 构建Markdown URL
+  function buildMarkdownUrl(path) {
+    // 清理路径
+    const cleanPath = path.trim();
     
     // 确保路径以斜杠开头
     const normalizedPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
-
-    const markdownUrl = `https://publish-01.obsidian.md/access/39a393bd37490e3597370f63f89358a6${normalizedPath}.md`;
-
-    console.log('Markdown path:', markdownPath);
-    console.log('Fetching markdown from:', markdownUrl);
     
-    // 2. 立即开始获取数据
-    const fetchPromise = fetch(markdownUrl, {
-      headers: {
-        'Accept': 'text/markdown, text/plain'
+    // 直接使用原始URL（如果fixScript能处理）：
+    return `https://publish-01.obsidian.md/access/${CONFIG.uid}${normalizedPath}.md`;
+  }
+  
+  // 立即显示内容
+  function showPreviewContent(content) {
+    console.log('显示预览内容，长度:', content.length);
+    
+    const container = document.getElementById('preload-container');
+    if (!container) {
+      console.error('找不到 preload-container');
+      return;
+    }
+    
+    // 找到pre元素
+    let preElement = container.querySelector('.preload-content pre');
+    if (!preElement) {
+      console.error('找不到 pre 元素');
+      return;
+    }
+    
+    // 更新内容
+    const maxLength = 8000; // 限制显示长度
+    let displayContent = content.length > maxLength 
+      ? content.substring(0, maxLength) + '\n\n... (内容加载中，显示部分预览) ...'
+      : content;
+    
+    preElement.textContent = '\n' + displayContent + '\n';
+    
+    // 获取父容器
+    const contentDiv = preElement.closest('.preload-content');
+    if (!contentDiv) {
+      console.error('找不到 preload-content div');
+      return;
+    }
+    
+    // 立即显示（不延迟）
+    console.log('立即显示预览容器');
+    contentDiv.style.display = 'block';
+    contentDiv.style.opacity = '1';
+    
+    // 记录预览已显示
+    window.__MD_PREVIEW_SHOWN = true;
+    window.__MD_PREVIEW_TIME = Date.now();
+    
+    // 5秒后开始淡出
+    setTimeout(() => {
+      if (contentDiv && contentDiv.style.display === 'block') {
+        console.log('开始淡出预览');
+        contentDiv.style.transition = 'opacity 0.8s ease';
+        contentDiv.style.opacity = '0';
+        setTimeout(() => {
+          contentDiv.style.display = 'none';
+          console.log('预览已隐藏');
+        }, 800);
       }
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        const content = await response.text();
-        console.log('Markdown fetched, length:', content.length);
-        return content;
-      })
-      .catch((error) => {
-        console.warn('Markdown fetch failed:', error);
-        return null;
-      });
+    }, 5000);
+  }
+  
+  // 显示加载状态
+  function showLoadingState() {
+    const container = document.getElementById('preload-container');
+    if (!container) return;
     
-    // 3. 设置超时
-    const timeoutPromise = new Promise(resolve => {
-      setTimeout(() => {
-        console.log('Preview timeout reached');
-        resolve(null);
+    const preElement = container.querySelector('.preload-content pre');
+    if (preElement) {
+      const originalText = preElement.textContent.trim();
+      if (originalText) {
+        preElement.textContent = '\n正在加载: ' + originalText + '\n\n请稍候...\n';
+      }
+    }
+  }
+  
+  // 显示错误状态
+  function showErrorState(error) {
+    console.error('加载失败:', error);
+    
+    const container = document.getElementById('preload-container');
+    if (!container) return;
+    
+    const preElement = container.querySelector('.preload-content pre');
+    if (preElement) {
+      const originalText = preElement.textContent.trim();
+      preElement.textContent = '\n' + originalText + '\n\n⚠️ 内容加载失败\n错误: ' + error.message + '\n';
+    }
+  }
+  
+  // 主函数：获取并显示Markdown预览
+  async function loadAndShowPreview() {
+    console.log('开始加载Markdown预览...');
+    
+    // 方法1：从pre元素获取路径
+    let markdownPath = getPathFromPreElement();
+    
+    // 方法2：如果方法1失败，使用当前页面路径
+    if (!markdownPath) {
+      markdownPath = getCurrentPagePath();
+      console.log('使用当前页面路径:', markdownPath);
+    } else {
+      console.log('从pre元素获取路径:', markdownPath);
+    }
+    
+    if (!markdownPath) {
+      console.error('无法获取Markdown路径');
+      return;
+    }
+    
+    // 显示加载状态
+    showLoadingState();
+    
+    // 构建URL
+    const markdownUrl = buildMarkdownUrl(markdownPath);
+    console.log('Markdown URL:', markdownUrl);
+    
+    try {
+      // 使用Promise.race实现超时
+      const fetchController = new AbortController();
+      const timeoutId = setTimeout(() => {
+        fetchController.abort();
+        console.log('请求超时');
       }, CONFIG.previewTimeout);
-    });
-    
-    // 4. 竞争：要么获取到数据，要么超时
-    const markdownContent = await Promise.race([fetchPromise, timeoutPromise]);
-    
-    if (markdownContent && markdownContent.length >= CONFIG.minContentLength) {
-      console.log('Displaying markdown preview');
-      displayQuickPreview(markdownContent);
-    } else {
-      console.log('No valid markdown content');
-      // 不显示加载提示，保持原样
-    }
-    
-    // 5. 继续等待完整数据
-    if (!markdownContent) {
-      fetchPromise.then(fullData => {
-        if (fullData && fullData.length >= CONFIG.minContentLength) {
-          displayQuickPreview(fullData);
+      
+      // 发起请求
+      const response = await fetch(markdownUrl, {
+        signal: fetchController.signal,
+        headers: {
+          'Accept': 'text/markdown, text/plain, text/html',
+          'Cache-Control': 'no-cache'
         }
       });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const content = await response.text();
+      
+      if (content && content.length >= CONFIG.minContentLength) {
+        console.log('成功获取Markdown内容，长度:', content.length);
+        showPreviewContent(content);
+      } else {
+        console.warn('获取的内容太短:', content.length);
+        showErrorState(new Error('内容太短或为空'));
+      }
+      
+    } catch (error) {
+      console.error('获取Markdown失败:', error);
+      showErrorState(error);
+      
+      // 如果是网络错误，3秒后重试一次
+      if (error.name === 'AbortError' || error.message.includes('Network')) {
+        console.log('3秒后重试...');
+        setTimeout(() => {
+          if (!window.__MD_PREVIEW_SHOWN) {
+            loadAndShowPreview();
+          }
+        }, 3000);
+      }
     }
   }
   
-function displayQuickPreview(content) {
-  const container = document.getElementById('preload-container');
-  if (!container) {
-    console.warn('preload-container not found');
-    return;
-  }
-  
-  // 找到已有的pre元素
-  let preElement = container.querySelector('.preload-content pre');
-  if (!preElement) {
-    console.warn('pre element not found');
-    return;
-  }
-  
-  // 设置实际内容
-  const maxPreviewLength = 5000;
-  let displayContent = content;
-  
-  if (content.length > maxPreviewLength) {
-    displayContent = content.substring(0, maxPreviewLength) + '\n\n... (内容加载中，显示部分预览) ...';
-  }
-  
-  preElement.textContent = '\n' + displayContent + '\n';
-  
-  // 获取pre元素的父div（preload-content）
-  const contentDiv = preElement.closest('.preload-content');
-  if (!contentDiv) return;
-  
-  // 立即显示，不延迟
-  contentDiv.style.display = 'block';
-  contentDiv.style.opacity = '1';
-  
-  // 记录显示状态
-  window.__PREVIEW_ACTIVE = true;
-  window.__PREVIEW_START_TIME = Date.now();
-  
-  console.log('Preview displayed immediately');
-  
-  // 3秒后检查是否可以淡出
-  setTimeout(() => {
-    // 检查app.js是否已经开始渲染
-    const appLoaded = document.querySelector('.markdown-preview-view') || 
-                     document.querySelector('.render-container');
-    
-    if (appLoaded || Date.now() - window.__PREVIEW_START_TIME > 5000) {
-      fadeOutPreview(contentDiv);
-    }
-  }, 3000);
-}
-
-function fadeOutPreview(contentDiv) {
-  if (!contentDiv || contentDiv.style.opacity === '0') return;
-  
-  console.log('Fading out preview');
-  contentDiv.style.transition = 'opacity 0.5s ease';
-  contentDiv.style.opacity = '0';
-  
-  setTimeout(() => {
-    contentDiv.style.display = 'none';
-    window.__PREVIEW_ACTIVE = false;
-  }, 500);
-}
-  
-  // 页面加载后立即执行
+  // 初始化
   function init() {
+    console.log('初始化Markdown预览...');
+    
+    // 立即开始，不等待DOMContentLoaded
+    const startDelay = 200; // 200ms后开始
+    
     if (document.readyState === 'loading') {
+      // 如果DOM还在加载，等DOMContentLoaded后再等200ms
       document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(quickMarkdownPreview, 100);
+        setTimeout(loadAndShowPreview, startDelay);
       });
     } else {
-      setTimeout(quickMarkdownPreview, 100);
+      // 如果DOM已经加载完成，直接开始
+      setTimeout(loadAndShowPreview, startDelay);
     }
+    
+    // 添加一个后备检查：5秒后如果还没显示，再试一次
+    setTimeout(() => {
+      if (!window.__MD_PREVIEW_SHOWN) {
+        console.log('5秒后检查，重新尝试加载...');
+        loadAndShowPreview();
+      }
+    }, 5000);
   }
   
-  // 立即初始化
+  // 立即开始
   init();
+  
+  // 导出函数供调试
+  window.__debugMarkdownPreview = {
+    reload: loadAndShowPreview,
+    showPreview: showPreviewContent,
+    getPath: getPathFromPreElement
+  };
+  
 })();
