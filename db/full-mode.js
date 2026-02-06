@@ -85,7 +85,7 @@
 
 // ================ 方案四：快速Markdown预览 ================
 
-// ================ 快速Markdown预览 ================
+// ================ 快速Markdown预览（使用注入的路径） ================
 (function(){
   // 只在Full模式下执行
   if (!window.PAGE_CONFIG || !window.PAGE_CONFIG.isFullMode) return;
@@ -95,17 +95,52 @@
     previewTimeout: 2000, // 2秒超时
     minContentLength: 100 // 最少显示100字符
   };
-
+  
+  // 从preload-content中获取注入的markdownPath
+  function getInjectedMarkdownPath() {
+    const container = document.getElementById('preload-container');
+    if (!container) return null;
+    
+    const preElement = container.querySelector('.preload-content pre');
+    if (!preElement) return null;
+    
+    // 获取pre元素中的内容（应该是markdownPath）
+    const content = preElement.textContent.trim();
+    
+    // 检查是否是路径格式（包含斜杠）
+    if (content && (content.includes('/') || content.includes('.'))) {
+      return content;
+    }
+    
+    return null;
+  }
+  
+  // 构建完整的markdown URL
+  function buildMarkdownUrl(markdownPath) {
+    // 移除可能的前导/尾随换行符和空格
+  }
+  
   async function quickMarkdownPreview() {
-    if (!window.PAGE_CONFIG || !window.PAGE_CONFIG.markdownUrl) {
-      console.warn('No markdown URL configured');
+    // 1. 从注入的内容中获取markdown路径
+    const markdownPath = getInjectedMarkdownPath();
+    if (!markdownPath) {
+      console.warn('No markdown path injected');
       return;
     }
     
-    console.log('Fetching markdown from:', window.PAGE_CONFIG.markdownUrl);
     
-    // 1. 立即开始获取数据
-    const fetchPromise = fetch(window.PAGE_CONFIG.markdownUrl, {
+    const cleanPath = markdownPath.trim();
+    
+    // 确保路径以斜杠开头
+    const normalizedPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+
+    const markdownUrl = `https://publish-01.obsidian.md/access/39a393bd37490e3597370f63f89358a6${normalizedPath}.md`;
+
+    console.log('Markdown path:', markdownPath);
+    console.log('Fetching markdown from:', markdownUrl);
+    
+    // 2. 立即开始获取数据
+    const fetchPromise = fetch(markdownUrl, {
       headers: {
         'Accept': 'text/markdown, text/plain'
       }
@@ -123,7 +158,7 @@
         return null;
       });
     
-    // 2. 设置超时
+    // 3. 设置超时
     const timeoutPromise = new Promise(resolve => {
       setTimeout(() => {
         console.log('Preview timeout reached');
@@ -131,7 +166,7 @@
       }, CONFIG.previewTimeout);
     });
     
-    // 3. 竞争：要么获取到数据，要么超时
+    // 4. 竞争：要么获取到数据，要么超时
     const markdownContent = await Promise.race([fetchPromise, timeoutPromise]);
     
     if (markdownContent && markdownContent.length >= CONFIG.minContentLength) {
@@ -139,9 +174,10 @@
       displayQuickPreview(markdownContent);
     } else {
       console.log('No valid markdown content');
+      // 不显示加载提示，保持原样
     }
     
-    // 继续等待完整数据
+    // 5. 继续等待完整数据
     if (!markdownContent) {
       fetchPromise.then(fullData => {
         if (fullData && fullData.length >= CONFIG.minContentLength) {
@@ -159,23 +195,14 @@
       return;
     }
     
-    // 找到已有的pre元素，或者创建新的
+    // 找到已有的pre元素
     let preElement = container.querySelector('.preload-content pre');
-    
     if (!preElement) {
-      // 如果没有pre元素，创建完整的结构
-      const contentDiv = document.createElement('div');
-      contentDiv.className = 'preload-content';
-      contentDiv.style.cssText = 'display: none; opacity: 0; transition: opacity 0.5s ease-in-out;';
-      
-      preElement = document.createElement('pre');
-      preElement.style.cssText = 'white-space: pre-wrap; word-wrap: break-word; font-family: monospace; padding: 20px;';
-      
-      contentDiv.appendChild(preElement);
-      container.insertBefore(contentDiv, container.firstChild);
+      console.warn('pre element not found');
+      return;
     }
     
-    // 设置内容（限制长度）
+    // 设置实际内容
     const maxPreviewLength = 5000;
     let displayContent = content;
     
@@ -224,4 +251,3 @@
   // 立即初始化
   init();
 })();
-
