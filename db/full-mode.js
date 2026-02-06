@@ -135,8 +135,7 @@
      markdownUrl = `https://publish-01.obsidian.md/access/${CONFIG.uid}${cleanPath}.md`;
 
       const response = await fetch(markdownUrl, {
-
-        credentials: 'include'
+        credentials: 'include',
         headers: {
           'Accept': 'text/markdown'
           // 'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400'
