@@ -83,8 +83,6 @@
   }
 })();
 
-// ================ 方案四：快速Markdown预览 ================
-
 // ================ 快速Markdown预览（使用注入的路径） ================
 (function(){
   // 只在Full模式下执行
@@ -187,55 +185,68 @@
     }
   }
   
-  function displayQuickPreview(content) {
-    // 找到预加载容器和pre元素
-    const container = document.getElementById('preload-container');
-    if (!container) {
-      console.warn('preload-container not found');
-      return;
-    }
-    
-    // 找到已有的pre元素
-    let preElement = container.querySelector('.preload-content pre');
-    if (!preElement) {
-      console.warn('pre element not found');
-      return;
-    }
-    
-    // 设置实际内容
-    const maxPreviewLength = 5000;
-    let displayContent = content;
-    
-    if (content.length > maxPreviewLength) {
-      displayContent = content.substring(0, maxPreviewLength) + '\n\n... (内容加载中，显示部分预览) ...';
-    }
-    
-    preElement.textContent = '\n' + displayContent + '\n';
-    
-    // 获取pre元素的父div（preload-content）
-    const contentDiv = preElement.closest('.preload-content');
-    
-    // 延迟显示内容
-    setTimeout(() => {
-      if (contentDiv) {
-        contentDiv.style.display = 'block';
-        // 强制重绘
-        contentDiv.offsetHeight;
-        contentDiv.style.opacity = '1';
-      }
-    }, 500);
-    
-    // 3秒后淡出预览（当app.js渲染完成后）
-    setTimeout(() => {
-      if (contentDiv) {
-        contentDiv.style.transition = 'opacity 0.5s ease';
-        contentDiv.style.opacity = '0';
-        setTimeout(() => {
-          contentDiv.style.display = 'none';
-        }, 500);
-      }
-    }, 3000);
+function displayQuickPreview(content) {
+  const container = document.getElementById('preload-container');
+  if (!container) {
+    console.warn('preload-container not found');
+    return;
   }
+  
+  // 找到已有的pre元素
+  let preElement = container.querySelector('.preload-content pre');
+  if (!preElement) {
+    console.warn('pre element not found');
+    return;
+  }
+  
+  // 设置实际内容
+  const maxPreviewLength = 5000;
+  let displayContent = content;
+  
+  if (content.length > maxPreviewLength) {
+    displayContent = content.substring(0, maxPreviewLength) + '\n\n... (内容加载中，显示部分预览) ...';
+  }
+  
+  preElement.textContent = '\n' + displayContent + '\n';
+  
+  // 获取pre元素的父div（preload-content）
+  const contentDiv = preElement.closest('.preload-content');
+  if (!contentDiv) return;
+  
+  // 立即显示，不延迟
+  contentDiv.style.display = 'block';
+  contentDiv.style.opacity = '1';
+  
+  // 记录显示状态
+  window.__PREVIEW_ACTIVE = true;
+  window.__PREVIEW_START_TIME = Date.now();
+  
+  console.log('Preview displayed immediately');
+  
+  // 3秒后检查是否可以淡出
+  setTimeout(() => {
+    // 检查app.js是否已经开始渲染
+    const appLoaded = document.querySelector('.markdown-preview-view') || 
+                     document.querySelector('.render-container');
+    
+    if (appLoaded || Date.now() - window.__PREVIEW_START_TIME > 5000) {
+      fadeOutPreview(contentDiv);
+    }
+  }, 3000);
+}
+
+function fadeOutPreview(contentDiv) {
+  if (!contentDiv || contentDiv.style.opacity === '0') return;
+  
+  console.log('Fading out preview');
+  contentDiv.style.transition = 'opacity 0.5s ease';
+  contentDiv.style.opacity = '0';
+  
+  setTimeout(() => {
+    contentDiv.style.display = 'none';
+    window.__PREVIEW_ACTIVE = false;
+  }, 500);
+}
   
   // 页面加载后立即执行
   function init() {
