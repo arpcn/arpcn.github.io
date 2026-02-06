@@ -88,7 +88,7 @@
   // 只在Full模式下执行，不检查PAGE_CONFIG
   if (window.location.search.includes('simple')) return;
   
-  console.log('快速Markdown预览初始化...');
+  // console.log('快速Markdown预览初始化...');
   
   // 配置
   const CONFIG = {
@@ -110,18 +110,18 @@
   function getPathFromPreElement() {
     const container = document.getElementById('preload-container');
     if (!container) {
-      console.log('找不到 preload-container');
+      // console.log('找不到 preload-container');
       return null;
     }
     
     const preElement = container.querySelector('.preload-content pre');
     if (!preElement) {
-      console.log('找不到 pre 元素');
+      // console.log('找不到 pre 元素');
       return null;
     }
     
     const content = preElement.textContent.trim();
-    console.log('从pre元素获取的内容:', content);
+    // console.log('从pre元素获取的内容:', content);
     
     // 检查是否是路径格式
     if (content && (content.includes('/') || content.includes('\\'))) {
@@ -147,7 +147,7 @@
   
   // 立即显示内容
   function showPreviewContent(content) {
-    console.log('显示预览内容，长度:', content.length);
+    // console.log('显示预览内容，长度:', content.length);
     
     const container = document.getElementById('preload-container');
     if (!container) {
@@ -178,7 +178,7 @@
     }
     
     // 立即显示（不延迟）
-    console.log('立即显示预览容器');
+    // console.log('立即显示预览容器');
     contentDiv.style.display = 'block';
     contentDiv.style.opacity = '1';
     
@@ -189,12 +189,12 @@
     // 5秒后开始淡出
     setTimeout(() => {
       if (contentDiv && contentDiv.style.display === 'block') {
-        console.log('开始淡出预览');
+        // console.log('开始淡出预览');
         contentDiv.style.transition = 'opacity 0.8s ease';
         contentDiv.style.opacity = '0';
         setTimeout(() => {
           contentDiv.style.display = 'none';
-          console.log('预览已隐藏');
+          // console.log('预览已隐藏');
         }, 800);
       }
     }, 5000);
@@ -230,7 +230,7 @@
   
   // 主函数：获取并显示Markdown预览
   async function loadAndShowPreview() {
-    console.log('开始加载Markdown预览...');
+    // console.log('开始加载Markdown预览...');
     
     // 方法1：从pre元素获取路径
     let markdownPath = getPathFromPreElement();
@@ -238,9 +238,9 @@
     // 方法2：如果方法1失败，使用当前页面路径
     if (!markdownPath) {
       markdownPath = getCurrentPagePath();
-      console.log('使用当前页面路径:', markdownPath);
+      // console.log('使用当前页面路径:', markdownPath);
     } else {
-      console.log('从pre元素获取路径:', markdownPath);
+      // console.log('从pre元素获取路径:', markdownPath);
     }
     
     if (!markdownPath) {
@@ -253,14 +253,14 @@
     
     // 构建URL
     const markdownUrl = buildMarkdownUrl(markdownPath);
-    console.log('Markdown URL:', markdownUrl);
+    // console.log('Markdown URL:', markdownUrl);
     
     try {
       // 使用Promise.race实现超时
       const fetchController = new AbortController();
       const timeoutId = setTimeout(() => {
         fetchController.abort();
-        console.log('请求超时');
+        // console.log('请求超时');
       }, CONFIG.previewTimeout);
       
       // 发起请求
@@ -281,7 +281,7 @@
       const content = await response.text();
       
       if (content && content.length >= CONFIG.minContentLength) {
-        console.log('成功获取Markdown内容，长度:', content.length);
+        // console.log('成功获取Markdown内容，长度:', content.length);
         showPreviewContent(content);
       } else {
         console.warn('获取的内容太短:', content.length);
@@ -294,7 +294,7 @@
       
       // 如果是网络错误，3秒后重试一次
       if (error.name === 'AbortError' || error.message.includes('Network')) {
-        console.log('3秒后重试...');
+        // console.log('3秒后重试...');
         setTimeout(() => {
           if (!window.__MD_PREVIEW_SHOWN) {
             loadAndShowPreview();
@@ -306,7 +306,7 @@
   
   // 初始化
   function init() {
-    console.log('初始化Markdown预览...');
+    // console.log('初始化Markdown预览...');
     
     // 立即开始，不等待DOMContentLoaded
     const startDelay = 200; // 200ms后开始
@@ -324,7 +324,7 @@
     // 添加一个后备检查：5秒后如果还没显示，再试一次
     setTimeout(() => {
       if (!window.__MD_PREVIEW_SHOWN) {
-        console.log('5秒后检查，重新尝试加载...');
+        // console.log('5秒后检查，重新尝试加载...');
         loadAndShowPreview();
       }
     }, 5000);
