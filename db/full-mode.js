@@ -83,239 +83,103 @@
   }
 })();
 
-// ================ 快速Markdown预览（修复版） ================
+// ================ 快速Markdown预览（优化版） ================
 (function(){
-  // 只在Full模式下执行，不检查PAGE_CONFIG
+  // 只在Full模式下执行
   if (window.location.search.includes('simple')) return;
-  
-  // console.log('快速Markdown预览初始化...');
   
   // 配置
   const CONFIG = {
-    previewTimeout: 3000, // 3秒超时
-    minContentLength: 50, // 最少显示50字符
-    uid: '39a393bd37490e3597370f63f89358a6' // 固定UID
+    minContentLength: 100, // 最少显示100字符
+    uid: '39a393bd37490e3597370f63f89358a6'
   };
-  
-  // 获取当前页面的路径
-  function getCurrentPagePath() {
-    let pathname = window.location.pathname;
-    if (pathname === '/' || pathname === '') {
-      return '/Index';
-    }
-    return pathname;
-  }
-  
-  // 直接从pre元素获取路径（备用方法）
-  function getPathFromPreElement() {
-    const container = document.getElementById('preload-container');
-    if (!container) {
-      // console.log('找不到 preload-container');
-      return null;
-    }
-    
-    const preElement = container.querySelector('.preload-content pre');
-    if (!preElement) {
-      // console.log('找不到 pre 元素');
-      return null;
-    }
-    
-    const content = preElement.textContent.trim();
-    // console.log('从pre元素获取的内容:', content);
-    
-    // 检查是否是路径格式
-    if (content && (content.includes('/') || content.includes('\\'))) {
-      return content;
-    }
-    
-    return null;
-  }
-  
-  // 构建Markdown URL
-  function buildMarkdownUrl(path) {
-    // 清理路径
-    const cleanPath = path.trim();
-    
-    // 确保路径以斜杠开头
-    const normalizedPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
-
-    // return `/access/${CONFIG.uid}${normalizedPath}.md`;
-   //  return `https://arpcn.top/access/${CONFIG.uid}${normalizedPath}.md`;
-    // 或者直接使用原始URL（如果fixScript能处理）：
-    return `https://publish-01.obsidian.md/access/${CONFIG.uid}${normalizedPath}.md`;
-  }
-  
-  // 立即显示内容
-  function showPreviewContent(content) {
-    // console.log('显示预览内容，长度:', content.length);
-    
-    const container = document.getElementById('preload-container');
-    if (!container) {
-      console.error('找不到 preload-container');
-      return;
-    }
-    
-    // 找到pre元素
-    let preElement = container.querySelector('.preload-content pre');
-    if (!preElement) {
-      console.error('找不到 pre 元素');
-      return;
-    }
-    
-    // 更新内容
-    preElement.textContent = '\n' + content + '\n';
-    
-    // 获取父容器
-    const contentDiv = preElement.closest('.preload-content');
-    if (!contentDiv) {
-      console.error('找不到 preload-content div');
-      return;
-    }
-    
-    // 立即显示（不延迟）
-    // console.log('立即显示预览容器');
-    contentDiv.style.display = 'block';
-    
-    // 记录预览已显示
-    window.__MD_PREVIEW_SHOWN = true;
-    window.__MD_PREVIEW_TIME = Date.now();
-    
-  }
-  
-  // 显示加载状态
-  function showLoadingState() {
-    const container = document.getElementById('preload-container');
-    if (!container) return;
-    
-    const preElement = container.querySelector('.preload-content pre');
-    if (preElement) {
-      preElement.textContent = '\n正在加载\n\n请稍候...\n';
-    }
-  }
-  
-  // 显示错误状态
-  function showErrorState(error) {
-    console.error('加载失败:', error);
-    
-    const container = document.getElementById('preload-container');
-    if (!container) return;
-    
-    const preElement = container.querySelector('.preload-content pre');
-    if (preElement) {
-      preElement.textContent = '\n⚠️ 内容加载失败\n\n错误: ' + error.message + '\n';
-    }
-  }
   
   // 主函数：获取并显示Markdown预览
   async function loadAndShowPreview() {
-    // console.log('开始加载Markdown预览...');
+    // 1. 获取容器和内容
+    const container = document.getElementById('preload-container');
+    if (!container) return;
     
-    // 方法1：从pre元素获取路径
-    let markdownPath = getPathFromPreElement();
+    const contentDiv = container.querySelector('.preload-content');
+    if (!contentDiv) return;
     
-    // 方法2：如果方法1失败，使用当前页面路径
-    if (!markdownPath) {
-      markdownPath = getCurrentPagePath();
-      // console.log('使用当前页面路径:', markdownPath);
-    } else {
-      // console.log('从pre元素获取路径:', markdownPath);
+    const preElement = contentDiv.querySelector('pre');
+    if (!preElement) return;
+    
+    // 2. 获取当前内容
+    const currentContent = preElement.textContent.trim();
+    
+    // 3. 判断内容类型
+    if (currentContent.startsWith('/')) {
+      // 情况1：普通用户 - 内容是路径
+      await loadAndDisplayMarkdown(currentContent, preElement, contentDiv);
+    } else if (currentContent.length > 200) {
+      // 情况2：SEO爬虫 - 内容已经是Markdown
+      contentDiv.style.display = 'block';
     }
-    
-    if (!markdownPath) {
-      console.error('无法获取Markdown路径');
-      return;
-    }
-    
-    // 显示加载状态
-    showLoadingState();
-    
-    // 构建URL
-    const markdownUrl = buildMarkdownUrl(markdownPath);
-    // console.log('Markdown URL:', markdownUrl);
+    // 情况3：空内容 - 什么都不做
+  }
+  
+  // 为普通用户获取并显示Markdown
+  async function loadAndDisplayMarkdown(path, preElement, contentDiv) {
+    // 更新为加载状态
+    preElement.textContent = '\n正在加载...\n';
     
     try {
-      // 使用Promise.race实现超时
-      const fetchController = new AbortController();
-      const timeoutId = setTimeout(() => {
-        fetchController.abort();
-        // console.log('请求超时');
-      }, CONFIG.previewTimeout);
-      
-      // 发起请求
+      // 构建URL - 使用相对路径让fixScript处理
+      const cleanPath = path.trim();
+
+    // markdownUrl = `/access/${CONFIG.uid}${cleanPath}.md`;
+   //   markdownUrl = `https://arpcn.top/access/${CONFIG.uid}${cleanPath}.md`;
+    // 或者直接使用原始URL（如果fixScript能处理）：
+     markdownUrl = `https://publish-01.obsidian.md/access/${CONFIG.uid}${cleanPath}.md`;
+
       const response = await fetch(markdownUrl, {
-        signal: fetchController.signal,
+
+        credentials: 'include'
         headers: {
-          'Accept': 'text/markdown, text/plain, text/html'
+          'Accept': 'text/markdown'
           // 'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400'
         }
+
       });
       
-      clearTimeout(timeoutId);
-      
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(`HTTP ${response.status}`);
       }
       
       const content = await response.text();
       
       if (content && content.length >= CONFIG.minContentLength) {
-        // console.log('成功获取Markdown内容，长度:', content.length);
-        showPreviewContent(content);
+        // 显示内容
+        preElement.textContent = '\n' + content + '\n';
+        contentDiv.style.display = 'block';
       } else {
         console.warn('获取的内容太短:', content.length);
         showErrorState(new Error('内容太短或为空'));
       }
-      
+
     } catch (error) {
-      console.error('获取Markdown失败:', error);
-      showErrorState(error);
-      
-      // 如果是网络错误，3秒后重试一次
-      if (error.name === 'AbortError' || error.message.includes('Network')) {
-        // console.log('3秒后重试...');
-        setTimeout(() => {
-          if (!window.__MD_PREVIEW_SHOWN) {
-            loadAndShowPreview();
-          }
-        }, 3000);
-      }
+      console.error('加载失败:', error);
+      preElement.textContent = '\n加载失败\n请刷新重试\n';
     }
   }
-  
+
   // 初始化
   function init() {
-    // console.log('初始化Markdown预览...');
-    
-    // 立即开始，不等待DOMContentLoaded
-    const startDelay = 200; // 200ms后开始
+    // 延迟100ms开始，确保DOM就绪
+    const startDelay = 100;
     
     if (document.readyState === 'loading') {
-      // 如果DOM还在加载，等DOMContentLoaded后再等200ms
       document.addEventListener('DOMContentLoaded', () => {
         setTimeout(loadAndShowPreview, startDelay);
       });
     } else {
-      // 如果DOM已经加载完成，直接开始
       setTimeout(loadAndShowPreview, startDelay);
     }
-    
-    // 添加一个后备检查：5秒后如果还没显示，再试一次
-    setTimeout(() => {
-      if (!window.__MD_PREVIEW_SHOWN) {
-        // console.log('5秒后检查，重新尝试加载...');
-        loadAndShowPreview();
-      }
-    }, 5000);
   }
   
-  // 立即开始
+  // 启动
   init();
-  
-  // 导出函数供调试
-  window.__debugMarkdownPreview = {
-    reload: loadAndShowPreview,
-    showPreview: showPreviewContent,
-    getPath: getPathFromPreElement
-  };
   
 })();
