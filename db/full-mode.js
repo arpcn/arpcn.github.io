@@ -163,12 +163,7 @@
     }
     
     // 更新内容
-    const maxLength = 8000; // 限制显示长度
-    let displayContent = content.length > maxLength 
-      ? content.substring(0, maxLength) + '\n\n... (内容加载中，显示部分预览) ...'
-      : content;
-    
-    preElement.textContent = '\n' + displayContent + '\n';
+    preElement.textContent = '\n' + content + '\n';
     
     // 获取父容器
     const contentDiv = preElement.closest('.preload-content');
@@ -180,24 +175,11 @@
     // 立即显示（不延迟）
     // console.log('立即显示预览容器');
     contentDiv.style.display = 'block';
-    contentDiv.style.opacity = '1';
     
     // 记录预览已显示
     window.__MD_PREVIEW_SHOWN = true;
     window.__MD_PREVIEW_TIME = Date.now();
     
-    // 5秒后开始淡出
-    setTimeout(() => {
-      if (contentDiv && contentDiv.style.display === 'block') {
-        // console.log('开始淡出预览');
-        contentDiv.style.transition = 'opacity 0.8s ease';
-        contentDiv.style.opacity = '0';
-        setTimeout(() => {
-          contentDiv.style.display = 'none';
-          // console.log('预览已隐藏');
-        }, 800);
-      }
-    }, 5000);
   }
   
   // 显示加载状态
@@ -207,10 +189,7 @@
     
     const preElement = container.querySelector('.preload-content pre');
     if (preElement) {
-      const originalText = preElement.textContent.trim();
-      if (originalText) {
-        preElement.textContent = '\n正在加载: ' + originalText + '\n\n请稍候...\n';
-      }
+      preElement.textContent = '\n正在加载\n\n请稍候...\n';
     }
   }
   
@@ -223,8 +202,7 @@
     
     const preElement = container.querySelector('.preload-content pre');
     if (preElement) {
-      const originalText = preElement.textContent.trim();
-      preElement.textContent = '\n' + originalText + '\n\n⚠️ 内容加载失败\n错误: ' + error.message + '\n';
+      preElement.textContent = '\n⚠️ 内容加载失败\n\n错误: ' + error.message + '\n';
     }
   }
   
