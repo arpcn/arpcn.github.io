@@ -139,10 +139,8 @@
     // 确保路径以斜杠开头
     const normalizedPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
 
-  // 使用相对路径，会 重定向到 arpcn.top
-  // return `/access/${CONFIG.uid}${normalizedPath}.md`;
-   //  return `https://arpcn.top/${CONFIG.uid}${normalizedPath}.md`;
-
+    // return `/access/${CONFIG.uid}${normalizedPath}.md`;
+   //  return `https://arpcn.top/access/${CONFIG.uid}${normalizedPath}.md`;
     // 或者直接使用原始URL（如果fixScript能处理）：
     return `https://publish-01.obsidian.md/access/${CONFIG.uid}${normalizedPath}.md`;
   }
@@ -269,8 +267,8 @@
       const response = await fetch(markdownUrl, {
         signal: fetchController.signal,
         headers: {
-          'Accept': 'text/markdown, text/plain, text/html',
-          'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400'
+          'Accept': 'text/markdown, text/plain, text/html'
+          // 'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400'
         }
       });
       
