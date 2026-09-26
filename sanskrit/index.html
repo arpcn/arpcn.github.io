@@ -1384,8 +1384,42 @@ function handleCardClick(index) {
                     renderLeaderboard(preloadedLeaderboardData[modeKey], gameMode, parseFloat(finishTime));
                 }
 
-                if (isExcludedUsersLoaded) return; // 直接返回成功，但不執行任何操作
-                
+                if (isExcludedUsersLoaded) {
+                    firebase.database().ref('userStats')
+                        .orderByChild(`modes/${gameMode}/bestTime`)
+                        .startAt(0)
+                        .limitToFirst(10)
+                        .once('value')
+                        .then(snapshot => {
+                            const records = [];
+                            snapshot.forEach(s => {
+                                const d = s.val();
+                                if (d.modes?.[gameMode]?.bestTime != null) {
+                                    records.push({
+                                        username: d.username,
+                                        time: d.modes[gameMode].bestTime,
+                                        gamesPlayed: d.modes[gameMode].count || 0,
+                                        isCurrentUser: false
+                                    });
+                                }
+                            });
+                            records.push({
+                                username: currentUsername,
+                                time: parseFloat(finishTime),
+                                gamesPlayed: '—',
+                                isTemp: true
+                            });
+                            records.sort((a, b) => a.time - b.time);
+                            renderTempLeaderboard(records.slice(0, 11), gameMode, parseFloat(finishTime));
+                        })
+                        .catch(() => {
+                            renderTempLeaderboard([
+                                { username: currentUsername, time: parseFloat(finishTime), gamesPlayed: '—', isTemp: true }
+                            ], gameMode, parseFloat(finishTime));
+                        });
+                    return;
+                }
+
                 // 更新用戶統計并保存遊戲記錄
                 updateUserStats(currentUsername, gameMode, parseFloat(finishTime))
                     .then(() => {
@@ -1664,6 +1698,25 @@ function renderLeaderboard(records, mode, currentTime) {
     
     // 後臺更新最新數據
     updateLeaderboard(mode, currentTime);
+}
+
+// 臨時排行榜渲染（用於 excludedUsers，不寫庫）
+function renderTempLeaderboard(records, mode, currentTime) {
+    const body = document.getElementById('leaderboard-body');
+    body.innerHTML = '';
+    records.forEach((record, index) => {
+        const row = document.createElement('tr');
+        if (record.isTemp) row.classList.add('current-user');
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${record.username}${record.isTemp ? '（本局）' : ''}</td>
+            <td>${typeof record.time === 'number' ? record.time.toFixed(1) : record.time}</td>
+            <td>${record.gamesPlayed}</td>
+        `;
+        body.appendChild(row);
+    });
+    document.getElementById('completion-time').textContent = `用時: ${currentTime}秒 (模式: ${mode})`;
+    document.getElementById('completion-modal').classList.add('active');
 }
 
 // 後臺更新排行榜數據
