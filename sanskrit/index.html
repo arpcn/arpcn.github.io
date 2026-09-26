@@ -854,6 +854,23 @@ button:disabled {
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
+/* ============================================================
+   成績缺項說明
+
+   排行榜查詢用 orderByChild('modes/{模式}/bestTime').limitToFirst(10)，
+   缺某模式的用戶在該模式路徑為 null，仍佔 limitToFirst(10) 名額，
+   導致排行榜不足 10 人。
+
+   補足方式（二選一）：
+   1. 用戶登錄時，若 userStats/{用戶名} 不存在，補足四模式成績。
+   2. 加新用戶時，whitelistedUsers 和 userStats 一起寫，
+      userStats 四模式 100、gameCount: 0。
+
+   佔位格式：
+   "模式": { "bestTime": 100, "count": 0, "lastPlayed": 0 }
+
+   當前選擇：手動補，登錄預置代碼不加。
+   ============================================================ */
 const firebaseConfig = {
     apiKey: "AIzaSyAvxH-5gah6gVufzNFrne-c7VfU6VSpcyQ",
     authDomain: "arbzn09.firebaseapp.com",
