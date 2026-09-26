@@ -1149,6 +1149,12 @@ function forceTraditionalUsername(inputUsername) {
   '愿': '願',
   '云': '雲',
   '泽': '澤',
+  '杨': '楊',
+  '玮': '瑋',
+  '涛': '濤',
+  '圣': '聖',
+  '诚': '誠',
+  '广': '廣',
   // 可擴展其他需要強制轉換的字
 };
   canonicalUsername =  inputUsername.replace(/[会论双游愿云泽]/g, char => forcedConversionMap[char] || char);
@@ -1973,11 +1979,23 @@ document.getElementById('username-submit-btn').addEventListener('click', functio
                     if (snapshot.exists()) {
                         // 驗證密碼
                         if (snapshot.val().password === password) {
-                           currentUsername = username;
-                           localStorage.setItem('devanagariGameUsername', username);
-                           document.getElementById('username-modal').classList.remove('active');
-                           updateUsernameDisplay();
-                        } else {
+                            const statsRef = firebase.database().ref(`userStats/${sanitizedUsername}`);
+                            statsRef.once('value').then(statsSnap => {
+                                if (!statsSnap.exists()) {
+                                    const MODES = ['元音', '輔音', '數字', '混合'];
+                                    const init = { username: username, gameCount: 0, modes: {} };
+                                    MODES.forEach(m => {
+                                        init.modes[m] = { bestTime: 100, count: 0, lastPlayed: 0 };
+                                    });
+                                    return statsRef.set(init);
+                                }
+                            }).then(() => {
+                                currentUsername = username;
+                                localStorage.setItem('devanagariGameUsername', username);
+                                document.getElementById('username-modal').classList.remove('active');
+                                updateUsernameDisplay();
+                            });
+                        }else {
                             throw new Error('密碼錯誤');
                         }
                     } else {
