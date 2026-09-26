@@ -1979,23 +1979,11 @@ document.getElementById('username-submit-btn').addEventListener('click', functio
                     if (snapshot.exists()) {
                         // 驗證密碼
                         if (snapshot.val().password === password) {
-                            const statsRef = firebase.database().ref(`userStats/${sanitizedUsername}`);
-                            statsRef.once('value').then(statsSnap => {
-                                if (!statsSnap.exists()) {
-                                    const MODES = ['元音', '輔音', '數字', '混合'];
-                                    const init = { username: username, gameCount: 0, modes: {} };
-                                    MODES.forEach(m => {
-                                        init.modes[m] = { bestTime: 100, count: 0, lastPlayed: 0 };
-                                    });
-                                    return statsRef.set(init);
-                                }
-                            }).then(() => {
-                                currentUsername = username;
-                                localStorage.setItem('devanagariGameUsername', username);
-                                document.getElementById('username-modal').classList.remove('active');
-                                updateUsernameDisplay();
-                            });
-                        }else {
+                           currentUsername = username;
+                           localStorage.setItem('devanagariGameUsername', username);
+                           document.getElementById('username-modal').classList.remove('active');
+                           updateUsernameDisplay();
+                        } else {
                             throw new Error('密碼錯誤');
                         }
                     } else {
