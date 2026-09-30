@@ -1394,7 +1394,7 @@ function handleCardClick(index) {
                             const records = [];
                             snapshot.forEach(s => {
                                 const d = s.val();
-                                if (d.modes?.[gameMode]?.bestTime != null) {
+                                if (d.modes?.[gameMode]?.bestTime != null && d.modes[gameMode].count > 0) {
                                     records.push({
                                         username: d.username,
                                         time: d.modes[gameMode].bestTime,
@@ -1590,7 +1590,7 @@ function preloadLeaderboardData() {
                 const records = [];
                 snapshot.forEach(userSnapshot => {
                     const userData = userSnapshot.val();
-                    if (userData.modes && userData.modes[mode]) {
+                    if (userData.modes && userData.modes[mode] && userData.modes[mode].count > 0) {
                         records.push({
                             username: userData.username,
                             time: userData.modes[mode].bestTime,
@@ -1630,7 +1630,7 @@ function getLeaderboard(mode, currentTime) {
             // 處理全局排行榜數據
             globalSnapshot.forEach(userSnapshot => {
                 const userData = userSnapshot.val();
-                if (userData.modes && userData.modes[mode]) {
+                if (userData.modes && userData.modes[mode] && userData.modes[mode].count > 0) {
                     records.push({
                         username: userData.username,
                         time: userData.modes[mode].bestTime,
@@ -1735,7 +1735,7 @@ function updateLeaderboard(mode, currentTime) {
         // 處理全局排行榜數據
         globalSnapshot.forEach(userSnapshot => {
             const userData = userSnapshot.val();
-            if (userData.modes && userData.modes[mode]) {
+            if (userData.modes && userData.modes[mode] && userData.modes[mode].count > 0) {
                 records.push({
                     username: userData.username,
                     time: userData.modes[mode].bestTime,
