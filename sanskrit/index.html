@@ -463,18 +463,6 @@ button:disabled {
         0 3px 12px rgba(0,0,0,0.5);
     }
 
-    .leaderboard tr:nth-child(even) {
-        background-color: #3d3d3d;
-    }
-    
-    .leaderboard th, .leaderboard td {
-        border-bottom: 1px solid #555;
-    }
-    
-    .current-record {
-        background-color: rgba(255, 215, 0, 0.1) !important;
-    }
-
     /* 主界面 */
     .game-container {
         background: #23272b;
@@ -506,6 +494,54 @@ button:disabled {
     }
     .modal-content h3 {
         color: #f5f6fa;
+    }
+
+    /* 下自訂 alert */
+    .custom-alert-box {
+        background-color: #2d3436;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .custom-alert-content #custom-alert-message {
+        color: #ffb4a2;
+    }
+    .custom-alert-buttons {
+        border-top: 1px solid #555;
+    }
+
+    /* 取消按鈕對比 */
+    .cancel-btn {
+        background-color: #4a4a4a;
+        color: #f5f6fa;
+    }
+    .cancel-btn:hover {
+        background-color: #5a5a5a;
+    }
+
+    /* 排行榜表格完整統一 */
+    .leaderboard th {
+        background-color: var(--primary);
+        color: #fff;
+    }
+    .leaderboard td {
+        color: #f5f6fa;
+    }
+    .leaderboard th, .leaderboard td {
+        border-bottom: 1px solid #555;
+    }
+    .leaderboard tr:nth-child(even) {
+        background-color: #3d3d3d;
+    }
+    .leaderboard tr:nth-child(odd) {
+        background-color: #2d3436;
+    }
+    .current-user {
+        background-color: rgba(255, 215, 0, 0.15) !important;
+    }
+    .current-user td {
+        border-left: 3px solid gold;
+    }
+    .current-record {
+        background-color: rgba(255, 215, 0, 0.15) !important;
     }
 }
 
