@@ -1151,13 +1151,15 @@ function checkUsername() {
                     localStorage.removeItem('devanagariGameUsername');
                     updateUsernameDisplay(); // 更新顯示
                 } else {
+                    const queryUser = currentUsername;   // ★ 記錄發起查詢時的用戶
                     firebase.database().ref('excludedUsers/' + currentUsername.replace(/[.$#[\]/]/g, '_'))
                         .once('value')
                         .then(snapshot => {
-                            if (snapshot.exists()) {
-                                isExcludedUsersLoaded = true;
-                               //  alert("此賬戶是排除用户");
-                            }
+                            if (queryUser !== currentUsername) return;   // ★ 用戶已切換，丟棄過期結果
+                            isExcludedUsersLoaded = snapshot.exists();   // ★ 存在設 true，不存在設 false
+                            // if (snapshot.exists()) {
+                            //    alert("此賬戶是排除用户");
+                            // }
                         })
                         .catch(error => {
                             console.error("檢查排除用户失敗:", error);
@@ -1186,7 +1188,55 @@ function clearUserData() {
     localStorage.removeItem('devanagariGameUsername');
     cachedUserHistory = [];
     sessionStorage.removeItem('cachedHistory');
+    isExcludedUsersLoaded = false;   // 重置排除用戶標誌
+    // 清空排行榜緩存，避免顯示舊用戶數據
+    ['vowels', 'consonants', 'numbers', 'mixed'].forEach(m => {
+        sessionStorage.removeItem(`leaderboard_${m}`);
+        preloadedLeaderboardData[m] = null;
+    });
     updateUsernameDisplay();
+}
+
+// 用戶切換完成後的統一處理：重置狀態、重新校驗、重新預加載
+function onUserChanged(username) {
+    currentUsername = username;
+    localStorage.setItem('devanagariGameUsername', username);
+    isExcludedUsersLoaded = false;          // ★ 重置排除用戶標誌
+    cachedUserHistory = [];                  // ★ 清空歷史緩存
+    sessionStorage.removeItem('cachedHistory');
+    // 清空排行榜緩存，避免顯示舊用戶數據
+    Object.keys(preloadedLeaderboardData).forEach(k => preloadedLeaderboardData[k] = null);
+    ['vowels', 'consonants', 'numbers', 'mixed'].forEach(m => {
+        sessionStorage.removeItem(`leaderboard_${m}`);
+    });
+
+    document.getElementById('username-modal').classList.remove('active');
+    updateUsernameDisplay();
+
+    // ★ 重新檢查黑名單/排除用戶，並在完成後再預加載
+    recheckUserStatus(username).then(() => {
+        preloadLeaderboardData();
+        preloadUserHistory();
+    }).catch(error => {
+        console.error("重新校驗用戶狀態失敗:", error);
+    });
+}
+
+// 按指定用戶重新校驗黑名單與排除用戶狀態
+function recheckUserStatus(username) {
+    const sanitized = username.replace(/[.$#[\]/]/g, '_');
+    return firebase.database().ref('blacklistedUsers/' + sanitized).once('value')
+        .then(snap => {
+            if (snap.exists()) {
+                alert("抱歉，此賬戶已被限制使用");
+                clearUserData();
+                throw new Error("BLACKLISTED");
+            }
+            return firebase.database().ref('excludedUsers/' + sanitized).once('value');
+        })
+        .then(snap => {
+            isExcludedUsersLoaded = snap.exists();  // ★ 按新用戶真實狀態設置
+        });
 }
 
 function updateUsernameDisplay() {
@@ -1437,6 +1487,8 @@ function handleCardClick(index) {
                 const finishTime = (timeElapsed / 10).toFixed(1);
                 const gameMode = document.querySelector(".game-modes button.active").textContent;
                 const modeKey = document.querySelector(".game-modes button.active").id.replace("-btn", "");
+
+                if (!currentUsername) return;   // 防禦性保護 ★ 用戶已退出，不寫庫
                 
                 // 如果有預加載數據，直接使用
                 if (preloadedLeaderboardData[modeKey]) {
@@ -2023,6 +2075,8 @@ document.getElementById('logout-btn').addEventListener('click', function() {
 document.getElementById('relogin-btn').addEventListener('click', function() {
     // 重新登錄
     document.getElementById('user-action-dialog').style.display = 'none';
+    clearUserData();          // ★ 先清理舊用戶狀態
+    isExcludedUsersLoaded = false;  // ★ 重置標誌
     showLoginModal();
 });
 
@@ -2091,10 +2145,7 @@ document.getElementById('username-submit-btn').addEventListener('click', functio
                     if (snapshot.exists()) {
                         // 驗證密碼
                         if (snapshot.val().password === password) {
-                           currentUsername = username;
-                           localStorage.setItem('devanagariGameUsername', username);
-                           document.getElementById('username-modal').classList.remove('active');
-                           updateUsernameDisplay();
+                           onUserChanged(username);   // ★ 統一處理用戶切換
                         } else {
                             throw new Error('密碼錯誤');
                         }
