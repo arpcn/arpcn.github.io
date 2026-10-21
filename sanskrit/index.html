@@ -1490,8 +1490,8 @@ function handleCardClick(index) {
 
                 if (!currentUsername) return;   // 防禦性保護 ★ 用戶已退出，不寫庫
                 
-                // 如果有預加載數據，直接使用
-                if (preloadedLeaderboardData[modeKey]) {
+                // 如果有預加載數據，直接使用（遊客不走這裏）
+                if (!isExcludedUsersLoaded && preloadedLeaderboardData[modeKey]) {
                     renderLeaderboard(preloadedLeaderboardData[modeKey], gameMode, parseFloat(finishTime));
                 }
 
