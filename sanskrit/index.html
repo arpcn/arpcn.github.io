@@ -1807,8 +1807,10 @@ function renderLeaderboard(records, mode, currentTime) {
     document.getElementById('completion-time').textContent = `用時: ${currentTime}秒 (模式: ${mode})`;
     document.getElementById('completion-modal').classList.add('active');
     
-    // 後臺更新最新數據
-    updateLeaderboard(mode, currentTime);
+    // 後臺更新最新數據（延遲 1 秒，避開首屏請求高峰）
+    setTimeout(() => {
+        updateLeaderboard(mode, currentTime);
+    }, 1000);
 }
 
 // 臨時排行榜渲染（用於 excludedUsers，不寫庫）
